@@ -1,6 +1,5 @@
 """Tests for path utilities"""
 
-from math import pow
 from pathlib import Path
 from string import ascii_letters as alphachars
 from hypothesis import given, strategies as st
@@ -9,7 +8,6 @@ from gertils.paths import (
     EXPERIMENT_NUMBER_CHARACTER_COUNT,
     GROUPS_HOME,
     IllegalExperimentNumberException,
-    _experiments_folder_path,
     _get_experiment_index,
     get_experiment_path,
 )
@@ -24,6 +22,7 @@ negative_integer = st.integers(max_value=-1)
 
 
 def excessive_integer(inclusive_lower_bound: int = MAX_INT_REPRESENTABLE + 1):
+    """Strategy for generating experiment number in excess of representable"""
     return st.integers(min_value=inclusive_lower_bound)
 
 

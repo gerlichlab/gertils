@@ -5,8 +5,13 @@ import sys
 from setuptools import setup
 
 
-with open("gertils/_version.py", "r") as versionfile:
-    version = versionfile.readline().split()[-1].strip("\"'\n")
+versionfile_relpath = "gertils/_version.py"
+with open(versionfile_relpath, "r") as versionfile:
+    version_lines = [l for l in versionfile if l.startswith("__version__")]
+    assert (
+        len(version_lines) == 1
+    ), f"{len(version_lines)} lines in version file ({versionfile_relpath}) look version-like"
+    version = version_lines[0].split()[-1].strip("\"'\n")
 
 with open("README.md") as f:
     long_description = f.read()

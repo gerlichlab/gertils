@@ -1,7 +1,7 @@
 """General utilities for working with paths"""
 
 from pathlib import Path
-from typing import *
+from typing import *  # pylint: disable=wildcard-import, unused-wildcard-import
 
 __author__ = "Vince Reuter"
 __email__ = "vincent.reuter@imba.oeaw.ac.at"
@@ -19,7 +19,7 @@ class IllegalExperimentNumberException(Exception):
     """Error type for when an experiment number is illegal."""
 
     def __init__(self, exp_num: int, message: str):
-        super(IllegalExperimentNumberException, self).__init__(message)
+        super().__init__(message)
         self._exp_num = exp_num
 
     @property
@@ -39,7 +39,7 @@ def get_experiment_path(
     if len(str(exp)) > EXPERIMENT_NUMBER_CHARACTER_COUNT:
         raise IllegalExperimentNumberException(
             exp_num=exp,
-            message=f"Impossible to represent given experiment number with {EXPERIMENT_NUMBER_CHARACTER_COUNT} characters: {exp}",
+            message=f"Impossible to represent given experiment number with {EXPERIMENT_NUMBER_CHARACTER_COUNT} characters: {exp}",  # pylint: disable=line-too-long
         )
     idx = _get_experiment_index(exp)
     idx_str = str(idx).zfill(EXPERIMENT_NUMBER_CHARACTER_COUNT)
