@@ -22,7 +22,7 @@ jobs:
       - name: Install linter dependencies
         run: pip install -r requirements/requirements-lint.txt
       - name: Run mypy on ${{ matrix.python-version }}
-        run: mypy gertils tests
+        run: mypy gertils
       - name: Run pylint on ${{ matrix.python-version }}
         run: pylint gertils tests
 
