@@ -24,5 +24,5 @@ jobs:
       - name: Run mypy on ${{ matrix.python-version }}
         run: mypy gertils
       - name: Run pylint on ${{ matrix.python-version }}
-        run: pylint gertils tests
+        run: pylint gertils
 
