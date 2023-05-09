@@ -1,0 +1,6 @@
+# Build-related
+build/
+gertils.egg-info/
+.hypothesis/
+tests/__pycache__/
+
