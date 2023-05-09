@@ -26,5 +26,5 @@ jobs:
       - name: Run codespell formatting check
         run: codespell --enable-colors
       - name: Run isort formatting check
-        run: isort gertils tests --profile black --check --diff --color
+        run: isort gertils tests --check --diff --color --combine-as --profile black
 
