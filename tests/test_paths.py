@@ -2,8 +2,10 @@
 
 from pathlib import Path
 from string import ascii_letters as alphachars
-from hypothesis import given, strategies as st
+
 import pytest
+from hypothesis import given, strategies as st
+
 from gertils.paths import (
     EXPERIMENT_NUMBER_CHARACTER_COUNT,
     GROUPS_HOME,
