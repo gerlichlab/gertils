@@ -1,6 +1,9 @@
 # Build-related
 build/
 gertils.egg-info/
+
+# Test-related
 .hypothesis/
-tests/__pycache__/
+*/__pycache__/
+.coverage
 
