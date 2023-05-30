@@ -4,10 +4,10 @@ import pytest
 from gertils.exceptions import TensorflowNotFoundException
 
 
-def test_gpu_import_depends_on_tensorflow_presence():
+def test_gpu_import__errors_without_tensorflow_and_otherwise_has_correct_public_members():
     try:
         import tensorflow
-    except ImportError:
+    except ModuleNotFoundError:
         with pytest.raises(TensorflowNotFoundException) as err_ctx:
             import gertils.gpu
         assert isinstance(err_ctx.value, TensorflowNotFoundException)

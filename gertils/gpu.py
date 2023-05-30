@@ -4,7 +4,7 @@ from typing import *
 
 try:
     import tensorflow as tf
-except ImportError as e:
+except ModuleNotFoundError as e:
     print(f"ERROR: Cannot import tensorflow, so cannot use module: {__file__}")
     raise e
 else:
