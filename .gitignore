@@ -7,3 +7,6 @@ gertils.egg-info/
 */__pycache__/
 .coverage
 
+# IDE-related
+.idea/
+
