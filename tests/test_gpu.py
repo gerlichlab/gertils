@@ -1,6 +1,7 @@
 """Tests for GPU-related utilities"""
 
 import pytest
+
 from gertils.exceptions import TensorflowNotFoundException
 
 
