@@ -1,12 +1,13 @@
 """Utilities for working with GPUs"""
 
 from typing import *
+from .exceptions import TensorflowNotFoundException
 
 try:
     import tensorflow as tf
 except ModuleNotFoundError as e:
     print(f"ERROR: Cannot import tensorflow, so cannot use module: {__file__}")
-    raise e
+    raise TensorflowNotFoundException()
 else:
     from tensorflow.python.eager.context import PhysicalDevice as TFPhysDev
 

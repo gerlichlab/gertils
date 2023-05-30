@@ -6,8 +6,9 @@ __all__ = ["GerlichToolsException", "TensorflowNotFoundException"]
 
 
 class GerlichToolsException(Exception):
+    """Base exception type for this package"""
     pass
 
-
 class TensorflowNotFoundException(GerlichToolsException):
+    """Error type for when tensorflow is needed but not found"""
     pass
