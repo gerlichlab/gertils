@@ -3,29 +3,18 @@
 from pathlib import Path
 from typing import *  # pylint: disable=wildcard-import, unused-wildcard-import
 
+from .exceptions import IllegalExperimentNumberException
+
 __author__ = "Vince Reuter"
 __email__ = "vincent.reuter@imba.oeaw.ac.at"
 
-__all__ = ["IllegalExperimentNumberException", "get_experiment_path"]
+__all__ = ["get_experiment_path", "IllegalExperimentNumberException"]
 
 
 GROUPS_HOME = Path("/groups")
 EXPERIMENT_NUMBER_CHARACTER_COUNT = 6
 
 OptPath = Optional[Union[str, Path]]
-
-
-class IllegalExperimentNumberException(Exception):
-    """Error type for when an experiment number is illegal."""
-
-    def __init__(self, exp_num: int, message: str):
-        super().__init__(message)
-        self._exp_num = exp_num
-
-    @property
-    def number(self) -> int:
-        """Return the experiment number underlying this exception"""
-        return self._exp_num
 
 
 def get_experiment_path(
