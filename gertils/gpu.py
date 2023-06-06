@@ -18,6 +18,7 @@ __all__ = [
     "count_tensorflow_gpus",
     "list_tensorflow_gpus",
     "print_tensorflow_gpu_count",
+    "TensorflowNotFoundException",
 ]
 
 
