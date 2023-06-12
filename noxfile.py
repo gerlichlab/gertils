@@ -19,11 +19,11 @@ def install_groups(
 ) -> None:
     """Install Poetry dependency groups.
 
-    Install the given dependency groups into the session's virtual environment. 
+    Install the given dependency groups into the session's virtual environment.
     When 'include_self' is true, also installs this package and default dependencies.
 
     We cannot use `poetry install` here, because it ignores the
-    session's environment and installs into Poetry's own environment. 
+    session's environment and installs into Poetry's own environment.
     Instead, use `poetry export` with suitable options to generate a requirements.txt
     file to pass to session.install().
 

@@ -2,12 +2,18 @@
 
 __author__ = "Vince Reuter"
 
+__all__ = [
+    "GerlichToolsException",
+    "IllegalExperimentNumberException",
+    "TensorflowNotFoundException",
+]
+
 
 class GerlichToolsException(Exception):
     """Base exception type for this package"""
 
 
-class IllegalExperimentNumberException(Exception):
+class IllegalExperimentNumberException(GerlichToolsException):
     """Error type for when an experiment number is illegal."""
 
     def __init__(self, exp_num: int, message: str):

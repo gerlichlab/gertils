@@ -83,7 +83,7 @@ profile = "black"
 main.jobs = 4
 main.py-version = "3.8"
 reports.output-format = "colorized"
-"messages control".disable = "fixme,logging-fstring-interpolation,unspecified-encoding,too-few-public-methods,consider-using-in"
+"messages control".disable = "fixme,logging-fstring-interpolation,unspecified-encoding,too-few-public-methods,consider-using-in,wildcard-import,unused-wildcard-import"
 
 [tool.mypy]
 files = ['*.py', 'gertils/*.py', 'tests/*.py']
@@ -107,7 +107,7 @@ implicit_optional = false
 strict_optional = true
 
 [tool.codespell]
-skip = ".git,.mypy_cache,.nox,.vscode,__pycache__"
+skip = ".git,.mypy_cache,.nox,.vscode,__pycache__,pyproject.toml,poetry.lock"
 builtin = "clear,rare,informal,usage,code,names"
 ignore-words-list = "jupyter,iff"  # prevent jupyter -> jupiter, iff -> if
 check-filenames = true

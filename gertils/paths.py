@@ -8,7 +8,7 @@ from .exceptions import IllegalExperimentNumberException
 __author__ = "Vince Reuter"
 __email__ = "vincent.reuter@imba.oeaw.ac.at"
 
-__all__ = ["get_experiment_path", "IllegalExperimentNumberException"]
+__all__ = ["get_experiment_path"]
 
 
 GROUPS_HOME = Path("/groups")
