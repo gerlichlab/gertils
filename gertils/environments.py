@@ -1,11 +1,9 @@
 """Types and tools for working with environment specifications"""
 
-import copy
 from dataclasses import dataclass
 from pathlib import Path
 import string
 from typing import *
-import yaml
 
 __all__ = ["CondaEnvironmentSpecification", "IllegalEnvironmentOperationException", "PipEnvironmentSpecification", "RepeatedEnvironmentElementException", "combine_pip_environments", "conda2pip", "pip2conda", "pipfile_to_condafile", "read_pip_env_file", "write_env_file"]
 
