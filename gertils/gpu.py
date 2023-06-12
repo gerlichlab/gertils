@@ -27,9 +27,9 @@ def count_tensorflow_gpus() -> int:
     return len(list_tensorflow_gpus())
 
 
-def list_tensorflow_gpus() -> List[TFPhysDev]:
+def list_tensorflow_gpus() -> List[TFPhysDev]:  # type: ignore[no-any-unimported]
     """List the GPUs that tensorflow can see."""
-    return tf.config.list_physical_devices("GPU")
+    return tf.config.list_physical_devices("GPU")  # type: ignore[no-any-return]
 
 
 def print_tensorflow_gpu_count() -> None:

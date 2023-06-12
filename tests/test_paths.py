@@ -4,7 +4,8 @@ from pathlib import Path
 from string import ascii_letters as alphachars
 
 import pytest
-from hypothesis import given, strategies as st
+from hypothesis import given
+from hypothesis import strategies as st
 
 from gertils.paths import (
     EXPERIMENT_NUMBER_CHARACTER_COUNT,
@@ -41,7 +42,10 @@ def test_get_experiment_path__out_of_bounds_value_is_always_exceptional(
     exp_msg_prefix = (
         "Negative experiment number"
         if experiment < 0
-        else f"Impossible to represent given experiment number with {EXPERIMENT_NUMBER_CHARACTER_COUNT} characters"
+        else (
+            f"Impossible to represent given experiment number "
+            f"with {EXPERIMENT_NUMBER_CHARACTER_COUNT} characters"
+        )
     )
     assert err_ctx.value.number == experiment
     assert f"{exp_msg_prefix}: {experiment}" == str(err_ctx.value)

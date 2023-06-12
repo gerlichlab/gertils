@@ -7,7 +7,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.8", "3.11"]
+        python-version: ["3.8", "3.9", "3.10", "3.11"]
         os: [ubuntu-22.04]
     runs-on: ${{ matrix.os }}
 
@@ -17,12 +17,12 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Install project for ${{ matrix.python-version }} 
-        run: pip install .
-      - name: Install linter dependencies
-        run: pip install -r requirements/requirements-lint.txt
-      - name: Run mypy on ${{ matrix.python-version }}
-        run: mypy gertils
-      - name: Run pylint on ${{ matrix.python-version }}
-        run: pylint gertils
-
+      - uses: Gr1N/setup-poetry@v8
+      - uses: actions/cache@v2
+        with:
+          path: ~/.cache/pypoetry/virtualenvs
+          key: ${{ runner.os }}-poetry-lint-${{ hashFiles('poetry.lock') }}
+      - name: Install project
+        run: poetry install --no-interaction --sync --with=nox,lint
+      - name: Run linters on Python ${{ matrix.python-version }}
+        run: poetry run nox --no-venv --no-install --non-interactive -s lint

@@ -1,0 +1,118 @@
+[tool.poetry]
+name = "gertils"
+version = "0.1dev"
+description = "General computing utilities for data processing and analysis in the Gerlich group at IMBA"
+authors = [
+    "Vince Reuter <vince.reuter@gmail.com>",
+]
+readme = "README.md"
+license = "MIT"
+repository = "https://github.com/gerlichlab/gertils"
+classifiers = [
+    "Development Status :: 1 - Planning",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Utilities",
+    "Typing :: Typed",
+]
+
+[tool.poetry.dependencies]
+# These are the main runtime dependencies.
+python = "^3.8.0"
+
+[tool.poetry.group.nox]
+optional = true
+
+[tool.poetry.group.nox.dependencies]
+nox = "^2022.11.21"
+
+[tool.poetry.group.test]
+optional = true
+
+[tool.poetry.group.test.dependencies]
+hypothesis = "^6.68.2"
+pytest = "^7.1.0"
+
+[tool.poetry.group.lint]
+optional = true
+
+[tool.poetry.group.lint.dependencies]
+hypothesis = "^6.68.2"
+mypy = "^0.991"
+nox = "^2022.11.21"
+pydantic = "^1.10.4"
+pylint = "^2.15.8"
+pytest = "^7.1.0"
+types-setuptools = "^65.6.0.2" 
+
+[tool.poetry.group.format]
+optional = true
+
+[tool.poetry.group.format.dependencies]
+black = "^22"
+colorama = "^0.4.6"
+isort = ">=5.10,<5.12.0"
+codespell = "^2.2.2"
+
+[tool.poetry.group.dev]
+optional = true
+
+[tool.poetry.group.dev.dependencies]
+# The dev group is for developers' convenience. 
+# Consider each new dependency to another group as a dev group candidate.
+black = "^22"
+codespell = "^2.2.2"
+colorama = "^0.4.6"
+hypothesis = "^6.68.2"
+mypy = "^0.991"
+nox = "^2022.11.21"
+pylint = "^2.15.8"
+pytest = "^7.1.0"
+types-setuptools = "^65.6.0.2"
+
+[tool.black]
+target-version = ["py38"]
+
+[tool.isort]
+profile = "black"
+
+[tool.pylint]
+main.jobs = 4
+main.py-version = "3.8"
+reports.output-format = "colorized"
+"messages control".disable = "fixme,logging-fstring-interpolation,unspecified-encoding,too-few-public-methods,consider-using-in,wildcard-import,unused-wildcard-import"
+
+[tool.mypy]
+files = ['*.py', 'gertils/*.py', 'tests/*.py']
+plugins = ["pydantic.mypy"]
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_return_any = true
+warn_unreachable = true
+
+[[tool.mypy.overrides]]
+module = "gertils.*"
+disallow_untyped_defs = true
+disallow_untyped_calls = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_any_unimported = true
+disallow_any_explicit = true
+disallow_any_generics = true
+disallow_subclassing_any = true
+implicit_optional = false
+strict_optional = true
+
+[tool.codespell]
+skip = ".git,.mypy_cache,.nox,.vscode,__pycache__,pyproject.toml,poetry.lock"
+builtin = "clear,rare,informal,usage,code,names"
+ignore-words-list = "jupyter,iff"  # prevent jupyter -> jupiter, iff -> if
+check-filenames = true
+uri-ignore-words-list = "*" # prevent spelling correction in URL-like values.
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
