@@ -4,9 +4,12 @@ gertils.egg-info/
 
 # Test-related
 .hypothesis/
-*/__pycache__/
+*__pycache__/
 .coverage
 
 # IDE-related
 .idea/
+
+# Other
+.nox/
 
