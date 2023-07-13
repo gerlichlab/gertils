@@ -4,6 +4,9 @@ import pytest
 
 from gertils.exceptions import TensorflowNotFoundException
 
+__author__ = "Vince Reuter"
+__email__ = "vincent.reuter@imba.oeaw.ac.at"
+
 # pylint: disable=[import-outside-toplevel]
 
 

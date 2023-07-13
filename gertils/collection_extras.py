@@ -3,9 +3,9 @@
 from collections import OrderedDict
 from typing import *
 
-__author__ = "Vince Reuter"
-
 __all__ = ["count_repeats", "listify", "uniquify"]
+__author__ = "Vince Reuter"
+__email__ = "vincent.reuter@imba.oeaw.ac.at"
 
 # Very core abstractions related to collections are apt to use very generic
 # names deliberately to underscore the generality of the logic, so disable

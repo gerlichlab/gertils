@@ -12,14 +12,14 @@ except ModuleNotFoundError as e:
 else:
     from tensorflow.python.eager.context import PhysicalDevice as TFPhysDev  # type: ignore[import] # pylint: disable=line-too-long # isort:skip
 
-__author__ = "Vince Reuter"
-
 __all__ = [
     "count_tensorflow_gpus",
     "list_tensorflow_gpus",
     "print_tensorflow_gpu_count",
     "TensorflowNotFoundException",
 ]
+__author__ = "Vince Reuter"
+__email__ = "vincent.reuter@imba.oeaw.ac.at"
 
 
 def count_tensorflow_gpus() -> int:
