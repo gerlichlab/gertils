@@ -1,4 +1,4 @@
-"""General utilities for working with paths"""
+"""General utilities for working with Gerlich group paths"""
 
 from pathlib import Path
 from typing import *  # pylint: disable=wildcard-import, unused-wildcard-import

@@ -1,12 +1,12 @@
 """Custom exception types"""
 
-__author__ = "Vince Reuter"
-
 __all__ = [
     "GerlichToolsException",
     "IllegalExperimentNumberException",
     "TensorflowNotFoundException",
 ]
+__author__ = "Vince Reuter"
+__email__ = "vincent.reuter@imba.oeaw.ac.at"
 
 
 class GerlichToolsException(Exception):

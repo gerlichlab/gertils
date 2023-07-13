@@ -19,6 +19,8 @@ __all__ = [
     "read_pip_env_file",
     "write_env_file",
 ]
+__author__ = "Vince Reuter"
+__email__ = "vincent.reuter@imba.oeaw.ac.at"
 
 
 @dataclass

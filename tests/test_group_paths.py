@@ -7,7 +7,7 @@ import pytest
 from hypothesis import given
 from hypothesis import strategies as st
 
-from gertils.paths import (
+from gertils.group_paths import (
     EXPERIMENT_NUMBER_CHARACTER_COUNT,
     GROUPS_HOME,
     IllegalExperimentNumberException,
