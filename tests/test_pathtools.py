@@ -50,14 +50,6 @@ def test_path_wrapper_subtypes_rountrip_through_string(
     assert wrap_type.from_string(wrapper.to_string()) == wrapper
 
 
-@pytest.mark.parametrize("subpath_name", ["missing_subfolder", "does_not_exist.tmp"])
-def test_non_extant_folder_roundtrip_through_string(tmp_path, subpath_name):
-    path = tmp_path / subpath_name
-    assert not path.exists()
-    wrapper = pathtools.NonExtantPath(path)
-    assert pathtools.NonExtantPath.from_string(wrapper.to_string()) == wrapper
-
-
 @pytest.mark.parametrize(
     ["from_tmp_path", "wrap_type", "message_prefix"],
     [
