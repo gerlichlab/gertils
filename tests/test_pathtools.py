@@ -29,27 +29,6 @@ def test_path_wrapper_cannot_be_instantiated(wrapper):
     assert str(error_context.value) == get_exp_anc_err_msg(wrapper)
 
 
-@pytest.mark.parametrize(["wrap_type", "prepare_path"], PATH_PREPARATIONS.items())
-def test_path_wrapper_subtypes_provide_path_attribute_access(
-    tmp_path,
-    wrap_type,
-    prepare_path,
-):
-    path = tmp_path / "my-awesome-path"
-    prepare_path(path)
-    assert wrap_type(path).path == path
-
-
-@pytest.mark.parametrize(["wrap_type", "prepare_path"], PATH_PREPARATIONS.items())
-def test_path_wrapper_subtypes_rountrip_through_string(
-    tmp_path, prepare_path, wrap_type
-):
-    path = tmp_path / "my-awesome-path"
-    prepare_path(path)
-    wrapper = wrap_type(path)
-    assert wrap_type.from_string(wrapper.to_string()) == wrapper
-
-
 @pytest.mark.parametrize(
     ["from_tmp_path", "wrap_type", "message_prefix"],
     [
@@ -69,6 +48,28 @@ def test_path_wrapper_subtypes_invalidation(
     with pytest.raises(TypeError) as error_context:
         wrap_type(path)
     assert str(error_context.value) == f"{message_prefix}: {path}"
+
+
+
+@pytest.mark.parametrize(["wrap_type", "prepare_path"], PATH_PREPARATIONS.items())
+def test_path_wrapper_subtypes_provide_path_attribute_access(
+    tmp_path,
+    wrap_type,
+    prepare_path,
+):
+    path = tmp_path / "my-awesome-path"
+    prepare_path(path)
+    assert wrap_type(path).path == path
+
+
+@pytest.mark.parametrize(["wrap_type", "prepare_path"], PATH_PREPARATIONS.items())
+def test_path_wrapper_subtypes_rountrip_through_string(
+    tmp_path, prepare_path, wrap_type
+):
+    path = tmp_path / "my-awesome-path"
+    prepare_path(path)
+    wrapper = wrap_type(path)
+    assert wrap_type.from_string(wrapper.to_string()) == wrapper
 
 
 def get_exp_anc_err_msg(wrapper: Type) -> str:
