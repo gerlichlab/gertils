@@ -6,7 +6,7 @@ from typing import Iterable
 
 import nox
 
-PYTHON_VERSIONS = ["3.8", "3.9", "3.10", "3.11"]
+PYTHON_VERSIONS = ["3.10", "3.11"]
 TESTS_SUBFOLDER = "tests"
 PACKAGE_NAME = "gertils"
 

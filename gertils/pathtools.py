@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from pathlib import Path
 from typing import *
+from typing import Any
 
 __all__ = ["ExtantFile", "ExtantFolder", "NonExtantPath", "PathWrapperException"]
 __author__ = "Vince Reuter"
@@ -27,6 +28,11 @@ class PathWrapper(ABC):
         if not isinstance(self.path, Path):
             raise TypeError(f"Not a path, but {type(self.path).__name__}: {self.path}")
         self._invalidate()
+
+    def __setattr__(self, __name: str, __value: Any) -> None:  # type: ignore[misc]
+        result = super().__setattr__(__name, __value)
+        self.__post_init__()
+        return result
 
     @classmethod
     def from_string(cls: Type[PW], rawpath: str) -> PW:
