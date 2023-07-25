@@ -16,7 +16,6 @@ __all__ = [
     "count_tensorflow_gpus",
     "list_tensorflow_gpus",
     "print_tensorflow_gpu_count",
-    "TensorflowNotFoundException",
 ]
 __author__ = "Vince Reuter"
 __email__ = "vincent.reuter@imba.oeaw.ac.at"
