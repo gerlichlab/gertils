@@ -4,7 +4,6 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from pathlib import Path
 from typing import *
-from typing import Any
 
 __all__ = ["ExtantFile", "ExtantFolder", "NonExtantPath", "PathWrapperException"]
 __author__ = "Vince Reuter"
