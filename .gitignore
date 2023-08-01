@@ -9,6 +9,7 @@ gertils.egg-info/
 
 # IDE-related
 .idea/
+.vscode/
 
 # Other
 .nox/
