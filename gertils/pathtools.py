@@ -41,8 +41,6 @@ class PathWrapper(ABC):
 class PathWrapperException(Exception):
     """Exception subtype for working with paths with a particular property"""
 
-    pass
-
 
 class ExtantFile(PathWrapper):
     """Wrapper around a path that validates it as a file which exists"""
