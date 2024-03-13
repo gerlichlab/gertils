@@ -2,7 +2,7 @@
 
 """Tests for core utilities for working with paths"""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, FrozenInstanceError
 from pathlib import Path
 from typing import *
 
@@ -61,7 +61,7 @@ def test_path_wrapper_cannot_be_instantiated(wrapper):
 )
 def test_path_wrapper_subtypes_invalidation(tmp_path, parameterisation):
     path = parameterisation.from_tmp_path(tmp_path)
-    with pytest.raises(TypeError) as error_context:
+    with pytest.raises(pathtools.PathWrapperException) as error_context:
         parameterisation.wrap_type(path)
     assert str(error_context.value) == f"{parameterisation.exp_err_msg_prefix}: {path}"
 
@@ -76,12 +76,9 @@ def test_path_wrapper_immutability(tmp_path, parameterisation):
     good_path = tmp_path / "my-awesome-path"
     prepare_path(good_path)
     wrapper = parameterisation.wrap_type(good_path)
-    bad_path = parameterisation.from_tmp_path(tmp_path)
-    with pytest.raises(TypeError) as error_context:
-        wrapper.path = bad_path
-    assert (
-        str(error_context.value) == f"{parameterisation.exp_err_msg_prefix}: {bad_path}"
-    )
+    with pytest.raises(FrozenInstanceError) as error_context:
+        wrapper.path = wrapper.path
+    assert str(error_context.value) == f"cannot assign to field 'path'"
 
 
 @pytest.mark.parametrize(["wrap_type", "prepare_path"], PATH_PREPARATIONS.items())
@@ -96,7 +93,7 @@ def test_path_wrapper_subtypes_provide_path_attribute_access(
 
 
 @pytest.mark.parametrize(["wrap_type", "prepare_path"], PATH_PREPARATIONS.items())
-def test_path_wrapper_subtypes_rountrip_through_string(
+def test_path_wrapper_subtypes_roundtrip_through_string(
     tmp_path, prepare_path, wrap_type
 ):
     path = tmp_path / "my-awesome-path"
