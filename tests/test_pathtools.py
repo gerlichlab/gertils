@@ -2,7 +2,7 @@
 
 """Tests for core utilities for working with paths"""
 
-from dataclasses import dataclass, FrozenInstanceError
+from dataclasses import FrozenInstanceError, dataclass
 from pathlib import Path
 from typing import *
 
@@ -78,7 +78,7 @@ def test_path_wrapper_immutability(tmp_path, parameterisation):
     wrapper = parameterisation.wrap_type(good_path)
     with pytest.raises(FrozenInstanceError) as error_context:
         wrapper.path = wrapper.path
-    assert str(error_context.value) == f"cannot assign to field 'path'"
+    assert str(error_context.value) == "cannot assign to field 'path'"
 
 
 @pytest.mark.parametrize(["wrap_type", "prepare_path"], PATH_PREPARATIONS.items())
