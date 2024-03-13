@@ -13,7 +13,7 @@ __email__ = "vincent.reuter@imba.oeaw.ac.at"
 PW = TypeVar("PW", bound="PathWrapper")
 
 
-@dataclass
+@dataclass(frozen=True)
 class PathWrapper(ABC):
     """A Wrapper around a path that does some sort of validation"""
 
@@ -28,18 +28,10 @@ class PathWrapper(ABC):
             raise TypeError(f"Not a path, but {type(self.path).__name__}: {self.path}")
         self._invalidate()
 
-    def __setattr__(self, __name: str, __value: Any) -> None:  # type: ignore[misc]
-        result = super().__setattr__(__name, __value)
-        self.__post_init__()
-        return result
-
     @classmethod
     def from_string(cls: Type[PW], rawpath: str) -> PW:
         """Attempt to parse an instance from a raw string."""
-        try:
-            return cls(Path(rawpath))
-        except Exception as exc:
-            raise PathWrapperException(exc) from exc
+        return cls(Path(rawpath))
 
     def to_string(self) -> str:
         """Return a string representation of this wrapped value."""
@@ -49,9 +41,7 @@ class PathWrapper(ABC):
 class PathWrapperException(Exception):
     """Exception subtype for working with paths with a particular property"""
 
-    def __init__(self, original_exception: Exception) -> None:
-        super().__init__(str(original_exception))
-        self.original = original_exception
+    pass
 
 
 class ExtantFile(PathWrapper):
@@ -59,7 +49,7 @@ class ExtantFile(PathWrapper):
 
     def _invalidate(self) -> None:
         if not self.path.is_file():
-            raise TypeError(f"Not an extant file: {self.path}")
+            raise PathWrapperException(f"Not an extant file: {self.path}")
 
 
 class ExtantFolder(PathWrapper):
@@ -67,7 +57,7 @@ class ExtantFolder(PathWrapper):
 
     def _invalidate(self) -> None:
         if not self.path.is_dir():
-            raise TypeError(f"Not an extant folder: {self.path}")
+            raise PathWrapperException(f"Not an extant folder: {self.path}")
 
 
 class NonExtantPath(PathWrapper):
@@ -75,4 +65,4 @@ class NonExtantPath(PathWrapper):
 
     def _invalidate(self) -> None:
         if self.path.exists():
-            raise TypeError(f"Path already exists: {self.path}")
+            raise PathWrapperException(f"Path already exists: {self.path}")
