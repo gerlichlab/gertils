@@ -15,6 +15,7 @@ This project is configured to use Nix for a shell/environment with dependencies,
 1. Stop the shell build: `Ctrl-c`
 1. Remove the Poetry lockfile: `rm poetry.lock`
 1. Clear Poetry's PyPI cache (assuming you have an active Nix shell): `poetry cache clear PyPI --all`
+1. Say "yes" if/when prompted for confirmation of desire to clear the cache
 1. Exit Nix shell: `Ctrl-d`
-1. Rebuild Nix shell: `shell.nix`
+1. Restart Nix shell: `shell.nix`
 
