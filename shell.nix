@@ -2,14 +2,15 @@
   pkgs ? import (builtins.fetchGit {
     url = "https://github.com/NixOS/nixpkgs/";
     ref = "refs/tags/23.11";
-  }) {}
+  }) {}, 
+  dev ? true,
 }:
 let 
   py310 = pkgs.python310;
-  poetryExtras = [];
+  poetryExtras = if dev then ["dev"] else [];
   poetryInstallExtras = (
     if poetryExtras == [] then ""
-    else pkgs.lib.concatStrings [ " -E " (pkgs.lib.concatStringsSep " -E " poetryExtras) ]
+    else pkgs.lib.concatStrings [ " --with=" (pkgs.lib.concatStringsSep "," poetryExtras) ]
   );
 in
 pkgs.mkShell {
