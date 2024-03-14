@@ -55,7 +55,9 @@ def test_path_wrapper_cannot_be_instantiated(wrapper):
         wrapper(Path.cwd())
     obs_err_msg = str(error_context.value)
     # The error message should mention impossibility of instantiating an abstract class.
-    assert obs_err_msg.startswith(f"Can't instantiate abstract class {wrapper.__name__}")
+    assert obs_err_msg.startswith(
+        f"Can't instantiate abstract class {wrapper.__name__}"
+    )
     # The error message should mention the abstract method.
     assert "_invalidate" in obs_err_msg
 
