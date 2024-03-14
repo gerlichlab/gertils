@@ -4,24 +4,30 @@
     ref = "refs/tags/23.11";
   }) {}
 }:
-let
-  python310WithPoetry = (
-    pkgs.python310.withPackages (pypkgs: with pypkgs; [
-      poetry
-    ])
+let 
+  py310 = pkgs.python310;
+  poetryExtras = [];
+  poetryInstallExtras = (
+    if poetryExtras == [] then ""
+    else pkgs.lib.concatStrings [ " -E " (pkgs.lib.concatStringsSep " -E " poetryExtras) ]
   );
 in
 pkgs.mkShell {
   name = "gertils-env";
   buildInputs = with pkgs; [
-    python38
-    python39
-    python310WithPoetry
+    poetry
+    py310
     python311
+    python312
   ];
   shellHook = ''
-    poetry env use "${python310WithPoetry}/bin/python"
-    poetry install --sync --with=dev
+    # To get this working on the lab machine, we need to modify Poetry's keyring interaction:
+    # https://stackoverflow.com/questions/74438817/poetry-failed-to-unlock-the-collection
+    # https://github.com/python-poetry/poetry/issues/1917
+    export PYTHON_KEYRING_BACKEND=keyring.backends.null.Keyring
+    poetry env use "${py310}/bin/python"
+    export LD_LIBRARY_PATH="${pkgs.zlib}/lib:${pkgs.stdenv.cc.cc.lib}/lib"
+    poetry install -vv --sync${poetryInstallExtras}
     source "$(poetry env info --path)/bin/activate"
   '';
 }
