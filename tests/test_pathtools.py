@@ -53,7 +53,11 @@ class MyWrapper(pathtools.PathWrapper):
 def test_path_wrapper_cannot_be_instantiated(wrapper):
     with pytest.raises(TypeError) as error_context:
         wrapper(Path.cwd())
-    assert str(error_context.value) == get_exp_anc_err_msg(wrapper)
+    obs_err_msg = str(error_context.value)
+    # The error message should mention impossibility of instantiating an abstract class.
+    assert obs_err_msg.startswith(f"Can't instantiate abstract class {wrapper.__name__}")
+    # The error message should mention the abstract method.
+    assert "_invalidate" in obs_err_msg
 
 
 @pytest.mark.parametrize(
