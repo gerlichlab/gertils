@@ -20,14 +20,13 @@ pkgs.mkShell {
     py310
     python311
     python312
-  ];
+  ] ++ (if dev then [ pkgs.poetryPlugins.poetry-plugin-export ] else []);
   shellHook = ''
     # To get this working on the lab machine, we need to modify Poetry's keyring interaction:
     # https://stackoverflow.com/questions/74438817/poetry-failed-to-unlock-the-collection
     # https://github.com/python-poetry/poetry/issues/1917
     export PYTHON_KEYRING_BACKEND=keyring.backends.null.Keyring
     poetry env use "${py310}/bin/python"
-    export LD_LIBRARY_PATH="${pkgs.zlib}/lib:${pkgs.stdenv.cc.cc.lib}/lib"
     poetry install -vv --sync${poetryInstallExtras}
     source "$(poetry env info --path)/bin/activate"
   '';
