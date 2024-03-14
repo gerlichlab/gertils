@@ -1,4 +1,0 @@
-black
-codespell
-colorama # for isort --color
-isort
