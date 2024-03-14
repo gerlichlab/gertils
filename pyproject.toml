@@ -73,7 +73,7 @@ pytest = "^7.1.0"
 types-setuptools = "^65.6.0.2"
 
 [tool.black]
-target-version = ["py38"]
+target-version = ["py310"]
 
 [tool.isort]
 profile = "black"
@@ -82,7 +82,7 @@ profile = "black"
 main.jobs = 4
 main.py-version = "3.10"
 reports.output-format = "colorized"
-"messages control".disable = "fixme,logging-fstring-interpolation,unspecified-encoding,too-few-public-methods,consider-using-in,wildcard-import,unused-wildcard-import"
+"messages control".disable = "logging-fstring-interpolation,unspecified-encoding,wildcard-import,unused-wildcard-import"
 
 [tool.mypy]
 files = ['*.py', 'gertils/*.py', 'tests/*.py']
