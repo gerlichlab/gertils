@@ -44,6 +44,14 @@ def install_groups(
     hashfile = requirements_txt.with_suffix(".hash")
 
     if not hashfile.is_file() or hashfile.read_text() != digest:
+        # First, adjust settings to avoid warning that we cover in shell.nix.
+        # See: https://python-poetry.org/blog/announcing-poetry-1.7.0/
+        argv = [
+            "poetry",
+            "config",
+            "warnings.export",
+            "false",
+        ]
         session.log(f"Will generate requirements hashfile: {hashfile}")
         requirements_txt.parent.mkdir(parents=True, exist_ok=True)
         argv = [
