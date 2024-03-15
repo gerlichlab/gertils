@@ -45,7 +45,6 @@ nox = "^2022.11.21"
 pydantic = "^1.10.4"
 pylint = "^2.15.8"
 pytest = "^7.1.0"
-types-setuptools = "^65.6.0.2" 
 
 [tool.poetry.group.format]
 optional = true
@@ -71,7 +70,6 @@ nox = "^2022.11.21"
 pydantic = "^1.10.4"
 pylint = "^2.15.8"
 pytest = "^7.1.0"
-types-setuptools = "^65.6.0.2"
 
 [tool.black]
 target-version = ["py310"]

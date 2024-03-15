@@ -589,31 +589,6 @@ files = [
 ]
 
 [[package]]
-name = "types-docutils"
-version = "0.20.0.20240311"
-description = "Typing stubs for docutils"
-optional = false
-python-versions = ">=3.8"
-files = [
-    {file = "types-docutils-0.20.0.20240311.tar.gz", hash = "sha256:b29df362e9e6efcba68e27af78135902d56614f6fa76c073d29989272eedb069"},
-    {file = "types_docutils-0.20.0.20240311-py3-none-any.whl", hash = "sha256:7d6ade724d89c7cbec390da4c63104f46d3f4e3eff0804998b38a274aa1e3d0c"},
-]
-
-[[package]]
-name = "types-setuptools"
-version = "65.7.0.4"
-description = "Typing stubs for setuptools"
-optional = false
-python-versions = "*"
-files = [
-    {file = "types-setuptools-65.7.0.4.tar.gz", hash = "sha256:147809433301fe7e0f4ef5c0782f9a0453788960575e1efb6da5fe8cb2493c9f"},
-    {file = "types_setuptools-65.7.0.4-py3-none-any.whl", hash = "sha256:522067dfd8e1771f8d7e047e451de2740dc4e0c9f48a22302a6cc96e6c964a13"},
-]
-
-[package.dependencies]
-types-docutils = "*"
-
-[[package]]
 name = "typing-extensions"
 version = "4.10.0"
 description = "Backported and Experimental Type Hints for Python 3.8+"
@@ -726,4 +701,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10.0"
-content-hash = "d2ff30acbb6c2a16344c95874275b8f527f7b9fa7d866ee660233e78feb8ea59"
+content-hash = "bd9db2d6d134a5f2ad7834c16e4320065df95c108040a26308851c1cdb681a76"
