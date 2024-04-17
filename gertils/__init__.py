@@ -2,6 +2,13 @@
 
 # mypy: ignore-errors
 
-from .collection_extras import *
-from .exceptions import *
-from .pathtools import *
+# Make things from various modules available at package level.
+from .pathtools import (
+    ExtantFile,
+    ExtantFolder,
+    NonExtantPath,
+    PathWrapperException,
+    find_multiple_paths_by_fov,
+    find_single_path_by_fov,
+    get_fov_sort_key,
+)

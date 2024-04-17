@@ -3,9 +3,9 @@
 import string
 from dataclasses import dataclass
 from pathlib import Path
-from typing import *
+from typing import Optional, Union
 
-from .collection_extras import count_repeats, listify, uniquify
+from .collection_extras import count_repeats, uniquify
 
 __all__ = [
     "CondaEnvironmentSpecification",
@@ -14,13 +14,9 @@ __all__ = [
     "RepeatedEnvironmentElementException",
     "combine_pip_environments",
     "conda2pip",
-    "pip2conda",
-    "pipfile_to_condafile",
     "read_pip_env_file",
     "write_env_file",
 ]
-__author__ = "Vince Reuter"
-__email__ = "vincent.reuter@imba.oeaw.ac.at"
 
 
 @dataclass
@@ -28,9 +24,9 @@ class CondaEnvironmentSpecification:
     """Specification of an environment to be managed by conda"""
 
     python_spec: str
-    channels: List[str]
-    conda_dependencies: List[str]
-    pip_dependencies: List[str]
+    channels: list[str]
+    conda_dependencies: list[str]
+    pip_dependencies: list[str]
     name: Optional[str]
 
     def __post_init__(self) -> None:
@@ -52,9 +48,7 @@ class CondaEnvironmentSpecification:
             raise RepeatedEnvironmentElementException(
                 f"Repeated elements by section for conda environment: {repeats}"
             )
-        python_likes = [
-            d for d in self.conda_dependencies if _is_python_like_dependency(d)
-        ]
+        python_likes = [d for d in self.conda_dependencies if _is_python_like_dependency(d)]
         if python_likes:
             raise RepeatedEnvironmentElementException(
                 "Python(s) specified among other conda environment dependencies; "
@@ -77,7 +71,7 @@ def _is_python_like_dependency(dep: str) -> bool:
 class PipEnvironmentSpecification:
     """Specification of an environment to be managed by pip"""
 
-    dependencies: List[str]
+    dependencies: list[str]
     name: Optional[str]
 
     def __post_init__(self) -> None:
@@ -100,15 +94,15 @@ def combine_pip_environments(
     *environments: PipEnvironmentSpecification,
 ) -> PipEnvironmentSpecification:
     """Combine multiple pip environment specifications."""
-    names = set(e.name for e in environments if e.name)
-    if len(names) == 0:
-        name = None
-    elif len(names) == 1:
-        name = list(names)[0]
-    else:
+    names = {e.name for e in environments if e.name}
+    if len(names) > 1:
         raise IllegalEnvironmentOperationException(
             f"Cannot combine pip environments with different names: {', '.join(names)}"
         )
+    try:
+        name = next(iter(names))
+    except StopIteration:
+        name = None
     deps = list(uniquify(dep for env in environments for dep in env.dependencies))
     return PipEnvironmentSpecification(name=name, dependencies=deps)
 
@@ -122,48 +116,11 @@ def conda2pip(env: CondaEnvironmentSpecification) -> PipEnvironmentSpecification
     return PipEnvironmentSpecification(dependencies=env.pip_dependencies, name=env.name)
 
 
-def pip2conda(
-    env: PipEnvironmentSpecification,
-    python_spec: str,
-    channels: Iterable[str] = (),
-    conda_dependencies: Iterable[str] = (),
-) -> CondaEnvironmentSpecification:
-    """Convert a pip environment to a conda one"""
-    return CondaEnvironmentSpecification(
-        python_spec=python_spec,
-        channels=listify(channels),
-        conda_dependencies=listify(conda_dependencies),
-        pip_dependencies=env.dependencies,
-        name=env.name,
-    )
-
-
-def pipfile_to_condafile(
-    pip_path: Path,
-    python_spec: str,
-    conda_path: Path,
-    overwrite: bool = False,
-    **kwargs: List[str],
-) -> Path:
-    """Write a pip environment specification file as a conda one."""
-    if conda_path.is_file():
-        if not overwrite:
-            raise FileExistsError(
-                f"Conda environment file already exists: {conda_path}"
-            )
-        print(f"Existing conda env file will be overwritten: {conda_path}")
-    pipenv = read_pip_env_file(pip_path)
-    condaenv = pip2conda(env=pipenv, python_spec=python_spec, **kwargs)
-    return write_env_file(env=condaenv, path=conda_path)
-
-
 def read_pip_env_file(path: Path) -> PipEnvironmentSpecification:
     """Parse a pip requirements.txt style file."""
-    with open(path, "r") as envfile:
-        lines = [l for l in envfile if l.strip()]
-    return PipEnvironmentSpecification(
-        name=None, dependencies=[l.strip() for l in lines]
-    )
+    with path.open() as envfile:
+        lines = [line for line in envfile if line.strip()]
+    return PipEnvironmentSpecification(name=None, dependencies=[line.strip() for line in lines])
 
 
 def write_env_file(
@@ -189,7 +146,7 @@ def write_env_file(
         raise TypeError(
             f"Environment to write to file is not a supported type: {type(env).__name__}"
         )
-    with open(path, "w") as envfile:
+    with path.open(mode="w") as envfile:
         for line in lines:
             envfile.write(line + "\n")
     return path

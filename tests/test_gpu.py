@@ -1,29 +1,12 @@
-"""Tests for GPU-related utilities"""
+"""Tests for the GPU tools"""
 
 import pytest
 
-from gertils.exceptions import TensorflowNotFoundException
 
-__author__ = "Vince Reuter"
-__email__ = "vincent.reuter@imba.oeaw.ac.at"
-
-# pylint: disable=[import-outside-toplevel]
-
-
-def test_gpu_import__errors_without_tensorflow_and_otherwise_has_correct_public_members():
-    try:
-        import tensorflow  # type: ignore[import] # pylint: disable=unused-import
-    except ModuleNotFoundError:
-        with pytest.raises(TensorflowNotFoundException) as err_ctx:
-            import gertils.gpu  # pylint: disable=unused-import
-        assert isinstance(err_ctx.value, TensorflowNotFoundException)
-    else:
-        from gertils import gpu as gputools
-
-        assert set(gputools.__all__) == set(
-            [
-                "count_tensorflow_gpus",
-                "list_tensorflow_gpus",
-                "print_tensorflow_gpu_count",
-            ]
-        )
+def test_no_tensorflow__causes_module_not_found_error_on_gpu_import():
+    with pytest.raises(ModuleNotFoundError):
+        import gertils.gpu
+    with pytest.raises(ModuleNotFoundError):
+        from gertils import gpu  # noqa: F401
+    # Does not raise an exception.
+    import gertils  # noqa: F401

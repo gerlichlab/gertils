@@ -2,9 +2,9 @@
 
 """Tests for core utilities for working with paths"""
 
+from collections.abc import Callable
 from dataclasses import FrozenInstanceError, dataclass
 from pathlib import Path
-from typing import *
 
 import pytest
 
@@ -27,21 +27,17 @@ class InvalidationParameterisation:
     """A parameterisation of an invalidation workflow and assertion for each path wrapper type"""
 
     from_tmp_path: Callable[[Path], Path]
-    wrap_type: Type
+    wrap_type: type
     exp_err_msg_prefix: str
 
 
 # An invalidation scheme for each of the path wrapper types
 INVALIDATION_PARAMETERISATIONS = [
-    InvalidationParameterisation(
-        lambda p: p, pathtools.ExtantFile, "Not an extant file"
-    ),
+    InvalidationParameterisation(lambda p: p, pathtools.ExtantFile, "Not an extant file"),
     InvalidationParameterisation(
         lambda p: p / "bogus_subfolder", pathtools.ExtantFolder, "Not an extant folder"
     ),
-    InvalidationParameterisation(
-        lambda p: p, pathtools.NonExtantPath, "Path already exists"
-    ),
+    InvalidationParameterisation(lambda p: p, pathtools.NonExtantPath, "Path already exists"),
 ]
 
 
@@ -55,9 +51,7 @@ def test_path_wrapper_cannot_be_instantiated(wrapper):
         wrapper(Path.cwd())
     obs_err_msg = str(error_context.value)
     # The error message should mention impossibility of instantiating an abstract class.
-    assert obs_err_msg.startswith(
-        f"Can't instantiate abstract class {wrapper.__name__}"
-    )
+    assert obs_err_msg.startswith(f"Can't instantiate abstract class {wrapper.__name__}")
     # The error message should mention the abstract method.
     assert "_invalidate" in obs_err_msg
 
@@ -87,7 +81,7 @@ def test_path_wrapper_immutability(tmp_path, parameterisation):
     assert str(error_context.value) == "cannot assign to field 'path'"
 
 
-@pytest.mark.parametrize(["wrap_type", "prepare_path"], PATH_PREPARATIONS.items())
+@pytest.mark.parametrize(("wrap_type", "prepare_path"), PATH_PREPARATIONS.items())
 def test_path_wrapper_subtypes_provide_path_attribute_access(
     tmp_path,
     wrap_type,
@@ -98,15 +92,13 @@ def test_path_wrapper_subtypes_provide_path_attribute_access(
     assert wrap_type(path).path == path
 
 
-@pytest.mark.parametrize(["wrap_type", "prepare_path"], PATH_PREPARATIONS.items())
-def test_path_wrapper_subtypes_roundtrip_through_string(
-    tmp_path, prepare_path, wrap_type
-):
+@pytest.mark.parametrize(("wrap_type", "prepare_path"), PATH_PREPARATIONS.items())
+def test_path_wrapper_subtypes_roundtrip_through_string(tmp_path, prepare_path, wrap_type):
     path = tmp_path / "my-awesome-path"
     prepare_path(path)
     wrapper = wrap_type(path)
     assert wrap_type.from_string(wrapper.to_string()) == wrapper
 
 
-def get_exp_anc_err_msg(wrapper: Type) -> str:
+def get_exp_anc_err_msg(wrapper: type) -> str:
     return f"Can't instantiate abstract class {wrapper.__name__} with abstract method _invalidate"
