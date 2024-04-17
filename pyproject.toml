@@ -13,6 +13,10 @@ classifiers = [
     "Programming Language :: Python",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
     "Topic :: Utilities",
     "Typing :: Typed",
 ]
