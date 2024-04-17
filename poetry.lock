@@ -535,17 +535,21 @@ files = [
 
 [[package]]
 name = "numpydoc-decorator"
-version = "2.2.0"
+version = "0.0.0"
 description = ""
 optional = false
 python-versions = ">=3.9,<3.13"
-files = [
-    {file = "numpydoc_decorator-2.2.0-py3-none-any.whl", hash = "sha256:7fd241622001cb733ed59d99f78cc67ee97c53b1769413de64e6c3a966dab97a"},
-    {file = "numpydoc_decorator-2.2.0.tar.gz", hash = "sha256:8e09e63613fbec2bac96a93ac5e6cd322856c97dc8b91cb63d80bdcabdb9c8b8"},
-]
+files = []
+develop = false
 
 [package.dependencies]
 typing_extensions = "*"
+
+[package.source]
+type = "git"
+url = "https://github.com/alimanfoo/numpydoc_decorator.git"
+reference = "a9cbb0a29544788bbfd83ed47082e3442d9e5364"
+resolved_reference = "a9cbb0a29544788bbfd83ed47082e3442d9e5364"
 
 [[package]]
 name = "packaging"
@@ -887,4 +891,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10.0,<3.12"
-content-hash = "b2111fe6383550644df0ebcb0da309d438ae02769fa53d37df364315719b96c6"
+content-hash = "0d5e333902708063d8a7fa646e1726109f23be64472a169bd7143bbd4a7e717f"
