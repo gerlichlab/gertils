@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.4.0] - 2024-04-17
 
 ### Added
 * Types and functions related to `geometry`
@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Some generally useful data types for genome biology (`types`)
 
 ### Changed
+* Adopted [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 * Adopted `ruff` for formatting (rather than `black`) and for linting (rather than `pylint`).
 
 ### Removed
