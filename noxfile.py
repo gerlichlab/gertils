@@ -7,7 +7,6 @@ from pathlib import Path
 import nox
 
 PYTHON_VERSIONS = ["3.10", "3.11"]
-TESTS_SUBFOLDER = "tests"
 PACKAGE_NAME = "gertils"
 
 
