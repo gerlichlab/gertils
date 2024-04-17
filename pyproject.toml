@@ -13,14 +13,54 @@ classifiers = [
     "Programming Language :: Python",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
     "Topic :: Utilities",
     "Typing :: Typed",
 ]
 
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
 [tool.poetry.dependencies]
 # These are the main runtime dependencies.
-python = "^3.10.0"
+python = ">=3.10.0,<3.12"
+dask = "^2023.5.1"
+numpy = "^1.24.2"
+numpydoc_decorator = "^2.2.0"
+zarr = "^2.4.12"
+
+[tool.poetry.group.dev]
+optional = true
+
+[tool.poetry.group.dev.dependencies]
+# The dev group is for developers' convenience. 
+# Consider each new dependency to another group as a dev group candidate.
+codespell = "^2.2.2"
+hypothesis = "^6.68.2"
+mypy = "1.0.1"
+nox = "^2022.11.21"
+pydantic = "^1.10.4"
+pytest = "^7.1.0"
+pytest-cov = "^5.0.0"
+ruff = ">=0.3"
+
+[tool.poetry.group.format]
+optional = true
+
+[tool.poetry.group.format.dependencies]
+codespell = "^2.2.2"
+ruff = ">=0.3"
+
+[tool.poetry.group.lint]
+optional = true
+
+[tool.poetry.group.lint.dependencies]
+hypothesis = "^6.68.2"
+mypy = "^1.0.1"
+nox = "^2022.11.21"
+pydantic = "^1.10.4"
+pytest = "^7.1.0"
+ruff = ">=0.3"
 
 [tool.poetry.group.nox]
 optional = true
@@ -34,54 +74,14 @@ optional = true
 [tool.poetry.group.test.dependencies]
 hypothesis = "^6.68.2"
 pytest = "^7.1.0"
+pytest-cov = "^5.0.0"
 
-[tool.poetry.group.lint]
-optional = true
-
-[tool.poetry.group.lint.dependencies]
-hypothesis = "^6.68.2"
-mypy = "^0.991"
-nox = "^2022.11.21"
-pydantic = "^1.10.4"
-pylint = "^2.15.8"
-pytest = "^7.1.0"
-
-[tool.poetry.group.format]
-optional = true
-
-[tool.poetry.group.format.dependencies]
-black = "^22"
-colorama = "^0.4.6"
-isort = ">=5.10,<5.12.0"
-codespell = "^2.2.2"
-
-[tool.poetry.group.dev]
-optional = true
-
-[tool.poetry.group.dev.dependencies]
-# The dev group is for developers' convenience. 
-# Consider each new dependency to another group as a dev group candidate.
-black = "^22"
-codespell = "^2.2.2"
-colorama = "^0.4.6"
-hypothesis = "^6.68.2"
-mypy = "^0.991"
-nox = "^2022.11.21"
-pydantic = "^1.10.4"
-pylint = "^2.15.8"
-pytest = "^7.1.0"
-
-[tool.black]
-target-version = ["py310"]
-
-[tool.isort]
-profile = "black"
-
-[tool.pylint]
-main.jobs = 4
-main.py-version = "3.10"
-reports.output-format = "colorized"
-"messages control".disable = "logging-fstring-interpolation,unspecified-encoding,wildcard-import,unused-wildcard-import"
+[tool.codespell]
+skip = ".git,.mypy_cache,.nox,.vscode,__pycache__,pyproject.toml,poetry.lock"
+builtin = "clear,rare,informal,usage,code,names"
+ignore-words-list = "jupyter,iff"  # prevent jupyter -> jupiter, iff -> if
+check-filenames = true
+uri-ignore-words-list = "*" # prevent spelling correction in URL-like values.
 
 [tool.mypy]
 files = ['*.py', 'gertils/*.py', 'tests/*.py']
@@ -90,6 +90,7 @@ warn_redundant_casts = true
 warn_unused_ignores = true
 warn_return_any = true
 warn_unreachable = true
+enable_error_code = ["ignore-without-code"]
 
 [[tool.mypy.overrides]]
 module = "gertils.*"
@@ -104,13 +105,76 @@ disallow_subclassing_any = true
 implicit_optional = false
 strict_optional = true
 
-[tool.codespell]
-skip = ".git,.mypy_cache,.nox,.vscode,__pycache__,pyproject.toml,poetry.lock"
-builtin = "clear,rare,informal,usage,code,names"
-ignore-words-list = "jupyter,iff"  # prevent jupyter -> jupiter, iff -> if
-check-filenames = true
-uri-ignore-words-list = "*" # prevent spelling correction in URL-like values.
+[tool.ruff]
+# Black uses line-length = 88, but allows exceptions when breaking the line
+# would lead to other rule violations. Use 100 as a maximum hard limit:
+line-length = 100
+target-version = "py310"
 
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+    # Missing members
+    "ANN10",  # Deprecated: Missing type annotation for self/cls in (class)method
+    "D105",  # Missing docstring in magic method
+    "ANN204", # Missing return type annotation for special method
+    
+    # Opinionated syntax
+    "D203", # Ignore this to instead opt for class body or docstring to possibly start right away under class.
+    "D213", # Ignore this to instead opt for summary part of docstring to be on first physical line.
+    "TRY003", # Avoid specifying long messages outside the exception class
+    "C408",  # Unnecessary `dict` call (rewrite as a literal)
+    "EM",  # Exception must not use a (f-)string literal, assign to variable first
+    "FIX002",  # Line contains TODO, consider resolving the issue
+    "D400",  # First line should end with a period
+    "D415",  # First line should end with a period, question mark, or exclamation point
+    "N818",  # Exception should be named with an Error suffix
+    
+    # Imports and type annotations
+    "FA100",  # Missing `from __future__ import annotations`, but uses `typing.*`
+    "TCH002",  # Move third-party import `...` into a type-checking block
+    "TCH003",  # Move standard library import `...` into a type-checking block
+    "UP007",  # Use `X | Y` for type annotations
+
+    # Ruff recommends avoiding these checks when using `ruff format`. Since
+    # `ruff format` is a drop-in replacement for `black`, we avoid the same
+    # checks here (https://docs.astral.sh/ruff/formatter/#conflicting-lint-rules
+    # has more details):
+    "W191",  # tab-indentation
+    "E111",  # indentation-with-invalid-multiple
+    "E114",  # indentation-with-invalid-multiple-comment
+    "E117",  # over-indented
+    "D206",  # indent-with-spaces
+    "D300",  # triple-single-quotes
+    "Q000",  # bad-quotes-inline-string
+    "Q001",  # bad-quotes-multiline-string
+    "Q002",  # bad-quotes-docstring
+    "Q003",  # avoidable-escaped-quote
+    "COM812",  # missing-trailing-comma
+    "COM819",  # prohibited-trailing-comma
+    "ISC001",  # single-line-implicit-string-concatenation
+    "ISC002",  # multi-line-implicit-string-concatenation
+    "E501",  # line-too-long
+]
+
+[tool.ruff.lint.per-file-ignores]
+"gertils/__init__.py" = [
+    "F401",  # import unused
+]
+"noxfile.py" = [
+    # The noxfile is dev-only; we don't care much about form.
+    "ANN",  # Missing type annotations
+    "D",  # Missing docstrings
+]
+"tests/*" = [
+    # Ignore some groups of checks in our test code.
+    "ANN",  # Type annotations
+    "D10",  # Missing docstrings
+    "TCH00",  # Imports and type checking blocks
+    "INP001", # File `...` is part of an implicit namespace package. Add an `__init__.py`.
+
+    # Ignore some more specific checks in our test code.
+    "D401",  # First line of docstring should be in imperative mood
+    "N802",  # Function name `...` should be lowercase
+    "S101",  # Use of `assert` detected
+]

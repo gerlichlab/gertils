@@ -3,12 +3,14 @@ General GERlich group uTILities
 
 These tools are organised by use case at the module level; that is, tools that are used in a similar context will tend to be defined in the same module, with the module name reflecting that shared usage context. If you see that something's not well placed, please open an issue and/or a pull request.
 
-## Index
-- [collection_extras.py](collection_extras.py) -- tools for working with generic containers / collections
-- [environments.py](./gertils/environments.py) -- tools for working with `conda` and `pip` environments
-- [gpu.py](./gertils/gpu.py) -- tools for running computations on GPUs, especially with TensorFlow
-- [group_paths.py](./gertils/group_paths.py) -- tools for working with Gerlich group paths on filesystems
-- [pathtools.py](./gertils/pathtools.py) -- tools for working with filesystem paths generally
+## Index: modules and packages
+- [collection_extras](collection_extras.py) -- tools for working with generic containers / collections
+- [environments](./gertils/environments.py) -- tools for working with `conda` and `pip` environments
+- [geometry](./gertils/geometry.py) -- tools for working with entities in space
+- [gpu](./gertils/gpu.py) -- tools for running computations on GPUs, especially with TensorFlow
+- [pathtools](./gertils/pathtools.py) -- tools for working with filesystem paths generally
+- [types](./gertils/pathtools.py) -- data types for working with genome biology, especially imaging
+- [zarr_tools](./gertils/zarr_tools.py) -- functions and types for working with ZARR-stored data
 
 ## Development
 This project is configured to use Nix for a shell/environment with dependencies, and Nox to make common development commands/workflows easier. Start always with `nix-shell`. If it takes a long time to build, try...
@@ -24,7 +26,6 @@ From the Nix shell, run `nox --list` to see a list of available commands, notabl
 
 NB: To pass arguments through `nox` to `pytest`, separate the argument strings with `--`, e.g.:
 ```shell
-nox -s tests-3.12 -- -vv
+nox -s tests-3.11 -- -vv
 ```
 to run the tests with additional verbosity (e.g., `pytest -vv`)
-

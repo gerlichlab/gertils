@@ -1,12 +1,12 @@
 """Declaration of Nox commands which can be run for this package"""
 
 import hashlib
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Iterable
 
 import nox
 
-PYTHON_VERSIONS = ["3.10", "3.11", "3.12"]
+PYTHON_VERSIONS = ["3.10", "3.11"]
 TESTS_SUBFOLDER = "tests"
 PACKAGE_NAME = "gertils"
 
@@ -83,6 +83,7 @@ def tests(session):
     session.run(
         "pytest",
         "-x",
+        "--cov",
         "--log-level=debug",
         "--durations=10",
         "--hypothesis-show-statistics",
@@ -90,40 +91,22 @@ def tests(session):
     )
 
 
-@nox.session(python=PYTHON_VERSIONS)
+@nox.session
 def lint(session):
     install_groups(session, include=["lint"])
     session.run("mypy")
-    session.run("pylint", PACKAGE_NAME)
-    extra_warnings_to_disable_for_tests_subfolder = [
-        "invalid-name",
-        "missing-function-docstring",
-        "protected-access",
-        "redefined-outer-name",
-        "too-many-arguments",
-        "too-many-instance-attributes",
-        "too-many-lines",
-        "unused-argument",
-        "use-implicit-booleaness-not-comparison",
-    ]
-    session.run(
-        "pylint",
-        f"--disable={','.join(extra_warnings_to_disable_for_tests_subfolder)}",
-        TESTS_SUBFOLDER,
-    )
+    session.run("ruff", "check", ".")
 
 
 @nox.session
-def format(session):
+def format(session):  # noqa: A001
     install_groups(session, include=["format"], include_self=False)
     session.run("codespell", "--enable-colors")
-    session.run("isort", PACKAGE_NAME, TESTS_SUBFOLDER, "--check", "--diff", "--color")
-    session.run("black", ".", "--check", "--diff", "--color")
+    session.run("ruff", "format", "--diff", ".")
 
 
 @nox.session
 def reformat(session):
     install_groups(session, include=["format"], include_self=False)
     session.run("codespell", "--write-changes")
-    session.run("isort", PACKAGE_NAME, TESTS_SUBFOLDER)
-    session.run("black", ".")
+    session.run("ruff", "format", ".")

@@ -1,28 +1,22 @@
 """Extra tools for working with collections"""
 
-from collections import OrderedDict
-from typing import *
+from collections import Counter, OrderedDict
+from collections.abc import Hashable, Iterable, MutableMapping
+from typing import Optional, TypeVar
 
 __all__ = ["count_repeats", "listify", "uniquify"]
-__author__ = "Vince Reuter"
-__email__ = "vincent.reuter@imba.oeaw.ac.at"
-
-# Very core abstractions related to collections are apt to use very generic
-# names deliberately to underscore the generality of the logic, so disable
-# the invalid name warnings that often result, for all code in this module.
-# pylint: disable=invalid-name
 
 
 AnyT = TypeVar("AnyT")
 HashT = TypeVar("HashT", bound=Hashable)
 
 
-def count_repeats(xs: Iterable[HashT]) -> List[Tuple[HashT, int]]:
+def count_repeats(xs: Iterable[HashT]) -> list[tuple[HashT, int]]:
     """Count the instance of repeated elements and their number"""
     return [(x, n) for x, n in Counter(xs).items() if n > 1]
 
 
-def listify(maybe_items: Optional[Iterable[AnyT]]) -> List[AnyT]:
+def listify(maybe_items: Optional[Iterable[AnyT]]) -> list[AnyT]:
     """Convert an optional iterable into a list, or wrap a string as a singleton list."""
     if maybe_items is None:
         return []
