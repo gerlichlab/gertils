@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "gertils"
-version = "0.4.0"
+version = "0.4.2"
 description = "General computing utilities for data processing and analysis in the Gerlich group at IMBA"
 authors = [
     "Vince Reuter <vince.reuter@gmail.com>",
@@ -30,7 +30,7 @@ build-backend = "poetry.core.masonry.api"
 python = ">=3.10.0,<3.12"
 dask = "^2023.5.1"
 numpy = "^1.24.2"
-numpydoc_decorator = { git = "https://github.com/alimanfoo/numpydoc_decorator.git", rev = "a9cbb0a29544788bbfd83ed47082e3442d9e5364" }
+numpydoc_decorator = { git = "https://github.com/vreuter/numpydoc_decorator", tag = "v2.2.1" }
 zarr = "^2.4.12"
 
 [tool.poetry.group.dev]

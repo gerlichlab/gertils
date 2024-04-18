@@ -547,8 +547,8 @@ typing_extensions = "*"
 
 [package.source]
 type = "git"
-url = "https://github.com/alimanfoo/numpydoc_decorator.git"
-reference = "a9cbb0a29544788bbfd83ed47082e3442d9e5364"
+url = "https://github.com/vreuter/numpydoc_decorator"
+reference = "v2.2.1"
 resolved_reference = "a9cbb0a29544788bbfd83ed47082e3442d9e5364"
 
 [[package]]
@@ -891,4 +891,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10.0,<3.12"
-content-hash = "0d5e333902708063d8a7fa646e1726109f23be64472a169bd7143bbd4a7e717f"
+content-hash = "184ee4a5cf986b7932a9a25c169c6c05d10e0f21750330bde80ea95db6dff011"
