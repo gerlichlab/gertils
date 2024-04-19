@@ -84,10 +84,10 @@ class NonExtantPath(PathWrapper):
 )
 def find_multiple_paths_by_fov(  # noqa: D103
     folder: PathLike, *, extensions: Iterable[str]
-) -> dict[str, list[Path]]:
+) -> dict[FieldOfViewFrom1, list[Path]]:
     if isinstance(folder, str):
         folder = Path(folder)
-    paths: dict[str, list[Path]] = {}
+    paths: dict[FieldOfViewFrom1, list[Path]] = {}
     for fn in os.listdir(folder):
         fp = folder / fn
         for ext in extensions:

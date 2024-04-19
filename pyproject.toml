@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "gertils"
-version = "0.4.3"
+version = "0.4.4"
 description = "General computing utilities for data processing and analysis in the Gerlich group at IMBA"
 authors = [
     "Vince Reuter <vince.reuter@gmail.com>",
