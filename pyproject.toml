@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "gertils"
-version = "0.4.2"
+version = "0.4.3"
 description = "General computing utilities for data processing and analysis in the Gerlich group at IMBA"
 authors = [
     "Vince Reuter <vince.reuter@gmail.com>",
@@ -20,6 +20,7 @@ classifiers = [
     "Topic :: Utilities",
     "Typing :: Typed",
 ]
+include = ["py.typed"]
 
 [build-system]
 requires = ["poetry-core"]

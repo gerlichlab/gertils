@@ -4,17 +4,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.4.2] - 2024-04-18
+## [v0.4.3] - 2024-04-19
+
+### Added
+* Add type checking/hinting information to the package distribution.
+
+## [v0.4.2] - 2024-04-18
 
 ### Changed
 * Using more updated version of `numpydoc_decorator` for our lab, tagged rather than just commit hashed
 
-## [0.4.1] - 2024-04-17
+## [v0.4.1] - 2024-04-17
 
 ### Changed
 * Bumped up lower bound on `numpydoc_generator` dependency, for compatibility with downstream projects which use a feature not yet in a release version.
 
-## [0.4.0] - 2024-04-17
+## [v0.4.0] - 2024-04-17
 
 ### Added
 * Types and functions related to `geometry`
