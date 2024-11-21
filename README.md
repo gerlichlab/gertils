@@ -9,6 +9,7 @@ These tools are organised by use case at the module level; that is, tools that a
 - [geometry](./gertils/geometry.py) -- tools for working with entities in space
 - [gpu](./gertils/gpu.py) -- tools for running computations on GPUs, especially with TensorFlow
 - [pathtools](./gertils/pathtools.py) -- tools for working with filesystem paths generally
+- [pixel_value_statistics](./gertils/pixel_value_statistics.py) -- tools for computing statistics of pixel values
 - [types](./gertils/pathtools.py) -- data types for working with genome biology, especially imaging
 - [zarr_tools](./gertils/zarr_tools.py) -- functions and types for working with ZARR-stored data
 

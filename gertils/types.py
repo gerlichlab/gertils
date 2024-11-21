@@ -19,7 +19,7 @@ PixelArray = Union[npt.NDArray[PixelValue], da.Array]
 
 @doc(
     summary="Wrap an int as a 1-based field of view (FOV).",
-    parameters=dict(get="The value to wrape"),
+    parameters=dict(get="The value to wrap"),
     raises=dict(
         TypeError="If the given value to wrap isn't an integer",
         ValueError="If the given value to wrap isn't positive",
@@ -36,6 +36,18 @@ class FieldOfViewFrom1:  # noqa: D101
             )
         if self.get < 1:
             raise ValueError(f"1-based FOV view must be positive int; got {self.get}")
+
+
+@doc(summary="An imaging channel", parameters=dict(get="Wrapped value"))
+@dataclass(frozen=True, order=True)
+class ImagingChannel:  # noqa: D101
+    get: int
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.get, int):
+            raise TypeError(f"Imaging channel must be integer, not {type(self.get).__name__}")
+        if self.get < 0:
+            raise ValueError(f"Imaging channel must be nonnegative; got {self.get}")
 
 
 @doc(
