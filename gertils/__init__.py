@@ -16,3 +16,5 @@ from .pixel_value_statistics import (
     RegionalPixelStatistics,
     compute_pixel_statistics,
 )
+
+__version__ = "0.5.1"
