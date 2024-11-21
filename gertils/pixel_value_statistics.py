@@ -113,7 +113,7 @@ class RegionalPixelStatistics:  # noqa: D101
         pt="Center of region to measure",
         channels="Channels of image in which to measure pixels",
         diameter="Size (width and height) of region around point in which to measure pixels",
-        signal_column="Name for the field/column in which to store channel from which pixels were taken",
+        channel_column="Name for the field/column in which to store channel from which pixels were taken",
     ),
     returns="List of records, each mapping key/field to value",
 )
@@ -123,7 +123,7 @@ def compute_pixel_statistics(  # noqa: D103
     *,
     channels: Iterable[ImagingChannel],
     diameter: int,
-    signal_column: str,
+    channel_column: str,
 ) -> list[dict[str, Numeric]]:
     left: int = round(pt.x - diameter / 2)
     right: int = left + diameter
@@ -140,5 +140,5 @@ def compute_pixel_statistics(  # noqa: D103
     for ch in channels:
         subimg = img[ch.get, :, max(0, top) : bottom, max(0, left) : right]
         stats = RegionalPixelStatistics.from_image(subimg, central_z=pt.z)
-        result.append({signal_column: ch.get, **bounds, **stats.to_dict})
+        result.append({channel_column: ch.get, **bounds, **stats.to_dict})
     return result
