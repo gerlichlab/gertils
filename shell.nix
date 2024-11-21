@@ -19,6 +19,7 @@ pkgs.mkShell {
     poetry
     py310
     python311
+    python312
   ] ++ (if dev then [ pkgs.poetryPlugins.poetry-plugin-export ] else []);
   shellHook = ''
     # To get this working on the lab machine, we need to modify Poetry's keyring interaction:
