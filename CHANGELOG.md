@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v0.5.0] - 2024-11-21
+
+### Added
+* `ImagingChannel` wrapper type
+* Cross-chanel signal extraction/analysis tool for images; see [Issue 27](https://github.com/gerlichlab/gertils/issues/27).
+
+### Changed
+* Depend on v2.2.1 of `numpydoc_decorator` directly from PyPI, rather than our custom release from earlier.
+* Support Python 3.12
+
 ## [v0.4.4] - 2024-04-19
 
 ### Fixed

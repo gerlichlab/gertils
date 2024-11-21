@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "gertils"
-version = "0.4.4"
+version = "0.5.0"
 description = "General computing utilities for data processing and analysis in the Gerlich group at IMBA"
 authors = [
     "Vince Reuter <vince.reuter@gmail.com>",
@@ -13,6 +13,7 @@ classifiers = [
     "Programming Language :: Python",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Operating System :: POSIX :: Linux",
     "Operating System :: MacOS",
     "Operating System :: Microsoft :: Windows",
@@ -28,10 +29,10 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.dependencies]
 # These are the main runtime dependencies.
-python = ">=3.10.0,<3.12"
+python = ">=3.10.0,<3.13"
 dask = "^2023.5.1"
 numpy = "^1.24.2"
-numpydoc_decorator = { git = "https://github.com/vreuter/numpydoc_decorator", tag = "v2.2.1" }
+numpydoc_decorator = "^2.2.1"
 zarr = "^2.4.12"
 
 [tool.poetry.group.dev]
