@@ -42,16 +42,6 @@ PixelValue: TypeAlias = np.uint8 | np.uint16
 )
 @dataclasses.dataclass(kw_only=True, frozen=True)
 class RegionalPixelStatistics:  # noqa: D101
-    mean_value: float
-    sigma_value: float
-    min_value: float
-    med_value: float
-    max_value: float
-    proj_mean: float
-    proj_sigma: float
-    proj_min: float
-    proj_med: float
-    proj_max: float
     center_mean: float
     center_sigma: float
     center_min: float
@@ -64,7 +54,12 @@ class RegionalPixelStatistics:  # noqa: D101
 
     @classmethod
     def from_image(
-        cls, img: npt.NDArray[PixelValue], central_z: ZCoordinate
+        cls,
+        img: npt.NDArray[PixelValue],
+        central_z: ZCoordinate,
+        *,
+        plus_minus_planes: int = 1,
+        require_full_padding: bool = False,
     ) -> "RegionalPixelStatistics":
         """Compute stats for the given region (defined by whole given image)."""
         if len(img.shape) != 3:  # noqa: PLR2004
@@ -84,20 +79,22 @@ class RegionalPixelStatistics:  # noqa: D101
                 f"Cannot extract pixel values from z-slice ({round_z}, from {central_z}) for image with {img.shape[0]} z-slice(s)."
             )
 
-        central_plane_img = img[round_z]
-        maxproj = np.max(img, axis=0)
+        if plus_minus_planes < 0:
+            raise ValueError(
+                f"Number of planes on either side of the central plane can't be negative; got {plus_minus_planes}"
+            )
+        lower_slice_bound = round_z - plus_minus_planes
+        upper_slice_bound = round_z + plus_minus_planes + 1
+        if lower_slice_bound < 0 or upper_slice_bound > img.shape[0]:
+            oob_slice_msg = f"[{lower_slice_bound}, {upper_slice_bound}) slice for image of {img.shape[0]} z-slices"
+            if require_full_padding:
+                raise ValueError(
+                    f"[{lower_slice_bound}, {upper_slice_bound}) slice for image of {img.shape[0]} z-slices"
+                )
+            logging.debug(oob_slice_msg)
+        central_plane_img = img[slice(lower_slice_bound, upper_slice_bound)]
 
         return cls(
-            mean_value=img.mean(),
-            sigma_value=img.std(),
-            min_value=img.min(),
-            med_value=np.median(img),  # type: ignore[arg-type]
-            max_value=img.max(),
-            proj_mean=maxproj.mean(),
-            proj_sigma=maxproj.std(),
-            proj_min=maxproj.min(),
-            proj_med=np.median(maxproj),
-            proj_max=maxproj.max(),
             center_mean=central_plane_img.mean(),
             center_sigma=central_plane_img.std(),
             center_min=central_plane_img.min(),
@@ -117,7 +114,7 @@ class RegionalPixelStatistics:  # noqa: D101
     ),
     returns="List of records, each mapping key/field to value",
 )
-def compute_pixel_statistics(  # noqa: D103
+def compute_pixel_statistics(  # noqa: D103"
     img: npt.NDArray[PixelValue],
     pt: ImagePoint3D,
     *,
