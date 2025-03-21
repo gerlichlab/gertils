@@ -4,10 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [v0.6.0] - 2025-03-20
+## [v0.6.0] - 2025-03-21
 
 ### Changed
-*
+* Simplify `compute_pixel_statistics`, emitting just one collection of statistics rather than three; 
+namely, the $z$-slice closest to a point will be used, plus/minus some optional slices of padding on above and below that slice.
 
 ## [v0.5.1] - 2024-11-21
 
