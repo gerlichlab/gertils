@@ -9,7 +9,6 @@ from numpydoc_decorator import doc  # type: ignore[import]
 ZCoordinate = Union[int, float, np.float64]  # int to accommodate notion of "z-slice"
 
 
-
 @doc(
     summary="Bundle x and y position to create point in 2D space.",
     parameters=dict(
