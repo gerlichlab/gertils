@@ -51,14 +51,6 @@ class ImagePoint2D(LocatableXY):  # noqa: D101
         if any(c < 0 for c in [self.x, self.y]):
             raise ValueError(f"At least one coordinate is negative! {self}")
 
-    @doc(summary="Get the x-coordinate for this point.")
-    def get_x_coordinate(self) -> float:  # noqa: D102
-        return self.x
-
-    @doc(summary="Get the x-coordinate for this point.")
-    def get_y_coordinate(self) -> float:  # noqa: D102
-        return self.y
-
 
 @doc(
     summary="Bundle x and y position to create point in 2D space.",
@@ -81,7 +73,3 @@ class ImagePoint3D(ImagePoint2D, LocatableZ):  # noqa: D101
             raise TypeError(f"Bad z ({type(self.z).__name__}: {self.z}")
         if self.z < 0:
             raise ValueError(f"z-coordinate is negative! {self}")
-
-    @doc(summary="Get the x-coordinate for this point.")
-    def get_z_coordinate(self) -> ZCoordinate:  # noqa: D102
-        return self.z
