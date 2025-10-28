@@ -1,36 +1,13 @@
 """Geometric types and tools"""
 
-from abc import abstractmethod
 from dataclasses import dataclass
-from typing import Protocol, Union
+from typing import Union
 
 import numpy as np
 from numpydoc_decorator import doc  # type: ignore[import]
 
 ZCoordinate = Union[int, float, np.float64]  # int to accommodate notion of "z-slice"
 
-
-class LocatableXY(Protocol):
-    """Something that admits x- and y-coordinate."""
-
-    @abstractmethod
-    def get_x_coordinate(self) -> float:
-        """Getter of position in x dimension"""
-        raise NotImplementedError
-
-    @abstractmethod
-    def get_y_coordinate(self) -> float:
-        """Getter of position in y dimension"""
-        raise NotImplementedError
-
-
-class LocatableZ(Protocol):
-    """Something that admits z-coordinate."""
-
-    @abstractmethod
-    def get_z_coordinate(self) -> ZCoordinate:
-        """Getter of position in z dimension"""
-        raise NotImplementedError
 
 
 @doc(
@@ -41,7 +18,7 @@ class LocatableZ(Protocol):
     ),
 )
 @dataclass(kw_only=True, frozen=True)
-class ImagePoint2D(LocatableXY):  # noqa: D101
+class ImagePoint2D:  # noqa: D101
     x: float
     y: float
 
@@ -64,7 +41,7 @@ class ImagePoint2D(LocatableXY):  # noqa: D101
     ),
 )
 @dataclass(kw_only=True, frozen=True)
-class ImagePoint3D(ImagePoint2D, LocatableZ):  # noqa: D101
+class ImagePoint3D(ImagePoint2D):  # noqa: D101
     z: ZCoordinate
 
     def __post_init__(self) -> None:
