@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v0.6.1] - 2025-10-28
+
+### Fixed
+* The check for a negative `z` component of an `ImagePoint3D` instance is not correct. 
+See [Issue 39](https://github.com/gerlichlab/gertils/issues/39).
+
+### Changed
+* Removed `get_x_coordinate` and `get_y_coordinate` members from `ImagePoint2D` and `ImagePoint3D`, and `get_z_coordinate` from `ImagePoint3D`.
+
 ## [v0.6.0] - 2025-03-21
 
 ### Changed
