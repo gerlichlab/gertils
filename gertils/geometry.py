@@ -79,7 +79,7 @@ class ImagePoint3D(ImagePoint2D, LocatableZ):  # noqa: D101
         super().__post_init__()
         if not isinstance(self.z, int | float | np.float64):
             raise TypeError(f"Bad z ({type(self.z).__name__}: {self.z}")
-        if any(c < 0 for c in [self.x, self.y]):
+        if self.z < 0:
             raise ValueError(f"z-coordinate is negative! {self}")
 
     @doc(summary="Get the x-coordinate for this point.")
