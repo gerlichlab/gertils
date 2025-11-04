@@ -17,4 +17,4 @@ from .pixel_value_statistics import (
     compute_pixel_statistics,
 )
 
-__version__ = "0.6.0"
+__version__ = "0.6.1"
