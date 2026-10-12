@@ -12,7 +12,7 @@ repos:
         name: codespell
         entry: codespell
         language: system
-        pass_filenames: false
+        types: [text]
       - id: ruff-check
         name: ruff check
         entry: ruff check
