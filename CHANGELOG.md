@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 See [Issue 41](https://github.com/gerlichlab/gertils/issues/41).
 * `RegionalPixelStatistics.from_image`, and so `compute_pixel_statistics`, failed or used the wrong z-planes when the window around a point extended below plane 0; with the default padding, this affected every point with `z < 0.5`. The window is now truncated at plane 0, as it already was at the top of the stack.
 See [Issue 40](https://github.com/gerlichlab/gertils/issues/40).
+* The package-level names are now declared in `__all__`. gertils ships `py.typed`, so without it, type checkers treated them as private to `gertils/__init__.py`: pyright, and mypy with `--no-implicit-reexport`, reported every `from gertils import ExtantFile` as importing a name the package does not export.
 
 ## [v0.6.1] - 2025-10-28
 

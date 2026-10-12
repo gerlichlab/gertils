@@ -23,3 +23,17 @@ PATHTOOLS_PUBLIC_MEMBERS = [
 def test_import_visibility(member_name, expected_presence):
     observed_presence = member_name in dir(gertils)
     assert observed_presence == expected_presence
+
+
+def test_package_level_names_are_declared_public():
+    assert sorted(gertils.__all__) == sorted(
+        [
+            *PATHTOOLS_PUBLIC_MEMBERS,
+            "find_multiple_paths_by_fov",
+            "find_single_path_by_fov",
+            "get_fov_sort_key",
+            "RegionalPixelStatistics",
+            "compute_pixel_statistics",
+        ]
+    )
+    assert all(hasattr(gertils, name) for name in gertils.__all__)

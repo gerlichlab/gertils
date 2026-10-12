@@ -164,9 +164,6 @@ ignore = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"gertils/__init__.py" = [
-    "F401",  # import unused
-]
 "noxfile.py" = [
     # The noxfile is dev-only; we don't care much about form.
     "ANN",  # Missing type annotations
