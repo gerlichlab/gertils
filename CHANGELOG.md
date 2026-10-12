@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 * Support for Python 3.10, which reaches its end of life in October 2026. gertils now requires Python 3.11 to 3.13. Of the projects that use gertils, looptrace already requires Python 3.11; nuclei-vis-napari and looptrace-loci-vis still support 3.10 and will drop it soon too.
+* `gertils.environments`. Its support for conda environments never worked, and nothing uses it; the issue lists the standard tools to use instead.
+See [Issue 42](https://github.com/gerlichlab/gertils/issues/42).
 
 ### Added
 * `compute_pixel_statistics_for_channel`, the single-channel counterpart of `compute_pixel_statistics`, also available at package level.
