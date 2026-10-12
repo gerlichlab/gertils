@@ -67,3 +67,49 @@ def test_compute_pixel_statistics_gives_the_same_records_for_dask_and_numpy_inpu
     from_dask = compute_pixel_statistics(da.from_array(img, chunks=(1, 2, 20, 20)), **kwargs)
     assert not any(isinstance(value, da.Array) for record in from_dask for value in record.values())
     assert from_dask == from_numpy
+
+
+def stats_for_point(img, x, y, *, diameter=10):
+    """Compute the statistics for one channel, around a point in the middle z-plane."""
+    return compute_pixel_statistics(
+        img,
+        ImagePoint3D(x=x, y=y, z=1.0),
+        channels=[ImagingChannel(0)],
+        diameter=diameter,
+        channel_column="channel",
+    )
+
+
+@pytest.mark.parametrize(
+    ("x", "y", "expected_bounds"),
+    [
+        (10.0, 10.0, {"y_min_px": 5, "y_max_px": 15, "x_min_px": 5, "x_max_px": 15}),
+        (1.0, 1.0, {"y_min_px": 0, "y_max_px": 6, "x_min_px": 0, "x_max_px": 6}),
+        (19.0, 19.0, {"y_min_px": 14, "y_max_px": 20, "x_min_px": 14, "x_max_px": 20}),
+        (1.0, 19.0, {"y_min_px": 14, "y_max_px": 20, "x_min_px": 0, "x_max_px": 6}),
+    ],
+)
+def test_reported_bounds_are_those_of_the_pixels_measured(x, y, expected_bounds):
+    img = np.random.default_rng(1).integers(0, 1000, size=(1, 3, 20, 20), dtype=np.uint16)
+    (record,) = stats_for_point(img, x, y)
+    assert {key: record[key] for key in expected_bounds} == expected_bounds
+    region = img[
+        0,
+        :,
+        expected_bounds["y_min_px"] : expected_bounds["y_max_px"],
+        expected_bounds["x_min_px"] : expected_bounds["x_max_px"],
+    ]
+    expected_stats = RegionalPixelStatistics.from_image(region, central_z=1.0).to_dict
+    assert {key: record[key] for key in expected_stats} == expected_stats
+
+
+@pytest.mark.parametrize(("x", "y"), [(30.0, 10.0), (10.0, 30.0)])
+def test_region_entirely_outside_the_image_is_rejected(x, y):
+    with pytest.raises(ValueError, match="lies outside the image of 20 x 20 pixels"):
+        stats_for_point(np.ones((1, 3, 20, 20), dtype=np.uint16), x, y)
+
+
+@pytest.mark.parametrize("diameter", [0, -2])
+def test_diameter_must_be_positive(diameter):
+    with pytest.raises(ValueError, match="Diameter of the region must be positive"):
+        stats_for_point(np.ones((1, 3, 20, 20), dtype=np.uint16), 10.0, 10.0, diameter=diameter)

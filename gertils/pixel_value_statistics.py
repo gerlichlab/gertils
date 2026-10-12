@@ -115,6 +115,9 @@ class RegionalPixelStatistics:  # noqa: D101
         channel_column="Name for the field/column in which to store channel from which pixels were taken",
     ),
     returns="List of records, each mapping key/field to value",
+    raises=dict(
+        ValueError="If the diameter isn't positive, or the region lies entirely outside the image",
+    ),
 )
 def compute_pixel_statistics(  # noqa: D103"
     img: PixelArray,
@@ -124,20 +127,31 @@ def compute_pixel_statistics(  # noqa: D103"
     diameter: int,
     channel_column: str,
 ) -> list[dict[str, Numeric]]:
+    if diameter < 1:
+        raise ValueError(f"Diameter of the region must be positive; got {diameter}")
     left: int = round(pt.x - diameter / 2)
     right: int = left + diameter
     top: int = round(pt.y - diameter / 2)
     bottom: int = top + diameter
+    # Clip the region to the image, so that the bounds reported are those of the pixels measured.
+    num_rows, num_cols = img.shape[-2:]
+    y_min, y_max = max(0, top), min(bottom, num_rows)
+    x_min, x_max = max(0, left), min(right, num_cols)
+    if y_min >= y_max or x_min >= x_max:
+        raise ValueError(
+            f"Region x [{left}, {right}), y [{top}, {bottom}) around point ({pt.x}, {pt.y}) "
+            f"lies outside the image of {num_cols} x {num_rows} pixels"
+        )
     bounds: dict[str, int] = {
-        "y_min_px": top,
-        "y_max_px": bottom,
-        "x_min_px": left,
-        "x_max_px": right,
+        "y_min_px": y_min,
+        "y_max_px": y_max,
+        "x_min_px": x_min,
+        "x_max_px": x_max,
     }
     # Build up records, e.g. rows of data table/frame
     result: list[dict[str, Numeric]] = []
     for ch in channels:
-        subimg = img[ch.get, :, max(0, top) : bottom, max(0, left) : right]
+        subimg = img[ch.get, :, y_min:y_max, x_min:x_max]
         stats = RegionalPixelStatistics.from_image(subimg, central_z=pt.z)
         result.append({channel_column: ch.get, **bounds, **stats.to_dict})
     return result
