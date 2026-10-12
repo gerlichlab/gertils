@@ -4,7 +4,7 @@ import dataclasses
 import logging
 import math
 from collections.abc import Iterable
-from typing import TypeAlias
+from typing import TypeAlias, cast
 
 import numpy as np
 from numpydoc_decorator import doc  # type: ignore[import]
@@ -88,7 +88,9 @@ class RegionalPixelStatistics:  # noqa: D101
             logging.debug(oob_slice_msg)
         # Clip only here, so that the check above still sees a window that runs below plane 0.
         # Only the planes of the window are loaded, so the statistics below are plain numbers.
-        central_plane_img = np.asarray(img[max(0, lower_slice_bound) : upper_slice_bound])
+        # Indexing a dask array has no type information; the window is the same kind of array.
+        window = cast("PixelArray", img[max(0, lower_slice_bound) : upper_slice_bound])
+        central_plane_img = np.asarray(window)
 
         return cls(
             center_mean=central_plane_img.mean(),
@@ -134,7 +136,8 @@ def compute_pixel_statistics(  # noqa: D103
     top: int = math.floor(pt.y + 0.5) - diameter // 2
     bottom: int = top + diameter
     # Clip the region to the image, so that the bounds reported are those of the pixels measured.
-    num_rows, num_cols = img.shape[-2:]
+    # np.shape is typed for numpy and dask arrays alike, and doesn't load a dask array.
+    num_rows, num_cols = np.shape(img)[-2:]
     y_min, y_max = max(0, top), min(bottom, num_rows)
     x_min, x_max = max(0, left), min(right, num_cols)
     if y_min >= y_max or x_min >= x_max:
@@ -151,7 +154,8 @@ def compute_pixel_statistics(  # noqa: D103
     # Build up records, e.g. rows of data table/frame
     result: list[dict[str, Numeric]] = []
     for ch in channels:
-        subimg = img[ch.get, :, y_min:y_max, x_min:x_max]
+        # Indexing a dask array has no type information; the region is the same kind of array.
+        subimg = cast("PixelArray", img[ch.get, :, y_min:y_max, x_min:x_max])
         stats = RegionalPixelStatistics.from_image(subimg, central_z=pt.z)
         result.append({channel_column: ch.get, **bounds, **stats.to_dict})
     return result

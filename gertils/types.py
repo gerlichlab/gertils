@@ -17,6 +17,11 @@ PixelValue = Union[np.uint8, np.uint16]
 PixelArray = Union[npt.NDArray[PixelValue], DaskArray]
 
 
+def _is_int(value: object) -> bool:
+    """Check at runtime, since callers may pass any type despite the annotations."""
+    return isinstance(value, int)
+
+
 @doc(
     summary="Wrap an int as a 1-based field of view (FOV).",
     parameters=dict(get="The value to wrap"),
@@ -30,7 +35,7 @@ class FieldOfViewFrom1:  # noqa: D101
     get: int
 
     def __post_init__(self) -> None:
-        if not isinstance(self.get, int):
+        if not _is_int(self.get):
             raise TypeError(
                 f"Non-integer as 1-based FOV! {self.get} (type" f" {type(self.get).__name__})"
             )
@@ -44,7 +49,7 @@ class ImagingChannel:  # noqa: D101
     get: int
 
     def __post_init__(self) -> None:
-        if not isinstance(self.get, int):
+        if not _is_int(self.get):
             raise TypeError(f"Imaging channel must be integer, not {type(self.get).__name__}")
         if self.get < 0:
             raise ValueError(f"Imaging channel must be nonnegative; got {self.get}")
@@ -63,7 +68,7 @@ class NucleusNumber:  # noqa: D101
     get: int
 
     def __post_init__(self) -> None:
-        if not isinstance(self.get, int):
+        if not _is_int(self.get):
             raise TypeError(
                 f"Non-integer as nucleus number! {self.get} (type" f" {type(self.get).__name__})"
             )
@@ -84,7 +89,7 @@ class TimepointFrom0:  # noqa: D101
     get: int
 
     def __post_init__(self) -> None:
-        if not isinstance(self.get, int):
+        if not _is_int(self.get):
             raise TypeError(
                 f"Non-integer as timepoint! {self.get} (type {type(self.get).__name__})"
             )
@@ -105,7 +110,7 @@ class TraceIdFrom0:  # noqa: D101
     get: int
 
     def __post_init__(self) -> None:
-        if not isinstance(self.get, int):
+        if not _is_int(self.get):
             raise TypeError(f"Non-integer as trace ID! {self.get} (type {type(self.get).__name__})")
         if self.get < 0:
             raise ValueError(f"Trace ID must be nonnegative int; got {self.get}")

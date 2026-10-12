@@ -6,7 +6,7 @@ from abc import ABC, abstractmethod
 from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional, TypeVar
+from typing import Optional, TypeVar, cast
 
 from numpydoc_decorator import doc  # type: ignore[import]
 
@@ -26,7 +26,8 @@ class PathWrapper(ABC):
         pass
 
     def __post_init__(self) -> None:
-        if not isinstance(self.path, Path):
+        # Checked at runtime, since callers may pass any type despite the annotation.
+        if not isinstance(cast("object", self.path), Path):
             raise TypeError(f"Not a path, but {type(self.path).__name__}: {self.path}")
         self._invalidate()
 
@@ -140,7 +141,8 @@ def find_single_path_by_fov(folder: PathLike, *, extension: str) -> dict[FieldOf
     returns="Field of view parsed from filename, if parse succeeded; otherwise, None",
 )
 def get_fov_sort_key(path: PathLike, *, extension: str) -> Optional[FieldOfViewFrom1]:  # noqa: D103
-    if not isinstance(path, str | Path):
+    # Checked at runtime, since callers may pass any type despite the annotation.
+    if not isinstance(cast("object", path), str | Path):
         raise TypeError(
             f"Cannot parse sort-by-FOV key for {extension} stack from alleged path:"
             f" {path} (type {type(path).__name__})"

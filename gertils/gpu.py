@@ -19,7 +19,8 @@ __all__ = [
 
 def count_tensorflow_gpus() -> int:
     """Count the number of GPUs that tensorflow can see."""
-    return len(list_tensorflow_gpus())
+    # TensorFlow isn't installed where gertils is type-checked, so its types are unknown there.
+    return len(list_tensorflow_gpus())  # pyright: ignore[reportUnknownArgumentType]
 
 
 def list_tensorflow_gpus() -> list[TFPhysDev]:  # type: ignore[no-any-unimported]

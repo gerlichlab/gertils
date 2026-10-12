@@ -3,7 +3,7 @@
 import string
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional, Union
+from typing import Optional, Union, cast
 
 from .collection_extras import count_repeats, uniquify
 
@@ -127,22 +127,24 @@ def write_env_file(
     env: Union[CondaEnvironmentSpecification, PipEnvironmentSpecification], path: Path
 ) -> Path:
     """Write an environment specification to a file."""
+    # Checked at runtime, since callers may pass any type despite the annotation.
+    spec = cast("object", env)
     lines: list[str]
-    if isinstance(env, PipEnvironmentSpecification):
-        lines = env.dependencies
-    elif isinstance(env, CondaEnvironmentSpecification):
+    if isinstance(spec, PipEnvironmentSpecification):
+        lines = spec.dependencies
+    elif isinstance(spec, CondaEnvironmentSpecification):
         lines = []
-        if env.name:
-            lines += f"name: {env.name}"
-        if env.channels:
+        if spec.name:
+            lines += f"name: {spec.name}"
+        if spec.channels:
             lines += "channels:"
-            lines.extend([f"    - {c}" for c in env.channels])
-        if env.conda_dependencies:
+            lines.extend([f"    - {c}" for c in spec.channels])
+        if spec.conda_dependencies:
             lines += "dependencies:"
-            lines.extend([f"    - {d}" for d in env.conda_dependencies])
-        if env.pip_dependencies:
+            lines.extend([f"    - {d}" for d in spec.conda_dependencies])
+        if spec.pip_dependencies:
             lines += "    - pip:"
-            lines.extend([f"        - {d}" for d in env.pip_dependencies])
+            lines.extend([f"        - {d}" for d in spec.pip_dependencies])
     else:
         raise TypeError(
             f"Environment to write to file is not a supported type: {type(env).__name__}"
