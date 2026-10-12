@@ -97,7 +97,6 @@ def test_name_that_is_not_plain_digits_does_not_collide_with_a_fov(tmp_path):
 def test_warning_about_double_zarr_extension_is_shown_by_default():
     # pytest changes the warning filters, so check in a separate process with Python's defaults.
     code = "from gertils import get_fov_sort_key; get_fov_sort_key('P0003.zarr.zarr', extension='.zarr')"
-    result = subprocess.run(  # noqa: S603 (this interpreter, with a fixed command)
-        [sys.executable, "-c", code], capture_output=True, text=True, check=True
-    )
+    command = [sys.executable, "-c", code]  # This interpreter, with a fixed command.
+    result = subprocess.run(command, capture_output=True, text=True, check=True)  # noqa: S603
     assert "FutureWarning: Stripping second '.zarr' extension" in result.stderr
