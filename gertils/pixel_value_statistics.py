@@ -8,6 +8,7 @@ from typing import Any, TypeAlias, cast
 
 import numpy as np
 import numpy.typing as npt
+from dask.array.core import Array as DaskArray
 from numpydoc_decorator import doc
 
 from .geometry import ImagePoint3D, ZCoordinate
@@ -272,16 +273,29 @@ def compute_pixel_statistics(  # noqa: D103, PLR0913
     require_full_padding: bool = False,
     require_full_region: bool = False,
 ) -> list[dict[str, Numeric]]:
-    return [
-        compute_pixel_statistics_for_channel(
-            img,
-            pt,
-            channel=ch,
-            diameter=diameter,
-            channel_column=channel_column,
-            plus_minus_planes=plus_minus_planes,
-            require_full_padding=require_full_padding,
-            require_full_region=require_full_region,
+    channels = list(channels)
+    region = _locate_region(
+        img,
+        pt,
+        diameter=diameter,
+        plus_minus_planes=plus_minus_planes,
+        require_full_padding=require_full_padding,
+        require_full_region=require_full_region,
+    )
+    if isinstance(img, DaskArray):
+        # Cut out the region of all channels at once and load it in one computation, so that
+        # stored chunks holding several channels are read once. Indexing a dask array has no type
+        # information; the result is the same kind of array.
+        all_channels = cast(
+            "PixelArray",
+            img[[ch.get for ch in channels], region.planes, region.rows, region.columns],
         )
-        for ch in channels
+        region_imgs = list(np.asarray(all_channels))
+    else:
+        region_imgs = [
+            np.asarray(img[ch.get, region.planes, region.rows, region.columns]) for ch in channels
+        ]
+    return [
+        {channel_column: ch.get, **region.bounds, **_statistic_values(region_img)}
+        for ch, region_img in zip(channels, region_imgs, strict=True)
     ]

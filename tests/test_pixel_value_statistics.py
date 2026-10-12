@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 import zarr
 from dask.array.core import Array as DaskArray
-from dask.array.core import from_array
+from dask.array.core import from_array, from_zarr
 
 from gertils.geometry import ImagePoint3D
 from gertils.pixel_value_statistics import (
@@ -300,4 +300,19 @@ def test_only_the_planes_of_the_z_window_are_read_from_a_zarr_array():
         ["1", "11"],
         ["1", "9"],
     ]
+    assert records == compute_pixel_statistics(data, **kwargs)
+
+
+def test_stored_chunks_shared_by_channels_are_read_once_with_dask():
+    data = np.random.default_rng(5).integers(0, 1000, size=(2, 10, 20, 20), dtype=np.uint16)
+    img, store = read_through_zarr(data, chunks=(2, 1, 20, 20))
+    kwargs = {
+        "pt": ImagePoint3D(x=10.0, y=10.0, z=5.0),
+        "channels": [ImagingChannel(0), ImagingChannel(1)],
+        "diameter": 4,
+        "channel_column": "channel",
+    }
+    records = compute_pixel_statistics(from_zarr(img), **kwargs)
+    # Each stored chunk holds both channels of one plane; the window has planes 4 to 6.
+    assert sorted(store.chunks_read) == ["0.4.0.0", "0.5.0.0", "0.6.0.0"]
     assert records == compute_pixel_statistics(data, **kwargs)

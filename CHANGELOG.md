@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Support for Python 3.10, which reaches its end of life in October 2026. gertils now requires Python 3.11 to 3.13. Of the projects that use gertils, looptrace already requires Python 3.11; nuclei-vis-napari and looptrace-loci-vis still support 3.10 and will drop it soon too.
 
 ### Added
-* `compute_pixel_statistics_for_channel`, the single-channel counterpart of `compute_pixel_statistics`, also available at package level. `compute_pixel_statistics` now calls it for each channel.
+* `compute_pixel_statistics_for_channel`, the single-channel counterpart of `compute_pixel_statistics`, also available at package level.
 See [Issue 32](https://github.com/gerlichlab/gertils/issues/32).
 * Each record from `compute_pixel_statistics` and `compute_pixel_statistics_for_channel` has a `pixel_count`: the number of pixels the statistics are taken over, which is smaller for a region cut off by the edge of the image or of the z-stack. Setting `require_full_region` raises a `ValueError` for a region cut off by the edge of the image instead. Both functions also take `plus_minus_planes` and `require_full_padding`, which they pass on to `RegionalPixelStatistics.from_image`.
 See [Issue 34](https://github.com/gerlichlab/gertils/issues/34).
@@ -20,6 +20,8 @@ See [Issue 34](https://github.com/gerlichlab/gertils/issues/34).
 * `RegionalPixelStatistics` has a new field, `pixel_count`, so code that creates it directly rather than through `from_image` must pass one.
 * gertils is type-checked with pyright instead of mypy, in strict mode for the package itself, as looptrace and VS Code's Pylance use pyright. Type information for `numpydoc_decorator` and for the part of `zarr` that gertils uses is in `typings/`.
 * `read_zarr` opens the array read-only. It returns the same data as before.
+* `compute_pixel_statistics` and `compute_pixel_statistics_for_channel` read only the planes of the z-window of the region around a point, also from arrays that read when indexed, such as zarr arrays. `compute_pixel_statistics` computes all channels of a dask array at once, so that stored chunks holding several channels are read once. The results are the same.
+See [Issue 49](https://github.com/gerlichlab/gertils/issues/49).
 * The development checks run as pre-commit hooks instead of through nox: codespell, ruff and pyright on every commit, and the tests before every push. CI runs the same hooks.
 See [Issue 44](https://github.com/gerlichlab/gertils/issues/44).
 
