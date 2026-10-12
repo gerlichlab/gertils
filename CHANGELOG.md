@@ -56,7 +56,7 @@ See [Issue 34](https://github.com/gerlichlab/gertils/issues/34).
 * `compute_pixel_statistics` centred a region with an odd diameter one pixel away from the point for about half of all coordinates, in x and in y, because `round` rounds halves to the nearest even number. Regions are now centred on the nearest pixel, rounding halves up. For even diameters, only coordinates exactly half-way between two pixels change.
 See [Issue 46](https://github.com/gerlichlab/gertils/issues/46).
 * `compute_pixel_statistics` raises a `ValueError` saying so when the image isn't 4D (channel, z, y, x). Before, a 5D image gave a misleading message about 3D images, and a 3D image an `IndexError`.
-* The package-level names are now declared in `__all__`. gertils ships `py.typed`, so without it, type checkers treated them as private to `gertils/__init__.py`: pyright, and mypy with `--no-implicit-reexport`, reported every `from gertils import ExtantFile` as importing a name the package does not export.
+* The package-level names are now declared in `__all__`. gertils ships `py.typed`, so without it, type checkers treated them as private to `gertils/__init__.py`: pyright, and mypy with `--no-implicit-reexport`, reported every `from gertils import ExtantFile` as importing a name the package does not export. `from gertils import *` now imports only these names; before, it also imported the modules `geometry`, `pathtools`, `pixel_value_statistics` and `types`, which hid Python's own `types` module.
 
 ## [v0.6.1] - 2025-10-28
 
