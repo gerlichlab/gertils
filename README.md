@@ -27,6 +27,8 @@ pre-commit install
 ```
 Then codespell, ruff and pyright run on every commit, and the tests before every push. To run all the checks by hand: `pre-commit run --all-files`.
 
+The hooks run the tools installed in the Nix shell, with the versions in `poetry.lock`, so commit and push from the Nix shell too. Outside it, for example from an IDE's Git panel, the hooks fail with "Executable `codespell` not found".
+
 Each tool can also be run on its own, from the Nix shell:
 - `pytest` for the tests, e.g. `pytest -vv` for more detail
 - `pyright` for type checking
