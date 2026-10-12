@@ -26,6 +26,7 @@ See [Issue 34](https://github.com/gerlichlab/gertils/issues/34).
 * `read_zarr` opens the array read-only. It returns the same data as before.
 * `compute_pixel_statistics` and `compute_pixel_statistics_for_channel` read only the planes of the z-window of the region around a point, also from arrays that read when indexed, such as zarr arrays. `compute_pixel_statistics` computes all channels of a dask array at once, so that stored chunks holding several channels are read once. The results are the same.
 See [Issue 49](https://github.com/gerlichlab/gertils/issues/49).
+* `compute_pixel_statistics` checks the z-window around the point before it looks at the channels, as it already did for the region in x and y. With an empty list of channels, a point beyond the last z-plane therefore raises a `ValueError` now, instead of giving an empty list.
 * The development checks run as pre-commit hooks instead of through nox: codespell, ruff and pyright on every commit, and the tests before every push. CI runs the same hooks.
 See [Issue 44](https://github.com/gerlichlab/gertils/issues/44).
 * The Nix shell uses nixpkgs 26.05 instead of 23.11, with Poetry 2 and Python 3.11 to 3.13, and downloads nixpkgs as a tarball instead of cloning it. `poetry.lock` is in the format of Poetry 2, which CI uses too.

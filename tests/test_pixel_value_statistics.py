@@ -287,6 +287,19 @@ def test_z_settings_are_passed_through_to_the_statistics():
         stats_for_point(img, 10.0, 10.0, z=0.0, require_full_padding=True)
 
 
+def test_point_beyond_the_last_plane_is_rejected_also_without_channels():
+    with pytest.raises(
+        ValueError, match=r"Cannot extract pixel values from z-slice \(5, from 5\.0\)"
+    ):
+        compute_pixel_statistics(
+            np.ones((1, 3, 20, 20), dtype=np.uint16),
+            ImagePoint3D(x=10.0, y=10.0, z=5.0),
+            channels=[],
+            diameter=4,
+            channel_column="channel",
+        )
+
+
 class CountingStore(dict):
     """In-memory zarr store, which records the chunks that are read from it."""
 
