@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 See [Issue 41](https://github.com/gerlichlab/gertils/issues/41).
 * `get_fov_sort_key` raised a `ValueError` for a name with the number 0, such as `P0000.zarr`, which made `find_single_path_by_fov` and `find_multiple_paths_by_fov` fail for the whole folder. It now returns `None`, as for any other name that doesn't give a field of view.
 See [Issue 47](https://github.com/gerlichlab/gertils/issues/47).
+* `get_fov_sort_key` also accepted spaces, a leading `+`, underscores and non-ASCII digits in the number, because it used `int()`, so `P1_2.zarr` got the same field of view as `P0012.zarr`. Only plain ASCII digits are accepted now.
+See [Issue 48](https://github.com/gerlichlab/gertils/issues/48).
 * `RegionalPixelStatistics.from_image`, and so `compute_pixel_statistics`, failed or used the wrong z-planes when the window around a point extended below plane 0; with the default padding, this affected every point with `z < 0.5`. The window is now truncated at plane 0, as it already was at the top of the stack.
 See [Issue 40](https://github.com/gerlichlab/gertils/issues/40).
 * `compute_pixel_statistics` and `RegionalPixelStatistics.from_image` failed on dask arrays, because `np.median` can't take the median of a whole dask array. Only the region around the point is now loaded into memory, and of it only the planes of the z-window. The statistics are plain numbers.

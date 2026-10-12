@@ -74,3 +74,18 @@ def test_file_with_number_zero_is_skipped_in_a_folder_scan(tmp_path):
     assert find_single_path_by_fov(tmp_path, extension=".zarr") == {
         FieldOfViewFrom1(1): tmp_path / "P0001.zarr",
     }
+
+
+@pytest.mark.parametrize(
+    "filename", ["P 12.zarr", "P+12.zarr", "P1_2.zarr", "P\uff11\uff12.zarr", "P12 .zarr"]
+)
+def test_fov_number_must_be_plain_ascii_digits(filename):
+    assert get_fov_sort_key(filename, extension=".zarr") is None
+
+
+def test_name_that_is_not_plain_digits_does_not_collide_with_a_fov(tmp_path):
+    for name in ["P0012.zarr", "P1_2.zarr"]:
+        (tmp_path / name).mkdir()
+    assert find_single_path_by_fov(tmp_path, extension=".zarr") == {
+        FieldOfViewFrom1(12): tmp_path / "P0012.zarr",
+    }

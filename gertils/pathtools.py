@@ -157,10 +157,10 @@ def get_fov_sort_key(path: PathLike, *, extension: str) -> Optional[FieldOfViewF
             stacklevel=1,  # This deprecation is about underlying data, not about the call site.
         )
         rawval = rawval.removesuffix(extension)
-    try:
-        fov = int(rawval)
-    except ValueError:
+    # Only plain digits; int() would also accept spaces, signs, underscores and non-ASCII digits.
+    if not (rawval.isascii() and rawval.isdigit()):
         return None
+    fov = int(rawval)
     # Fields of view are numbered from 1, so a name with the number 0 doesn't give one.
     if fov < 1:
         return None
