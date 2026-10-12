@@ -4,6 +4,7 @@ from typing import Any
 
 import numpy as np
 import pytest
+import zarr
 from dask.array.core import Array as DaskArray
 from dask.array.core import from_array
 
@@ -258,3 +259,45 @@ def test_z_settings_are_passed_through_to_the_statistics():
     img = np.ones((1, 3, 20, 20), dtype=np.uint16)
     with pytest.raises(ValueError, match=r"\[-1, 2\) slice for image of 3 z-slices"):
         stats_for_point(img, 10.0, 10.0, z=0.0, require_full_padding=True)
+
+
+class CountingStore(dict):
+    """In-memory zarr store, which records the chunks that are read from it."""
+
+    def __init__(self):
+        super().__init__()
+        self.chunks_read = []
+
+    def __getitem__(self, key):
+        if not key.startswith("."):
+            self.chunks_read.append(key)
+        return super().__getitem__(key)
+
+
+def read_through_zarr(data, *, chunks):
+    """Store the data in zarr, and open it for reading, along with the store that counts the reads."""
+    store = CountingStore()
+    zarr.array(data, chunks=chunks, store=store)
+    store.chunks_read.clear()
+    # zarr arrays aren't a declared input type, but are accepted like any array that can be indexed.
+    img: Any = zarr.open_array(store, mode="r")
+    return img, store
+
+
+def test_only_the_planes_of_the_z_window_are_read_from_a_zarr_array():
+    data = np.random.default_rng(4).integers(0, 1000, size=(2, 20, 10, 10), dtype=np.uint16)
+    img, store = read_through_zarr(data, chunks=(1, 1, 10, 10))
+    kwargs = {
+        "pt": ImagePoint3D(x=5.0, y=5.0, z=10.0),
+        "channels": [ImagingChannel(1)],
+        "diameter": 4,
+        "channel_column": "channel",
+    }
+    records = compute_pixel_statistics(img, **kwargs)
+    # Chunk keys are "channel.plane.row.column".
+    assert sorted(key.split(".")[:2] for key in store.chunks_read) == [
+        ["1", "10"],
+        ["1", "11"],
+        ["1", "9"],
+    ]
+    assert records == compute_pixel_statistics(data, **kwargs)

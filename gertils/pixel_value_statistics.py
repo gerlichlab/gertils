@@ -125,6 +125,65 @@ def _statistic_values(pixels: npt.NDArray[Any]) -> dict[str, Any]:
     }
 
 
+@dataclasses.dataclass(frozen=True)
+class _Region:
+    """Where to measure around a point: the bounds to report, and the slices that cut out pixels."""
+
+    bounds: dict[str, int]
+    planes: slice
+    rows: slice
+    columns: slice
+
+
+def _locate_region(  # noqa: PLR0913
+    img: PixelArray,
+    pt: ImagePoint3D,
+    *,
+    diameter: int,
+    plus_minus_planes: int,
+    require_full_padding: bool,
+    require_full_region: bool,
+) -> _Region:
+    """Find and check the region around a point that is measured in each channel."""
+    # np.shape is typed for numpy and dask arrays alike, and doesn't load a dask array.
+    shape = np.shape(img)
+    if len(shape) != 4:  # noqa: PLR2004
+        raise ValueError(f"Image must be 4D (channel, z, y, x), not {len(shape)}D")
+    if diameter < 1:
+        raise ValueError(f"Diameter of the region must be positive; got {diameter}")
+    # Centre the region on the nearest pixel, rounding halves up; round() would round them to even.
+    left: int = math.floor(pt.x + 0.5) - diameter // 2
+    right: int = left + diameter
+    top: int = math.floor(pt.y + 0.5) - diameter // 2
+    bottom: int = top + diameter
+    # Clip the region to the image, so that the bounds reported are those of the pixels measured.
+    num_planes, num_rows, num_cols = shape[1:]
+    y_min, y_max = max(0, top), min(bottom, num_rows)
+    x_min, x_max = max(0, left), min(right, num_cols)
+    if y_min >= y_max or x_min >= x_max:
+        raise ValueError(
+            f"Region x [{left}, {right}), y [{top}, {bottom}) around point ({pt.x}, {pt.y}) "
+            f"lies outside the image of {num_cols} x {num_rows} pixels"
+        )
+    if require_full_region and (y_min, y_max, x_min, x_max) != (top, bottom, left, right):
+        raise ValueError(
+            f"Region x [{left}, {right}), y [{top}, {bottom}) around point ({pt.x}, {pt.y}) "
+            f"extends beyond the image of {num_cols} x {num_rows} pixels"
+        )
+    planes = _z_window(
+        pt.z,
+        num_planes,
+        plus_minus_planes=plus_minus_planes,
+        require_full_padding=require_full_padding,
+    )
+    return _Region(
+        bounds={"y_min_px": y_min, "y_max_px": y_max, "x_min_px": x_min, "x_max_px": x_max},
+        planes=planes,
+        rows=slice(y_min, y_max),
+        columns=slice(x_min, x_max),
+    )
+
+
 @doc(
     summary="Compute statistics over the pixels of one channel, in a region centered on a point.",
     parameters=dict(
@@ -160,45 +219,22 @@ def compute_pixel_statistics_for_channel(  # noqa: D103, PLR0913
     require_full_padding: bool = False,
     require_full_region: bool = False,
 ) -> dict[str, Numeric]:
-    if len(np.shape(img)) != 4:  # noqa: PLR2004
-        raise ValueError(f"Image must be 4D (channel, z, y, x), not {len(np.shape(img))}D")
-    if diameter < 1:
-        raise ValueError(f"Diameter of the region must be positive; got {diameter}")
-    # Centre the region on the nearest pixel, rounding halves up; round() would round them to even.
-    left: int = math.floor(pt.x + 0.5) - diameter // 2
-    right: int = left + diameter
-    top: int = math.floor(pt.y + 0.5) - diameter // 2
-    bottom: int = top + diameter
-    # Clip the region to the image, so that the bounds reported are those of the pixels measured.
-    # np.shape is typed for numpy and dask arrays alike, and doesn't load a dask array.
-    num_rows, num_cols = np.shape(img)[-2:]
-    y_min, y_max = max(0, top), min(bottom, num_rows)
-    x_min, x_max = max(0, left), min(right, num_cols)
-    if y_min >= y_max or x_min >= x_max:
-        raise ValueError(
-            f"Region x [{left}, {right}), y [{top}, {bottom}) around point ({pt.x}, {pt.y}) "
-            f"lies outside the image of {num_cols} x {num_rows} pixels"
-        )
-    if require_full_region and (y_min, y_max, x_min, x_max) != (top, bottom, left, right):
-        raise ValueError(
-            f"Region x [{left}, {right}), y [{top}, {bottom}) around point ({pt.x}, {pt.y}) "
-            f"extends beyond the image of {num_cols} x {num_rows} pixels"
-        )
-    bounds: dict[str, int] = {
-        "y_min_px": y_min,
-        "y_max_px": y_max,
-        "x_min_px": x_min,
-        "x_max_px": x_max,
-    }
-    # Indexing a dask array has no type information; the region is the same kind of array.
-    subimg = cast("PixelArray", img[channel.get, :, y_min:y_max, x_min:x_max])
-    stats = RegionalPixelStatistics.from_image(
-        subimg,
-        central_z=pt.z,
+    region = _locate_region(
+        img,
+        pt,
+        diameter=diameter,
         plus_minus_planes=plus_minus_planes,
         require_full_padding=require_full_padding,
+        require_full_region=require_full_region,
     )
-    return {channel_column: channel.get, **bounds, **stats.to_dict}
+    # Only the region is read, and of it only the planes of the z-window.
+    # Indexing a dask array has no type information; the region is the same kind of array.
+    region_img = cast("PixelArray", img[channel.get, region.planes, region.rows, region.columns])
+    return {
+        channel_column: channel.get,
+        **region.bounds,
+        **_statistic_values(np.asarray(region_img)),
+    }
 
 
 @doc(
