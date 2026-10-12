@@ -1,5 +1,6 @@
 """Tests for statistics over pixel values"""
 
+import dask.array as da
 import numpy as np
 import pytest
 
@@ -52,3 +53,17 @@ def test_compute_pixel_statistics_for_point_in_bottom_plane():
         channel_column="channel",
     )
     assert (record["center_min"], record["center_max"]) == (0, 1)
+
+
+def test_compute_pixel_statistics_gives_the_same_records_for_dask_and_numpy_input():
+    img = np.random.default_rng(0).integers(0, 1000, size=(2, 6, 40, 40), dtype=np.uint16)
+    kwargs = {
+        "pt": ImagePoint3D(x=17.3, y=22.8, z=3.0),
+        "channels": [ImagingChannel(0), ImagingChannel(1)],
+        "diameter": 8,
+        "channel_column": "channel",
+    }
+    from_numpy = compute_pixel_statistics(img, **kwargs)
+    from_dask = compute_pixel_statistics(da.from_array(img, chunks=(1, 2, 20, 20)), **kwargs)
+    assert not any(isinstance(value, da.Array) for record in from_dask for value in record.values())
+    assert from_dask == from_numpy

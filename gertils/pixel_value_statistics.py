@@ -6,11 +6,10 @@ from collections.abc import Iterable
 from typing import TypeAlias
 
 import numpy as np
-import numpy.typing as npt
 from numpydoc_decorator import doc  # type: ignore[import]
 
 from .geometry import ImagePoint3D, ZCoordinate
-from .types import ImagingChannel
+from .types import ImagingChannel, PixelArray
 
 __all__ = ["RegionalPixelStatistics", "compute_pixel_statistics"]
 
@@ -55,13 +54,15 @@ class RegionalPixelStatistics:  # noqa: D101
     @classmethod
     def from_image(
         cls,
-        img: npt.NDArray[PixelValue],
+        img: PixelArray,
         central_z: ZCoordinate,
         *,
         plus_minus_planes: int = 1,
         require_full_padding: bool = False,
     ) -> "RegionalPixelStatistics":
         """Compute stats for the given region (defined by whole given image)."""
+        # A lazy array such as dask's is loaded here, so the statistics below are plain numbers.
+        img = np.asarray(img)
         if len(img.shape) != 3:  # noqa: PLR2004
             raise ValueError(f"To build {cls.__name__}, image must be 3D, not {len(img.shape)}D")
         round_z: int = int(round(central_z))
@@ -116,7 +117,7 @@ class RegionalPixelStatistics:  # noqa: D101
     returns="List of records, each mapping key/field to value",
 )
 def compute_pixel_statistics(  # noqa: D103"
-    img: npt.NDArray[PixelValue],
+    img: PixelArray,
     pt: ImagePoint3D,
     *,
     channels: Iterable[ImagingChannel],
