@@ -61,23 +61,24 @@ class RegionalPixelStatistics:  # noqa: D101
         require_full_padding: bool = False,
     ) -> "RegionalPixelStatistics":
         """Compute stats for the given region (defined by whole given image)."""
-        # A lazy array such as dask's is loaded here, so the statistics below are plain numbers.
-        img = np.asarray(img)
-        if len(img.shape) != 3:  # noqa: PLR2004
-            raise ValueError(f"To build {cls.__name__}, image must be 3D, not {len(img.shape)}D")
+        # Only the shape is read here, so that a lazy array such as dask's isn't loaded yet.
+        shape = np.shape(img)
+        if len(shape) != 3:  # noqa: PLR2004
+            raise ValueError(f"To build {cls.__name__}, image must be 3D, not {len(shape)}D")
+        num_planes = shape[0]
         round_z: int = int(round(central_z))
         if round_z < 0:
             raise ValueError(
                 f"Cannot extract pixel values from negative z-slice. ({round_z}, from {central_z})"
             )
-        if round_z == img.shape[0] and central_z < img.shape[0]:
+        if round_z == num_planes and central_z < num_planes:
             logging.warning(
-                f"Rounding central_z down from {central_z} to comply with z-depth of {img.shape[0]}"  # noqa: G004
+                f"Rounding central_z down from {central_z} to comply with z-depth of {num_planes}"  # noqa: G004
             )
             round_z = int(central_z)
-        elif round_z >= img.shape[0]:
+        elif round_z >= num_planes:
             raise ValueError(
-                f"Cannot extract pixel values from z-slice ({round_z}, from {central_z}) for image with {img.shape[0]} z-slice(s)."
+                f"Cannot extract pixel values from z-slice ({round_z}, from {central_z}) for image with {num_planes} z-slice(s)."
             )
 
         if plus_minus_planes < 0:
@@ -86,15 +87,16 @@ class RegionalPixelStatistics:  # noqa: D101
             )
         lower_slice_bound = round_z - plus_minus_planes
         upper_slice_bound = round_z + plus_minus_planes + 1
-        if lower_slice_bound < 0 or upper_slice_bound > img.shape[0]:
-            oob_slice_msg = f"[{lower_slice_bound}, {upper_slice_bound}) slice for image of {img.shape[0]} z-slices"
+        if lower_slice_bound < 0 or upper_slice_bound > num_planes:
+            oob_slice_msg = f"[{lower_slice_bound}, {upper_slice_bound}) slice for image of {num_planes} z-slices"
             if require_full_padding:
                 raise ValueError(
-                    f"[{lower_slice_bound}, {upper_slice_bound}) slice for image of {img.shape[0]} z-slices"
+                    f"[{lower_slice_bound}, {upper_slice_bound}) slice for image of {num_planes} z-slices"
                 )
             logging.debug(oob_slice_msg)
         # Clip only here, so that the check above still sees a window that runs below plane 0.
-        central_plane_img = img[max(0, lower_slice_bound) : upper_slice_bound]
+        # Only the planes of the window are loaded, so the statistics below are plain numbers.
+        central_plane_img = np.asarray(img[max(0, lower_slice_bound) : upper_slice_bound])
 
         return cls(
             center_mean=central_plane_img.mean(),

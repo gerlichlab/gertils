@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 See [Issue 41](https://github.com/gerlichlab/gertils/issues/41).
 * `RegionalPixelStatistics.from_image`, and so `compute_pixel_statistics`, failed or used the wrong z-planes when the window around a point extended below plane 0; with the default padding, this affected every point with `z < 0.5`. The window is now truncated at plane 0, as it already was at the top of the stack.
 See [Issue 40](https://github.com/gerlichlab/gertils/issues/40).
-* `compute_pixel_statistics` and `RegionalPixelStatistics.from_image` failed on dask arrays, because `np.median` can't take the median of a whole dask array. Only the region around the point is now loaded into memory, and the statistics are plain numbers.
+* `compute_pixel_statistics` and `RegionalPixelStatistics.from_image` failed on dask arrays, because `np.median` can't take the median of a whole dask array. Only the region around the point is now loaded into memory, and of it only the planes of the z-window. The statistics are plain numbers.
 See [Issue 33](https://github.com/gerlichlab/gertils/issues/33).
 * `compute_pixel_statistics` reported the bounds of the whole region around a point, even where that region extends past the edge of the image, so bounds could be negative or beyond the image size. The reported bounds are now those of the pixels actually measured. A region entirely outside the image, or a diameter that isn't positive, now raises a `ValueError` with a clear message.
 See [Issue 34](https://github.com/gerlichlab/gertils/issues/34).

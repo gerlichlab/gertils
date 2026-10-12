@@ -113,3 +113,33 @@ def test_region_entirely_outside_the_image_is_rejected(x, y):
 def test_diameter_must_be_positive(diameter):
     with pytest.raises(ValueError, match="Diameter of the region must be positive"):
         stats_for_point(np.ones((1, 3, 20, 20), dtype=np.uint16), 10.0, 10.0, diameter=diameter)
+
+
+class ZPlaneRecorder:
+    """Stand-in for an array on disk, which records the z-planes that are read from it."""
+
+    def __init__(self, data, *, z_axis):
+        self._data = data
+        self._z_axis = z_axis
+        self.shape = data.shape
+        self.dtype = data.dtype
+        self.ndim = data.ndim
+        self.planes_read = set()
+
+    def __getitem__(self, index):
+        self.planes_read.update(range(self.shape[self._z_axis])[index[self._z_axis]])
+        return self._data[index]
+
+
+def test_only_the_planes_of_the_z_window_are_read_from_a_dask_array():
+    data = np.random.default_rng(3).integers(0, 1000, size=(2, 20, 10, 10), dtype=np.uint16)
+    recorder = ZPlaneRecorder(data, z_axis=1)
+    kwargs = {
+        "pt": ImagePoint3D(x=5.0, y=5.0, z=10.0),
+        "channels": [ImagingChannel(0)],
+        "diameter": 4,
+        "channel_column": "channel",
+    }
+    from_dask = compute_pixel_statistics(da.from_array(recorder, chunks=(1, 1, 10, 10)), **kwargs)
+    assert recorder.planes_read == {9, 10, 11}
+    assert from_dask == compute_pixel_statistics(data, **kwargs)
