@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [v0.6.2] - 2026-10-12
 
 ### Fixed
 * `get_fov_sort_key`, and so `find_single_path_by_fov` and `find_multiple_paths_by_fov`, misread the field of view when the file extension contains a digit; e.g. `P0012.nd2` was parsed as FOV 1, and `P0002.nd2` raised an error. Legacy `.zarr.zarr` names now emit the intended `DeprecationWarning`, and names starting with more than one `P` are no longer accepted.
