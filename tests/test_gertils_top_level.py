@@ -17,7 +17,14 @@ PATHTOOLS_PUBLIC_MEMBERS = [
 @pytest.mark.parametrize(
     ("member_name", "expected_presence"),
     [(name, True) for name in PATHTOOLS_PUBLIC_MEMBERS]
-    + [(name, True) for name in ["RegionalPixelStatistics", "compute_pixel_statistics"]]
+    + [
+        (name, True)
+        for name in [
+            "RegionalPixelStatistics",
+            "compute_pixel_statistics",
+            "compute_pixel_statistics_for_channel",
+        ]
+    ]
     + [(name, False) for name in envs_module.__all__ + COLLECTIONS_PUBLIC_MEMBERS],
 )
 def test_import_visibility(member_name, expected_presence):
@@ -34,6 +41,7 @@ def test_package_level_names_are_declared_public():
             "get_fov_sort_key",
             "RegionalPixelStatistics",
             "compute_pixel_statistics",
+            "compute_pixel_statistics_for_channel",
         ]
     )
     assert all(hasattr(gertils, name) for name in gertils.__all__)

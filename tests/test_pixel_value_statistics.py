@@ -8,7 +8,11 @@ from dask.array.core import Array as DaskArray
 from dask.array.core import from_array
 
 from gertils.geometry import ImagePoint3D
-from gertils.pixel_value_statistics import RegionalPixelStatistics, compute_pixel_statistics
+from gertils.pixel_value_statistics import (
+    RegionalPixelStatistics,
+    compute_pixel_statistics,
+    compute_pixel_statistics_for_channel,
+)
 from gertils.types import ImagingChannel
 
 
@@ -194,3 +198,35 @@ def test_image_must_be_4d(shape):
             diameter=4,
             channel_column="channel",
         )
+
+
+@pytest.mark.parametrize("channel", [0, 1, 2])
+def test_statistics_for_one_channel_use_only_that_channels_pixels(channel):
+    img = np.stack([np.full((3, 10, 10), value, dtype=np.uint16) for value in [0, 1, 2]])
+    record = compute_pixel_statistics_for_channel(
+        img,
+        ImagePoint3D(x=5.0, y=5.0, z=1.0),
+        channel=ImagingChannel(channel),
+        diameter=4,
+        channel_column="channel",
+    )
+    assert (record["channel"], record["center_min"], record["center_max"]) == (
+        channel,
+        channel,
+        channel,
+    )
+
+
+def test_statistics_for_several_channels_are_the_records_for_each_channel():
+    img = np.random.default_rng(2).integers(0, 1000, size=(3, 5, 30, 30), dtype=np.uint16)
+    pt = ImagePoint3D(x=12.4, y=17.6, z=2.0)
+    channels = [ImagingChannel(2), ImagingChannel(0)]
+    records = compute_pixel_statistics(
+        img, pt, channels=channels, diameter=6, channel_column="channel"
+    )
+    assert records == [
+        compute_pixel_statistics_for_channel(
+            img, pt, channel=channel, diameter=6, channel_column="channel"
+        )
+        for channel in channels
+    ]

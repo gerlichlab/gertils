@@ -12,7 +12,11 @@ from numpydoc_decorator import doc
 from .geometry import ImagePoint3D, ZCoordinate
 from .types import ImagingChannel, PixelArray
 
-__all__ = ["RegionalPixelStatistics", "compute_pixel_statistics"]
+__all__ = [
+    "RegionalPixelStatistics",
+    "compute_pixel_statistics",
+    "compute_pixel_statistics_for_channel",
+]
 
 Numeric: TypeAlias = (
     float | int | np.float16 | np.float32 | np.float64 | np.int8 | np.int16 | np.int32 | np.int64
@@ -102,32 +106,35 @@ class RegionalPixelStatistics:  # noqa: D101
 
 
 @doc(
-    summary="Compute statistics over pixels from multiple channels, in a region centered on a point.",
+    summary="Compute statistics over the pixels of one channel, in a region centered on a point.",
     parameters=dict(
         img="Image in which to measure pixels",
         pt="Center of region to measure",
-        channels="Channels of image in which to measure pixels",
+        channel="Channel of image in which to measure pixels",
         diameter="Size (width and height) of region around point in which to measure pixels",
         channel_column="Name for the field/column in which to store channel from which pixels were taken",
     ),
-    returns="List of records, each mapping key/field to value",
+    returns="Record mapping key/field to value",
     raises=dict(
         ValueError=(
             "If the image isn't 4D, the diameter isn't positive, the region lies entirely outside "
             "the image, or the point lies beyond the last z-plane"
         ),
     ),
+    see_also=dict(
+        compute_pixel_statistics="The same, for several channels at once",
+    ),
 )
-def compute_pixel_statistics(  # noqa: D103
+def compute_pixel_statistics_for_channel(  # noqa: D103
     img: PixelArray,
     pt: ImagePoint3D,
     *,
-    channels: Iterable[ImagingChannel],
+    channel: ImagingChannel,
     diameter: int,
     channel_column: str,
-) -> list[dict[str, Numeric]]:
-    if len(img.shape) != 4:  # noqa: PLR2004
-        raise ValueError(f"Image must be 4D (channel, z, y, x), not {len(img.shape)}D")
+) -> dict[str, Numeric]:
+    if len(np.shape(img)) != 4:  # noqa: PLR2004
+        raise ValueError(f"Image must be 4D (channel, z, y, x), not {len(np.shape(img))}D")
     if diameter < 1:
         raise ValueError(f"Diameter of the region must be positive; got {diameter}")
     # Centre the region on the nearest pixel, rounding halves up; round() would round them to even.
@@ -151,11 +158,43 @@ def compute_pixel_statistics(  # noqa: D103
         "x_min_px": x_min,
         "x_max_px": x_max,
     }
-    # Build up records, e.g. rows of data table/frame
-    result: list[dict[str, Numeric]] = []
-    for ch in channels:
-        # Indexing a dask array has no type information; the region is the same kind of array.
-        subimg = cast("PixelArray", img[ch.get, :, y_min:y_max, x_min:x_max])
-        stats = RegionalPixelStatistics.from_image(subimg, central_z=pt.z)
-        result.append({channel_column: ch.get, **bounds, **stats.to_dict})
-    return result
+    # Indexing a dask array has no type information; the region is the same kind of array.
+    subimg = cast("PixelArray", img[channel.get, :, y_min:y_max, x_min:x_max])
+    stats = RegionalPixelStatistics.from_image(subimg, central_z=pt.z)
+    return {channel_column: channel.get, **bounds, **stats.to_dict}
+
+
+@doc(
+    summary="Compute statistics over pixels from multiple channels, in a region centered on a point.",
+    parameters=dict(
+        img="Image in which to measure pixels",
+        pt="Center of region to measure",
+        channels="Channels of image in which to measure pixels",
+        diameter="Size (width and height) of region around point in which to measure pixels",
+        channel_column="Name for the field/column in which to store channel from which pixels were taken",
+    ),
+    returns="List of records, one per channel, each mapping key/field to value",
+    raises=dict(
+        ValueError=(
+            "If the image isn't 4D, the diameter isn't positive, the region lies entirely outside "
+            "the image, or the point lies beyond the last z-plane"
+        ),
+    ),
+    see_also=dict(
+        compute_pixel_statistics_for_channel="The same, for a single channel",
+    ),
+)
+def compute_pixel_statistics(  # noqa: D103
+    img: PixelArray,
+    pt: ImagePoint3D,
+    *,
+    channels: Iterable[ImagingChannel],
+    diameter: int,
+    channel_column: str,
+) -> list[dict[str, Numeric]]:
+    return [
+        compute_pixel_statistics_for_channel(
+            img, pt, channel=ch, diameter=diameter, channel_column=channel_column
+        )
+        for ch in channels
+    ]

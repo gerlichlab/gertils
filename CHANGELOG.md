@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+* `compute_pixel_statistics_for_channel`, the single-channel counterpart of `compute_pixel_statistics`, also available at package level. `compute_pixel_statistics` now calls it for each channel.
+See [Issue 32](https://github.com/gerlichlab/gertils/issues/32).
+
 ### Changed
 * gertils is type-checked with pyright instead of mypy, in strict mode for the package itself, as looptrace and VS Code's Pylance use pyright. Type information for `numpydoc_decorator` and for the part of `zarr` that gertils uses is in `typings/`.
 * `read_zarr` opens the array read-only. It returns the same data as before.
