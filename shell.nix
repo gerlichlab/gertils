@@ -1,8 +1,11 @@
 {
-  pkgs ? import (builtins.fetchGit {
-    url = "https://github.com/NixOS/nixpkgs/";
-    ref = "refs/tags/23.11";
-  }) {}, 
+  # The latest stable release of nixpkgs. A tarball downloads much faster than a clone of the
+  # whole repository; to update it, change the URL and get the new hash with
+  # `nix-prefetch-url --unpack <url>`.
+  pkgs ? import (builtins.fetchTarball {
+    url = "https://github.com/NixOS/nixpkgs/archive/refs/tags/26.05.tar.gz";
+    sha256 = "0am8xx09fx5yf2p0wb001v0jx1g5hrfb76h4r37xph378jgk7pcr";
+  }) {},
   dev ? true,
 }:
 let 
@@ -19,6 +22,7 @@ pkgs.mkShell {
     poetry
     py311
     python312
+    python313
   ] ++ (if dev then [
     # The pyright package from PyPI runs on Node.js; providing it here saves a download.
     pkgs.nodejs
@@ -29,7 +33,7 @@ pkgs.mkShell {
     # https://github.com/python-poetry/poetry/issues/1917
     export PYTHON_KEYRING_BACKEND=keyring.backends.null.Keyring
     poetry env use "${py311}/bin/python"
-    poetry install -vv --sync${poetryInstallExtras}
+    poetry sync -vv${poetryInstallExtras}
     source "$(poetry env info --path)/bin/activate"
   '';
 }

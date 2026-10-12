@@ -24,6 +24,8 @@ See [Issue 34](https://github.com/gerlichlab/gertils/issues/34).
 See [Issue 49](https://github.com/gerlichlab/gertils/issues/49).
 * The development checks run as pre-commit hooks instead of through nox: codespell, ruff and pyright on every commit, and the tests before every push. CI runs the same hooks.
 See [Issue 44](https://github.com/gerlichlab/gertils/issues/44).
+* The Nix shell uses nixpkgs 26.05 instead of 23.11, with Poetry 2 and Python 3.11 to 3.13, and downloads nixpkgs as a tarball instead of cloning it. `poetry.lock` is in the format of Poetry 2, which CI uses too.
+See [Issue 38](https://github.com/gerlichlab/gertils/issues/38).
 
 ### Fixed
 * The documentation of `RegionalPixelStatistics` listed ten parameters that no longer exist, and described the statistics as coming from a single z-slice. The summary of `ImagePoint3D` described it as a 2D point.
