@@ -153,7 +153,8 @@ def get_fov_sort_key(path: PathLike, *, extension: str) -> Optional[FieldOfViewF
         # Support older looptrace-emitted data.
         warnings.warn(
             message=f"Stripping second '{extension}' extension; use data from newer software",
-            category=DeprecationWarning,
+            # A FutureWarning, unlike a DeprecationWarning, is shown to users by default.
+            category=FutureWarning,
             stacklevel=1,  # This deprecation is about underlying data, not about the call site.
         )
         rawval = rawval.removesuffix(extension)

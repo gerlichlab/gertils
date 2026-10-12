@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [v0.6.2] - 2026-10-12
 
 ### Fixed
-* `get_fov_sort_key`, and so `find_single_path_by_fov` and `find_multiple_paths_by_fov`, misread the field of view when the file extension contains a digit; e.g. `P0012.nd2` was parsed as FOV 1, and `P0002.nd2` raised an error. Legacy `.zarr.zarr` names now emit the intended `DeprecationWarning`, and names starting with more than one `P` are no longer accepted.
+* `get_fov_sort_key`, and so `find_single_path_by_fov` and `find_multiple_paths_by_fov`, misread the field of view when the file extension contains a digit; e.g. `P0012.nd2` was parsed as FOV 1, and `P0002.nd2` raised an error. Legacy `.zarr.zarr` names now emit the intended warning, and names starting with more than one `P` are no longer accepted. The warning is a `FutureWarning`, so that Python shows it by default.
 See [Issue 41](https://github.com/gerlichlab/gertils/issues/41).
 * `get_fov_sort_key` raised a `ValueError` for a name with the number 0, such as `P0000.zarr`, which made `find_single_path_by_fov` and `find_multiple_paths_by_fov` fail for the whole folder. It now returns `None`, as for any other name that doesn't give a field of view.
 See [Issue 47](https://github.com/gerlichlab/gertils/issues/47).

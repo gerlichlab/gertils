@@ -1,5 +1,8 @@
 """Tests for FOV sort key determination"""
 
+import subprocess
+import sys
+
 import pytest
 
 from gertils.pathtools import find_multiple_paths_by_fov, find_single_path_by_fov, get_fov_sort_key
@@ -40,8 +43,8 @@ def test_only_one_leading_p_is_removed():
     assert get_fov_sort_key("PP0001.zarr", extension=".zarr") is None
 
 
-def test_double_zarr_extension_is_parsed_with_deprecation_warning():
-    with pytest.warns(DeprecationWarning, match="Stripping second '.zarr' extension"):
+def test_double_zarr_extension_is_parsed_with_a_warning():
+    with pytest.warns(FutureWarning, match="Stripping second '.zarr' extension"):
         assert get_fov_sort_key("P0003.zarr.zarr", extension=".zarr") == FieldOfViewFrom1(3)
 
 
@@ -89,3 +92,12 @@ def test_name_that_is_not_plain_digits_does_not_collide_with_a_fov(tmp_path):
     assert find_single_path_by_fov(tmp_path, extension=".zarr") == {
         FieldOfViewFrom1(12): tmp_path / "P0012.zarr",
     }
+
+
+def test_warning_about_double_zarr_extension_is_shown_by_default():
+    # pytest changes the warning filters, so check in a separate process with Python's defaults.
+    code = "from gertils import get_fov_sort_key; get_fov_sort_key('P0003.zarr.zarr', extension='.zarr')"
+    result = subprocess.run(  # noqa: S603 (this interpreter, with a fixed command)
+        [sys.executable, "-c", code], capture_output=True, text=True, check=True
+    )
+    assert "FutureWarning: Stripping second '.zarr' extension" in result.stderr
