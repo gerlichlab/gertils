@@ -82,7 +82,8 @@ def _z_window(
     central_z: ZCoordinate, num_planes: int, *, plus_minus_planes: int, require_full_padding: bool
 ) -> slice:
     """Get the z-planes to measure: the one nearest the point, plus padding, cut off at the edges."""
-    round_z: int = int(round(central_z))
+    # Round halves up, as for x and y; round() would round them to the nearest even number.
+    round_z: int = math.floor(central_z + 0.5)
     if round_z < 0:
         raise ValueError(
             f"Cannot extract pixel values from negative z-slice. ({round_z}, from {central_z})"

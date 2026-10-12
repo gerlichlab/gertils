@@ -48,6 +48,17 @@ def test_z_window_is_truncated_at_the_edges_of_the_stack(
     )
 
 
+@pytest.mark.parametrize(
+    ("central_z", "expected_plane"),
+    [(0.4, 0), (0.5, 1), (1.5, 2), (2.5, 3), (3.5, 4), (3.6, 4), (9.5, 9)],
+)
+def test_z_window_is_centred_on_the_nearest_plane(central_z, expected_plane):
+    stats = RegionalPixelStatistics.from_image(
+        stack_of_indexed_planes(10), central_z=central_z, plus_minus_planes=0
+    )
+    assert (stats.center_min, stats.center_max) == (expected_plane, expected_plane)
+
+
 def test_z_window_below_plane_0_is_rejected_when_full_padding_is_required():
     with pytest.raises(ValueError, match=r"\[-1, 2\) slice for image of 10 z-slices"):
         RegionalPixelStatistics.from_image(
