@@ -148,7 +148,7 @@ def get_fov_sort_key(path: PathLike, *, extension: str) -> Optional[FieldOfViewF
     _, fn = os.path.split(path)
     if not (fn.startswith("P") and fn.endswith(extension)):
         return None
-    rawval: str = fn.lstrip("P").rstrip(extension)
+    rawval: str = fn.removeprefix("P").removesuffix(extension)
     if extension == ".zarr" and rawval.endswith(extension):
         # Support older looptrace-emitted data.
         warnings.warn(
@@ -156,7 +156,7 @@ def get_fov_sort_key(path: PathLike, *, extension: str) -> Optional[FieldOfViewF
             category=DeprecationWarning,
             stacklevel=1,  # This deprecation is about underlying data, not about the call site.
         )
-        rawval = rawval.rstrip(extension)
+        rawval = rawval.removesuffix(extension)
     try:
         rawval: int = int(rawval)  # type: ignore[no-redef]
     except ValueError:
