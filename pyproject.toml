@@ -11,7 +11,6 @@ repository = "https://github.com/gerlichlab/gertils"
 classifiers = [
     "Development Status :: 1 - Planning",
     "Programming Language :: Python",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
@@ -30,7 +29,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.dependencies]
 # These are the main runtime dependencies.
-python = ">=3.10.0,<3.14"
+python = ">=3.11,<3.14"
 dask = ">=2023.5.1"
 numpy = ">=1.24.2,<3"
 numpydoc_decorator = "^2.2.1"
@@ -87,7 +86,7 @@ reportUnnecessaryTypeIgnoreComment = "error"
 # Black uses line-length = 88, but allows exceptions when breaking the line
 # would lead to other rule violations. Use 100 as a maximum hard limit:
 line-length = 100
-target-version = "py310"
+target-version = "py311"
 
 [tool.ruff.lint]
 select = ["ALL"]
