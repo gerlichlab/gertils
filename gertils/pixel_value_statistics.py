@@ -17,7 +17,6 @@ __all__ = ["RegionalPixelStatistics", "compute_pixel_statistics"]
 Numeric: TypeAlias = (
     float | int | np.float16 | np.float32 | np.float64 | np.int8 | np.int16 | np.int32 | np.int64
 )
-PixelValue: TypeAlias = np.uint8 | np.uint16
 
 
 @doc(
@@ -91,9 +90,7 @@ class RegionalPixelStatistics:  # noqa: D101
         if lower_slice_bound < 0 or upper_slice_bound > num_planes:
             oob_slice_msg = f"[{lower_slice_bound}, {upper_slice_bound}) slice for image of {num_planes} z-slices"
             if require_full_padding:
-                raise ValueError(
-                    f"[{lower_slice_bound}, {upper_slice_bound}) slice for image of {num_planes} z-slices"
-                )
+                raise ValueError(oob_slice_msg)
             logging.debug(oob_slice_msg)
         # Clip only here, so that the check above still sees a window that runs below plane 0.
         # Only the planes of the window are loaded, so the statistics below are plain numbers.
@@ -119,7 +116,10 @@ class RegionalPixelStatistics:  # noqa: D101
     ),
     returns="List of records, each mapping key/field to value",
     raises=dict(
-        ValueError="If the diameter isn't positive, or the region lies entirely outside the image",
+        ValueError=(
+            "If the image isn't 4D, the diameter isn't positive, the region lies entirely outside "
+            "the image, or the point lies beyond the last z-plane"
+        ),
     ),
 )
 def compute_pixel_statistics(  # noqa: D103"

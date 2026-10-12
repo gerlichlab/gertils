@@ -25,9 +25,13 @@ def stack_of_indexed_planes(num_planes):
         (2, 0, [0, 1]),
     ],
 )
-def test_z_window_is_truncated_at_the_edges_of_the_stack(num_planes, central_z, expected_planes):
+@pytest.mark.parametrize("as_dask", [False, True])
+def test_z_window_is_truncated_at_the_edges_of_the_stack(
+    num_planes, central_z, expected_planes, as_dask
+):
+    img = stack_of_indexed_planes(num_planes)
     stats = RegionalPixelStatistics.from_image(
-        stack_of_indexed_planes(num_planes), central_z=central_z
+        da.from_array(img) if as_dask else img, central_z=central_z
     )
     assert (stats.center_min, stats.center_max, stats.center_mean) == (
         min(expected_planes),
