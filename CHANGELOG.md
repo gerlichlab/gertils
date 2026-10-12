@@ -34,6 +34,7 @@ See [Issue 38](https://github.com/gerlichlab/gertils/issues/38).
 ### Fixed
 * The z-window around a point was centred on the nearest plane with halves rounded to the nearest even number, as the region in x and y was before v0.6.2: z = 0.5 and 2.5 used planes 0 and 2, but z = 1.5 and 3.5 planes 2 and 4. Halves are now rounded up, as for x and y. This affects `RegionalPixelStatistics.from_image`, `compute_pixel_statistics` and `compute_pixel_statistics_for_channel`, and only for a z exactly half-way between two planes.
 See [Issue 46](https://github.com/gerlichlab/gertils/issues/46).
+* The type of the records from `compute_pixel_statistics` left out unsigned integers, though `center_min` and `center_max` have the type of the image's pixels, usually `np.uint16`.
 * The documentation of `RegionalPixelStatistics` listed ten parameters that no longer exist, and described the statistics as coming from a single z-slice. The summary of `ImagePoint3D` described it as a 2D point.
 
 ## [v0.6.2] - 2026-10-12
