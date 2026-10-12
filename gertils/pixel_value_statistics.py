@@ -35,6 +35,7 @@ Numeric: TypeAlias = (
         center_min="Minimum of the pixel values",
         center_med="Median of the pixel values",
         center_max="Maximum of the pixel values",
+        pixel_count="Number of pixels the statistics are taken over",
     ),
 )
 @dataclasses.dataclass(kw_only=True, frozen=True)
@@ -44,6 +45,7 @@ class RegionalPixelStatistics:  # noqa: D101
     center_min: float
     center_med: float
     center_max: float
+    pixel_count: int
 
     @property
     def to_dict(self) -> dict[str, float]:  # noqa: D102
@@ -102,6 +104,7 @@ class RegionalPixelStatistics:  # noqa: D101
             center_min=central_plane_img.min(),
             center_med=float(np.median(central_plane_img)),
             center_max=central_plane_img.max(),
+            pixel_count=central_plane_img.size,
         )
 
 
@@ -113,25 +116,32 @@ class RegionalPixelStatistics:  # noqa: D101
         channel="Channel of image in which to measure pixels",
         diameter="Size (width and height) of region around point in which to measure pixels",
         channel_column="Name for the field/column in which to store channel from which pixels were taken",
+        plus_minus_planes="Number of z-planes on either side of the central plane to include",
+        require_full_padding="Raise an error rather than use fewer z-planes at the edge of the stack",
+        require_full_region="Raise an error rather than measure a region cut off by the edge of the image",
     ),
     returns="Record mapping key/field to value",
     raises=dict(
         ValueError=(
-            "If the image isn't 4D, the diameter isn't positive, the region lies entirely outside "
-            "the image, or the point lies beyond the last z-plane"
+            "If the image isn't 4D; if the diameter isn't positive; if the region lies entirely "
+            "outside the image, or the point beyond the last z-plane; or, when required, if the "
+            "region or its z-padding extends beyond the image"
         ),
     ),
     see_also=dict(
         compute_pixel_statistics="The same, for several channels at once",
     ),
 )
-def compute_pixel_statistics_for_channel(  # noqa: D103
+def compute_pixel_statistics_for_channel(  # noqa: D103, PLR0913
     img: PixelArray,
     pt: ImagePoint3D,
     *,
     channel: ImagingChannel,
     diameter: int,
     channel_column: str,
+    plus_minus_planes: int = 1,
+    require_full_padding: bool = False,
+    require_full_region: bool = False,
 ) -> dict[str, Numeric]:
     if len(np.shape(img)) != 4:  # noqa: PLR2004
         raise ValueError(f"Image must be 4D (channel, z, y, x), not {len(np.shape(img))}D")
@@ -152,6 +162,11 @@ def compute_pixel_statistics_for_channel(  # noqa: D103
             f"Region x [{left}, {right}), y [{top}, {bottom}) around point ({pt.x}, {pt.y}) "
             f"lies outside the image of {num_cols} x {num_rows} pixels"
         )
+    if require_full_region and (y_min, y_max, x_min, x_max) != (top, bottom, left, right):
+        raise ValueError(
+            f"Region x [{left}, {right}), y [{top}, {bottom}) around point ({pt.x}, {pt.y}) "
+            f"extends beyond the image of {num_cols} x {num_rows} pixels"
+        )
     bounds: dict[str, int] = {
         "y_min_px": y_min,
         "y_max_px": y_max,
@@ -160,7 +175,12 @@ def compute_pixel_statistics_for_channel(  # noqa: D103
     }
     # Indexing a dask array has no type information; the region is the same kind of array.
     subimg = cast("PixelArray", img[channel.get, :, y_min:y_max, x_min:x_max])
-    stats = RegionalPixelStatistics.from_image(subimg, central_z=pt.z)
+    stats = RegionalPixelStatistics.from_image(
+        subimg,
+        central_z=pt.z,
+        plus_minus_planes=plus_minus_planes,
+        require_full_padding=require_full_padding,
+    )
     return {channel_column: channel.get, **bounds, **stats.to_dict}
 
 
@@ -172,29 +192,43 @@ def compute_pixel_statistics_for_channel(  # noqa: D103
         channels="Channels of image in which to measure pixels",
         diameter="Size (width and height) of region around point in which to measure pixels",
         channel_column="Name for the field/column in which to store channel from which pixels were taken",
+        plus_minus_planes="Number of z-planes on either side of the central plane to include",
+        require_full_padding="Raise an error rather than use fewer z-planes at the edge of the stack",
+        require_full_region="Raise an error rather than measure a region cut off by the edge of the image",
     ),
     returns="List of records, one per channel, each mapping key/field to value",
     raises=dict(
         ValueError=(
-            "If the image isn't 4D, the diameter isn't positive, the region lies entirely outside "
-            "the image, or the point lies beyond the last z-plane"
+            "If the image isn't 4D; if the diameter isn't positive; if the region lies entirely "
+            "outside the image, or the point beyond the last z-plane; or, when required, if the "
+            "region or its z-padding extends beyond the image"
         ),
     ),
     see_also=dict(
         compute_pixel_statistics_for_channel="The same, for a single channel",
     ),
 )
-def compute_pixel_statistics(  # noqa: D103
+def compute_pixel_statistics(  # noqa: D103, PLR0913
     img: PixelArray,
     pt: ImagePoint3D,
     *,
     channels: Iterable[ImagingChannel],
     diameter: int,
     channel_column: str,
+    plus_minus_planes: int = 1,
+    require_full_padding: bool = False,
+    require_full_region: bool = False,
 ) -> list[dict[str, Numeric]]:
     return [
         compute_pixel_statistics_for_channel(
-            img, pt, channel=ch, diameter=diameter, channel_column=channel_column
+            img,
+            pt,
+            channel=ch,
+            diameter=diameter,
+            channel_column=channel_column,
+            plus_minus_planes=plus_minus_planes,
+            require_full_padding=require_full_padding,
+            require_full_region=require_full_region,
         )
         for ch in channels
     ]

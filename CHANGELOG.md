@@ -9,8 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 * `compute_pixel_statistics_for_channel`, the single-channel counterpart of `compute_pixel_statistics`, also available at package level. `compute_pixel_statistics` now calls it for each channel.
 See [Issue 32](https://github.com/gerlichlab/gertils/issues/32).
+* Each record from `compute_pixel_statistics` and `compute_pixel_statistics_for_channel` has a `pixel_count`: the number of pixels the statistics are taken over, which is smaller for a region cut off by the edge of the image or of the z-stack. Setting `require_full_region` raises a `ValueError` for a region cut off by the edge of the image instead. Both functions also take `plus_minus_planes` and `require_full_padding`, which they pass on to `RegionalPixelStatistics.from_image`.
+See [Issue 34](https://github.com/gerlichlab/gertils/issues/34).
 
 ### Changed
+* `RegionalPixelStatistics` has a new field, `pixel_count`, so code that creates it directly rather than through `from_image` must pass one.
 * gertils is type-checked with pyright instead of mypy, in strict mode for the package itself, as looptrace and VS Code's Pylance use pyright. Type information for `numpydoc_decorator` and for the part of `zarr` that gertils uses is in `typings/`.
 * `read_zarr` opens the array read-only. It returns the same data as before.
 

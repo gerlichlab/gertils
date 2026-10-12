@@ -82,14 +82,15 @@ def test_compute_pixel_statistics_gives_the_same_records_for_dask_and_numpy_inpu
     assert from_dask == from_numpy
 
 
-def stats_for_point(img, x, y, *, diameter=10):
-    """Compute the statistics for one channel, around a point in the middle z-plane."""
+def stats_for_point(img, x, y, *, z=1.0, diameter=10, **options):
+    """Compute the statistics for one channel, around a point (by default in the middle z-plane)."""
     return compute_pixel_statistics(
         img,
-        ImagePoint3D(x=x, y=y, z=1.0),
+        ImagePoint3D(x=x, y=y, z=z),
         channels=[ImagingChannel(0)],
         diameter=diameter,
         channel_column="channel",
+        **options,
     )
 
 
@@ -230,3 +231,30 @@ def test_statistics_for_several_channels_are_the_records_for_each_channel():
         )
         for channel in channels
     ]
+
+
+@pytest.mark.parametrize(
+    ("x", "y", "z", "options", "expected_count"),
+    [
+        (10.0, 10.0, 1.0, {}, 10 * 10 * 3),
+        (1.0, 1.0, 1.0, {}, 6 * 6 * 3),
+        (10.0, 10.0, 0.0, {}, 10 * 10 * 2),
+        (10.0, 10.0, 1.0, {"plus_minus_planes": 0}, 10 * 10),
+    ],
+)
+def test_pixel_count_is_the_number_of_pixels_measured(x, y, z, options, expected_count):
+    (record,) = stats_for_point(np.ones((1, 3, 20, 20), dtype=np.uint16), x, y, z=z, **options)
+    assert record["pixel_count"] == expected_count
+
+
+def test_region_cut_off_by_the_image_edge_is_rejected_when_full_region_is_required():
+    img = np.ones((1, 3, 20, 20), dtype=np.uint16)
+    stats_for_point(img, 10.0, 10.0, require_full_region=True)  # Entirely inside: no error.
+    with pytest.raises(ValueError, match="extends beyond the image of 20 x 20 pixels"):
+        stats_for_point(img, 1.0, 1.0, require_full_region=True)
+
+
+def test_z_settings_are_passed_through_to_the_statistics():
+    img = np.ones((1, 3, 20, 20), dtype=np.uint16)
+    with pytest.raises(ValueError, match=r"\[-1, 2\) slice for image of 3 z-slices"):
+        stats_for_point(img, 10.0, 10.0, z=0.0, require_full_padding=True)
