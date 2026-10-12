@@ -94,7 +94,7 @@ class RegionalPixelStatistics:  # noqa: D101
             center_mean=central_plane_img.mean(),
             center_sigma=central_plane_img.std(),
             center_min=central_plane_img.min(),
-            center_med=np.median(central_plane_img),
+            center_med=float(np.median(central_plane_img)),
             center_max=central_plane_img.max(),
         )
 

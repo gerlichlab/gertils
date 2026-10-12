@@ -117,7 +117,7 @@ def find_multiple_paths_by_fov(  # noqa: D103
 def find_single_path_by_fov(folder: PathLike, *, extension: str) -> dict[FieldOfViewFrom1, Path]:  # noqa: D103
     if isinstance(folder, str):
         folder = Path(folder)
-    image_paths = {}
+    image_paths: dict[FieldOfViewFrom1, Path] = {}
     for fn in os.listdir(folder):
         fp = folder / fn
         fov = get_fov_sort_key(fp, extension=extension)

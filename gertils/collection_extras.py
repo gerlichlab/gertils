@@ -2,7 +2,7 @@
 
 from collections import Counter, OrderedDict
 from collections.abc import Hashable, Iterable, MutableMapping
-from typing import Optional, TypeVar
+from typing import Optional, TypeVar, cast
 
 __all__ = ["count_repeats", "listify", "uniquify"]
 
@@ -21,7 +21,8 @@ def listify(maybe_items: Optional[Iterable[AnyT]]) -> list[AnyT]:
     if maybe_items is None:
         return []
     if isinstance(maybe_items, str):
-        return [maybe_items]
+        # A str is an Iterable[str], so AnyT is str here.
+        return cast("list[AnyT]", [maybe_items])
     return list(maybe_items)
 
 

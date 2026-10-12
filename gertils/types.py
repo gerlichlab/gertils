@@ -4,9 +4,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Union
 
-import dask.array as da
 import numpy as np
 import numpy.typing as npt
+from dask.array.core import Array as DaskArray
 from numpydoc_decorator import doc  # type: ignore[import]
 
 CsvRow = list[str]
@@ -14,7 +14,7 @@ LayerParams = dict
 PathLike = Union[str, Path]
 PathOrPaths = Union[PathLike, list[PathLike]]
 PixelValue = Union[np.uint8, np.uint16]
-PixelArray = Union[npt.NDArray[PixelValue], da.Array]
+PixelArray = Union[npt.NDArray[PixelValue], DaskArray]
 
 
 @doc(

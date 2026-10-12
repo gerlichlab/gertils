@@ -5,6 +5,7 @@ from collections.abc import Iterable
 from pathlib import Path
 
 import nox
+from nox.virtualenv import PassthroughEnv
 
 PYTHON_VERSIONS = ["3.10", "3.11", "3.12"]
 PACKAGE_NAME = "gertils"
@@ -29,7 +30,7 @@ def install_groups(
     Auto-skip the `poetry export` step if the poetry.lock file is unchanged
     (matching hash) since the last time this session was run.
     """
-    if isinstance(session.virtualenv, nox.virtualenv.PassthroughEnv):
+    if isinstance(session.virtualenv, PassthroughEnv):
         session.warn(
             "Running outside a Nox virtualenv! We will skip installation here, "
             "and simply assume that the necessary dependency groups have "

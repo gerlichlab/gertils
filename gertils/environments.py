@@ -127,6 +127,7 @@ def write_env_file(
     env: Union[CondaEnvironmentSpecification, PipEnvironmentSpecification], path: Path
 ) -> Path:
     """Write an environment specification to a file."""
+    lines: list[str]
     if isinstance(env, PipEnvironmentSpecification):
         lines = env.dependencies
     elif isinstance(env, CondaEnvironmentSpecification):

@@ -1,8 +1,11 @@
 """Tests for statistics over pixel values"""
 
-import dask.array as da
+from typing import Any
+
 import numpy as np
 import pytest
+from dask.array.core import Array as DaskArray
+from dask.array.core import from_array
 
 from gertils.geometry import ImagePoint3D
 from gertils.pixel_value_statistics import RegionalPixelStatistics, compute_pixel_statistics
@@ -31,7 +34,7 @@ def test_z_window_is_truncated_at_the_edges_of_the_stack(
 ):
     img = stack_of_indexed_planes(num_planes)
     stats = RegionalPixelStatistics.from_image(
-        da.from_array(img) if as_dask else img, central_z=central_z
+        from_array(img) if as_dask else img, central_z=central_z
     )
     assert (stats.center_min, stats.center_max, stats.center_mean) == (
         min(expected_planes),
@@ -68,8 +71,10 @@ def test_compute_pixel_statistics_gives_the_same_records_for_dask_and_numpy_inpu
         "channel_column": "channel",
     }
     from_numpy = compute_pixel_statistics(img, **kwargs)
-    from_dask = compute_pixel_statistics(da.from_array(img, chunks=(1, 2, 20, 20)), **kwargs)
-    assert not any(isinstance(value, da.Array) for record in from_dask for value in record.values())
+    from_dask = compute_pixel_statistics(from_array(img), **kwargs)
+    assert not any(
+        isinstance(value, DaskArray) for record in from_dask for value in record.values()
+    )
     assert from_dask == from_numpy
 
 
@@ -144,7 +149,9 @@ def test_only_the_planes_of_the_z_window_are_read_from_a_dask_array():
         "diameter": 4,
         "channel_column": "channel",
     }
-    from_dask = compute_pixel_statistics(da.from_array(recorder, chunks=(1, 1, 10, 10)), **kwargs)
+    # dask's from_array has no type hints, so pyright infers its chunks parameter as str.
+    chunks: Any = (1, 1, 10, 10)
+    from_dask = compute_pixel_statistics(from_array(recorder, chunks=chunks), **kwargs)
     assert recorder.planes_read == {9, 10, 11}
     assert from_dask == compute_pixel_statistics(data, **kwargs)
 

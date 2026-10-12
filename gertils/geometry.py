@@ -45,7 +45,7 @@ class ImagePoint3D(ImagePoint2D):  # noqa: D101
 
     def __post_init__(self) -> None:
         super().__post_init__()
-        if not isinstance(self.z, int | float | np.float64):
+        if not isinstance(self.z, int | float):  # np.float64 is a subclass of float.
             raise TypeError(f"Bad z ({type(self.z).__name__}: {self.z}")
         if self.z < 0:
             raise ValueError(f"z-coordinate is negative! {self}")
