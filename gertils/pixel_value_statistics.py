@@ -130,6 +130,8 @@ def compute_pixel_statistics(  # noqa: D103"
     diameter: int,
     channel_column: str,
 ) -> list[dict[str, Numeric]]:
+    if len(img.shape) != 4:  # noqa: PLR2004
+        raise ValueError(f"Image must be 4D (channel, z, y, x), not {len(img.shape)}D")
     if diameter < 1:
         raise ValueError(f"Diameter of the region must be positive; got {diameter}")
     # Centre the region on the nearest pixel, rounding halves up; round() would round them to even.

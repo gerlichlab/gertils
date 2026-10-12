@@ -169,3 +169,17 @@ def test_region_is_centred_on_the_nearest_pixel(coordinate, diameter, expected_b
     )
     assert (record["x_min_px"], record["x_max_px"]) == expected_bounds
     assert (record["y_min_px"], record["y_max_px"]) == expected_bounds
+
+
+@pytest.mark.parametrize("shape", [(3, 20, 20), (1, 2, 3, 20, 20)])
+def test_image_must_be_4d(shape):
+    with pytest.raises(
+        ValueError, match=f"Image must be 4D \\(channel, z, y, x\\), not {len(shape)}D"
+    ):
+        compute_pixel_statistics(
+            np.ones(shape, dtype=np.uint16),
+            ImagePoint3D(x=10.0, y=10.0, z=1.0),
+            channels=[ImagingChannel(0)],
+            diameter=4,
+            channel_column="channel",
+        )
