@@ -158,7 +158,10 @@ def get_fov_sort_key(path: PathLike, *, extension: str) -> Optional[FieldOfViewF
         )
         rawval = rawval.removesuffix(extension)
     try:
-        rawval: int = int(rawval)  # type: ignore[no-redef]
+        fov = int(rawval)
     except ValueError:
         return None
-    return FieldOfViewFrom1(rawval)  # type: ignore[arg-type]
+    # Fields of view are numbered from 1, so a name with the number 0 doesn't give one.
+    if fov < 1:
+        return None
+    return FieldOfViewFrom1(fov)

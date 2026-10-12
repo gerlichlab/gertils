@@ -62,3 +62,15 @@ def test_find_single_path_by_fov_keeps_fovs_apart_for_extension_with_digits(tmp_
         FieldOfViewFrom1(2): tmp_path / "P0002.nd2",
         FieldOfViewFrom1(12): tmp_path / "P0012.nd2",
     }
+
+
+def test_number_zero_gives_no_fov():
+    assert get_fov_sort_key("P0000.zarr", extension=".zarr") is None
+
+
+def test_file_with_number_zero_is_skipped_in_a_folder_scan(tmp_path):
+    for name in ["P0000.zarr", "P0001.zarr"]:
+        (tmp_path / name).mkdir()
+    assert find_single_path_by_fov(tmp_path, extension=".zarr") == {
+        FieldOfViewFrom1(1): tmp_path / "P0001.zarr",
+    }
