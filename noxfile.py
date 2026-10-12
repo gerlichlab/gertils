@@ -6,7 +6,7 @@ from pathlib import Path
 
 import nox
 
-PYTHON_VERSIONS = ["3.10", "3.11"]
+PYTHON_VERSIONS = ["3.10", "3.11", "3.12"]
 PACKAGE_NAME = "gertils"
 
 
@@ -43,14 +43,6 @@ def install_groups(
     hashfile = requirements_txt.with_suffix(".hash")
 
     if not hashfile.is_file() or hashfile.read_text() != digest:
-        # First, adjust settings to avoid warning that we cover in shell.nix.
-        # See: https://python-poetry.org/blog/announcing-poetry-1.7.0/
-        argv = [
-            "poetry",
-            "config",
-            "warnings.export",
-            "false",
-        ]
         session.log(f"Will generate requirements hashfile: {hashfile}")
         requirements_txt.parent.mkdir(parents=True, exist_ok=True)
         argv = [
@@ -63,7 +55,10 @@ def install_groups(
             option = "only" if not include_self else "with"
             argv.append(f"--{option}={','.join(include)}")
         session.debug(f"Running command: {' '.join(argv)}")
-        session.run_always(*argv, external=True)
+        # shell.nix installs poetry-plugin-export, so Poetry 1.7's warning about it doesn't apply.
+        # Set through the environment, so that Poetry's global configuration stays untouched.
+        # See: https://python-poetry.org/blog/announcing-poetry-1.7.0/
+        session.run_always(*argv, external=True, env={"POETRY_WARNINGS_EXPORT": "false"})
         session.debug(f"Writing requirements hashfile: {hashfile}")
         hashfile.write_text(digest)
 
