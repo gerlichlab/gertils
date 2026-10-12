@@ -23,6 +23,7 @@ jobs:
           path: ~/.cache/pypoetry/virtualenvs
           key: ${{ runner.os }}-poetry-lint-${{ hashFiles('poetry.lock') }}
       - name: Install project
-        run: poetry sync --no-interaction --with=nox,lint
-      - name: Run linters on Python ${{ matrix.python-version }}
-        run: poetry run nox --no-venv --no-install --non-interactive -s lint
+        run: poetry sync --no-interaction --with=lint
+      # The same checks as the pre-commit hooks: codespell, ruff check, ruff format and pyright.
+      - name: Run checks on Python ${{ matrix.python-version }}
+        run: poetry run pre-commit run --all-files --show-diff-on-failure

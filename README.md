@@ -14,7 +14,7 @@ These tools are organised by use case at the module level; that is, tools that a
 - [zarr_tools](./gertils/zarr_tools.py) -- functions and types for working with ZARR-stored data
 
 ## Development
-This project is configured to use Nix for a shell/environment with dependencies, and Nox to make common development commands/workflows easier. Start always with `nix-shell`. If it takes a long time to build, try...
+This project is configured to use Nix for a shell/environment with dependencies. Start always with `nix-shell`. If it takes a long time to build, try...
 1. Stop the shell build: `Ctrl-c`
 1. Remove the Poetry lockfile: `rm poetry.lock`
 1. Clear Poetry's PyPI cache (assuming you have an active Nix shell): `poetry cache clear PyPI --all`
@@ -22,11 +22,16 @@ This project is configured to use Nix for a shell/environment with dependencies,
 1. Exit Nix shell: `Ctrl-d`
 1. Restart Nix shell: `nix-shell`
 
-### Testing
-From the Nix shell, run `nox --list` to see a list of available commands, notably to run tests against different versions of Python, to reformat code to be style-compliant, and to run the linter.
-
-NB: To pass arguments through `nox` to `pytest`, separate the argument strings with `--`, e.g.:
+### Checks and tests
+The checks that CI runs are pre-commit hooks, defined in `.pre-commit-config.yaml`. Install them once, from the Nix shell:
 ```shell
-nox -s tests-3.11 -- -vv
+pre-commit install
 ```
-to run the tests with additional verbosity (e.g., `pytest -vv`)
+Then codespell, ruff and pyright run on every commit, and the tests before every push. To run all the checks by hand: `pre-commit run --all-files`.
+
+Each tool can also be run on its own, from the Nix shell:
+- `pytest` for the tests, e.g. `pytest -vv` for more detail
+- `pyright` for type checking
+- `ruff check .` for linting
+- `ruff format .` for formatting
+- `codespell` for spelling

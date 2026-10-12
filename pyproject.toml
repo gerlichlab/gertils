@@ -44,34 +44,23 @@ optional = true
 # Consider each new dependency to another group as a dev group candidate.
 codespell = "^2.2.2"
 hypothesis = "^6.68.2"
-nox = "^2022.11.21"
+pre-commit = "^4.0"
 pyright = "^1.1.411"
 pytest = "^7.1.0"
 pytest-cov = "^5.0.0"
-ruff = ">=0.3"
-
-[tool.poetry.group.format]
-optional = true
-
-[tool.poetry.group.format.dependencies]
-codespell = "^2.2.2"
 ruff = ">=0.3"
 
 [tool.poetry.group.lint]
 optional = true
 
 [tool.poetry.group.lint.dependencies]
+# Everything that the pre-commit hooks run, for the checks job in CI.
+codespell = "^2.2.2"
 hypothesis = "^6.68.2"
-nox = "^2022.11.21"
+pre-commit = "^4.0"
 pyright = "^1.1.411"
 pytest = "^7.1.0"
 ruff = ">=0.3"
-
-[tool.poetry.group.nox]
-optional = true
-
-[tool.poetry.group.nox.dependencies]
-nox = "^2022.11.21"
 
 [tool.poetry.group.test]
 optional = true
@@ -89,8 +78,8 @@ check-filenames = true
 uri-ignore-words-list = "*" # prevent spelling correction in URL-like values.
 
 [tool.pyright]
-include = ["gertils", "tests", "noxfile.py"]
-# The package itself gets strict checking; tests and the noxfile get the standard level.
+include = ["gertils", "tests"]
+# The package itself gets strict checking; the tests get the standard level.
 strict = ["gertils"]
 reportUnnecessaryTypeIgnoreComment = "error"
 
@@ -147,11 +136,6 @@ ignore = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"noxfile.py" = [
-    # The noxfile is dev-only; we don't care much about form.
-    "ANN",  # Missing type annotations
-    "D",  # Missing docstrings
-]
 "typings/*" = [
     # Stubs copy the signatures of third-party code, which we can't change.
     "FBT001",  # Boolean-typed positional argument in function definition

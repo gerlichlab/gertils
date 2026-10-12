@@ -17,6 +17,8 @@ See [Issue 34](https://github.com/gerlichlab/gertils/issues/34).
 * `RegionalPixelStatistics` has a new field, `pixel_count`, so code that creates it directly rather than through `from_image` must pass one.
 * gertils is type-checked with pyright instead of mypy, in strict mode for the package itself, as looptrace and VS Code's Pylance use pyright. Type information for `numpydoc_decorator` and for the part of `zarr` that gertils uses is in `typings/`.
 * `read_zarr` opens the array read-only. It returns the same data as before.
+* The development checks run as pre-commit hooks instead of through nox: codespell, ruff and pyright on every commit, and the tests before every push. CI runs the same hooks.
+See [Issue 44](https://github.com/gerlichlab/gertils/issues/44).
 
 ### Fixed
 * The documentation of `RegionalPixelStatistics` listed ten parameters that no longer exist, and described the statistics as coming from a single z-slice. The summary of `ImagePoint3D` described it as a 2D point.
