@@ -120,7 +120,7 @@ def _statistic_values(pixels: npt.NDArray[Any]) -> dict[str, Any]:
         "center_mean": pixels.mean(),
         "center_sigma": pixels.std(),
         "center_min": pixels.min(),
-        "center_med": float(np.median(pixels)),
+        "center_med": np.float64(np.median(pixels)),
         "center_max": pixels.max(),
         "pixel_count": pixels.size,
     }

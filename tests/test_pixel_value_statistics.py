@@ -121,6 +121,18 @@ def test_reported_bounds_are_those_of_the_pixels_measured(x, y, expected_bounds)
     assert {key: record[key] for key in expected_stats} == expected_stats
 
 
+def test_statistics_are_numpy_numbers_of_the_types_numpy_gives():
+    img = np.random.default_rng(6).integers(0, 1000, size=(1, 3, 20, 20), dtype=np.uint16)
+    (record,) = stats_for_point(img, 10.0, 10.0)
+    assert {key: type(record[key]) for key in record if key.startswith("center_")} == {
+        "center_mean": np.float64,
+        "center_sigma": np.float64,
+        "center_min": np.uint16,
+        "center_med": np.float64,
+        "center_max": np.uint16,
+    }
+
+
 @pytest.mark.parametrize(("x", "y"), [(30.0, 10.0), (10.0, 30.0)])
 def test_region_entirely_outside_the_image_is_rejected(x, y):
     with pytest.raises(ValueError, match="lies outside the image of 20 x 20 pixels"):
