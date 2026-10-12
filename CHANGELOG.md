@@ -15,6 +15,8 @@ See [Issue 40](https://github.com/gerlichlab/gertils/issues/40).
 See [Issue 33](https://github.com/gerlichlab/gertils/issues/33).
 * `compute_pixel_statistics` reported the bounds of the whole region around a point, even where that region extends past the edge of the image, so bounds could be negative or beyond the image size. The reported bounds are now those of the pixels actually measured. A region entirely outside the image, or a diameter that isn't positive, now raises a `ValueError` with a clear message.
 See [Issue 34](https://github.com/gerlichlab/gertils/issues/34).
+* `compute_pixel_statistics` centred a region with an odd diameter one pixel away from the point for about half of all coordinates, in x and in y, because `round` rounds halves to the nearest even number. Regions are now centred on the nearest pixel, rounding halves up. For even diameters, only coordinates exactly half-way between two pixels change.
+See [Issue 46](https://github.com/gerlichlab/gertils/issues/46).
 * The package-level names are now declared in `__all__`. gertils ships `py.typed`, so without it, type checkers treated them as private to `gertils/__init__.py`: pyright, and mypy with `--no-implicit-reexport`, reported every `from gertils import ExtantFile` as importing a name the package does not export.
 
 ## [v0.6.1] - 2025-10-28

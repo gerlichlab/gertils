@@ -2,6 +2,7 @@
 
 import dataclasses
 import logging
+import math
 from collections.abc import Iterable
 from typing import TypeAlias
 
@@ -131,9 +132,10 @@ def compute_pixel_statistics(  # noqa: D103"
 ) -> list[dict[str, Numeric]]:
     if diameter < 1:
         raise ValueError(f"Diameter of the region must be positive; got {diameter}")
-    left: int = round(pt.x - diameter / 2)
+    # Centre the region on the nearest pixel, rounding halves up; round() would round them to even.
+    left: int = math.floor(pt.x + 0.5) - diameter // 2
     right: int = left + diameter
-    top: int = round(pt.y - diameter / 2)
+    top: int = math.floor(pt.y + 0.5) - diameter // 2
     bottom: int = top + diameter
     # Clip the region to the image, so that the bounds reported are those of the pixels measured.
     num_rows, num_cols = img.shape[-2:]

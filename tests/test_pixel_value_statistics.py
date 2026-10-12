@@ -143,3 +143,29 @@ def test_only_the_planes_of_the_z_window_are_read_from_a_dask_array():
     from_dask = compute_pixel_statistics(da.from_array(recorder, chunks=(1, 1, 10, 10)), **kwargs)
     assert recorder.planes_read == {9, 10, 11}
     assert from_dask == compute_pixel_statistics(data, **kwargs)
+
+
+@pytest.mark.parametrize(
+    ("coordinate", "diameter", "expected_bounds"),
+    [
+        (10.0, 5, (8, 13)),
+        (11.0, 5, (9, 14)),
+        (12.0, 5, (10, 15)),
+        (13.0, 5, (11, 16)),
+        (10.4, 5, (8, 13)),
+        (10.6, 5, (9, 14)),
+        (10.0, 4, (8, 12)),
+        (11.0, 4, (9, 13)),
+        (10.6, 4, (9, 13)),
+    ],
+)
+def test_region_is_centred_on_the_nearest_pixel(coordinate, diameter, expected_bounds):
+    (record,) = compute_pixel_statistics(
+        np.zeros((1, 3, 40, 40), dtype=np.uint16),
+        ImagePoint3D(x=coordinate, y=coordinate, z=1.0),
+        channels=[ImagingChannel(0)],
+        diameter=diameter,
+        channel_column="channel",
+    )
+    assert (record["x_min_px"], record["x_max_px"]) == expected_bounds
+    assert (record["y_min_px"], record["y_max_px"]) == expected_bounds
