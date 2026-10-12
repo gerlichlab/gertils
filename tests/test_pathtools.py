@@ -1,5 +1,3 @@
-# mypy: disable-error-code=no-any-return
-
 """Tests for core utilities for working with paths"""
 
 from collections.abc import Callable

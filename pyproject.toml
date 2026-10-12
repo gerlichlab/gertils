@@ -70,7 +70,7 @@ pytest = "^7.1.0"
 pytest-cov = "^5.0.0"
 
 [tool.codespell]
-skip = ".git,.mypy_cache,.nox,.vscode,__pycache__,pyproject.toml,poetry.lock"
+skip = ".git,.vscode,__pycache__,pyproject.toml,poetry.lock"
 builtin = "clear,rare,informal,usage,code,names"
 ignore-words-list = "jupyter,iff"  # prevent jupyter -> jupiter, iff -> if
 check-filenames = true
