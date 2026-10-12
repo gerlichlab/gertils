@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 * `get_fov_sort_key`, and so `find_single_path_by_fov` and `find_multiple_paths_by_fov`, misread the field of view when the file extension contains a digit; e.g. `P0012.nd2` was parsed as FOV 1, and `P0002.nd2` raised an error. Legacy `.zarr.zarr` names now emit the intended `DeprecationWarning`, and names starting with more than one `P` are no longer accepted.
 See [Issue 41](https://github.com/gerlichlab/gertils/issues/41).
+* `RegionalPixelStatistics.from_image`, and so `compute_pixel_statistics`, failed or used the wrong z-planes when the window around a point extended below plane 0; with the default padding, this affected every point with `z < 0.5`. The window is now truncated at plane 0, as it already was at the top of the stack.
+See [Issue 40](https://github.com/gerlichlab/gertils/issues/40).
 
 ## [v0.6.1] - 2025-10-28
 

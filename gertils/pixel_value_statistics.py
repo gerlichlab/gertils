@@ -92,7 +92,8 @@ class RegionalPixelStatistics:  # noqa: D101
                     f"[{lower_slice_bound}, {upper_slice_bound}) slice for image of {img.shape[0]} z-slices"
                 )
             logging.debug(oob_slice_msg)
-        central_plane_img = img[slice(lower_slice_bound, upper_slice_bound)]
+        # Clip only here, so that the check above still sees a window that runs below plane 0.
+        central_plane_img = img[max(0, lower_slice_bound) : upper_slice_bound]
 
         return cls(
             center_mean=central_plane_img.mean(),
