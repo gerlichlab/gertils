@@ -75,7 +75,7 @@ class RegionalPixelStatistics:  # noqa: D101
         )
         # Only the planes of the window are loaded, so the statistics below are plain numbers.
         # Indexing a dask array has no type information; the window is the same kind of array.
-        return cls(**_statistic_values(np.asarray(cast("PixelArray", img[planes]))))
+        return _statistics_of(np.asarray(cast("PixelArray", img[planes])))
 
 
 def _z_window(
@@ -114,16 +114,16 @@ def _z_window(
     return slice(max(0, lower_slice_bound), upper_slice_bound)
 
 
-def _statistic_values(pixels: npt.NDArray[Any]) -> dict[str, Any]:
-    """Compute the values of the fields of RegionalPixelStatistics, from pixels already loaded."""
-    return {
-        "center_mean": pixels.mean(),
-        "center_sigma": pixels.std(),
-        "center_min": pixels.min(),
-        "center_med": np.float64(np.median(pixels)),
-        "center_max": pixels.max(),
-        "pixel_count": pixels.size,
-    }
+def _statistics_of(pixels: npt.NDArray[Any]) -> RegionalPixelStatistics:
+    """Compute the statistics over pixels already loaded."""
+    return RegionalPixelStatistics(
+        center_mean=pixels.mean(),
+        center_sigma=pixels.std(),
+        center_min=pixels.min(),
+        center_med=np.float64(np.median(pixels)),
+        center_max=pixels.max(),
+        pixel_count=pixels.size,
+    )
 
 
 @dataclasses.dataclass(frozen=True)
@@ -234,7 +234,7 @@ def compute_pixel_statistics_for_channel(  # noqa: D103, PLR0913
     return {
         channel_column: channel.get,
         **region.bounds,
-        **_statistic_values(np.asarray(region_img)),
+        **_statistics_of(np.asarray(region_img)).to_dict,
     }
 
 
@@ -296,6 +296,6 @@ def compute_pixel_statistics(  # noqa: D103, PLR0913
             np.asarray(img[ch.get, region.planes, region.rows, region.columns]) for ch in channels
         ]
     return [
-        {channel_column: ch.get, **region.bounds, **_statistic_values(region_img)}
+        {channel_column: ch.get, **region.bounds, **_statistics_of(region_img).to_dict}
         for ch, region_img in zip(channels, region_imgs, strict=True)
     ]
