@@ -16,7 +16,7 @@ See [Issue 45](https://github.com/gerlichlab/gertils/issues/45).
 ### Added
 * `compute_pixel_statistics_for_channel`, the single-channel counterpart of `compute_pixel_statistics`, also available at package level.
 See [Issue 32](https://github.com/gerlichlab/gertils/issues/32).
-* Each record from `compute_pixel_statistics` and `compute_pixel_statistics_for_channel` has a `pixel_count`: the number of pixels the statistics are taken over, which is smaller for a region cut off by the edge of the image or of the z-stack. Setting `require_full_region` raises a `ValueError` for a region cut off by the edge of the image instead. Both functions also take `plus_minus_planes` and `require_full_padding`, which they pass on to `RegionalPixelStatistics.from_image`.
+* Each record from `compute_pixel_statistics` and `compute_pixel_statistics_for_channel` has a `pixel_count`: the number of pixels the statistics are taken over, which is smaller for a region cut off by the edge of the image or of the z-stack. Setting `require_full_region` raises a `ValueError` for a region cut off by the edge of the image instead. Both functions also take `plus_minus_planes` and `require_full_padding`, with the same meaning as for `RegionalPixelStatistics.from_image`.
 See [Issue 34](https://github.com/gerlichlab/gertils/issues/34).
 
 ### Changed
