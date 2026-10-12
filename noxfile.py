@@ -7,7 +7,7 @@ from pathlib import Path
 import nox
 from nox.virtualenv import PassthroughEnv
 
-PYTHON_VERSIONS = ["3.10", "3.11", "3.12"]
+PYTHON_VERSIONS = ["3.10", "3.11", "3.12", "3.13"]
 PACKAGE_NAME = "gertils"
 
 

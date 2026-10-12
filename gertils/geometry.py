@@ -1,7 +1,7 @@
 """Geometric types and tools"""
 
 from dataclasses import dataclass
-from typing import Union
+from typing import Union, cast
 
 import numpy as np
 from numpydoc_decorator import doc
@@ -45,7 +45,9 @@ class ImagePoint3D(ImagePoint2D):  # noqa: D101
 
     def __post_init__(self) -> None:
         super().__post_init__()
-        if not isinstance(self.z, int | float):  # np.float64 is a subclass of float.
+        # Checked at runtime, since callers may pass any type despite the annotation.
+        # np.float64 is a subclass of float.
+        if not isinstance(cast("object", self.z), int | float):
             raise TypeError(f"Bad z ({type(self.z).__name__}: {self.z}")
         if self.z < 0:
             raise ValueError(f"z-coordinate is negative! {self}")

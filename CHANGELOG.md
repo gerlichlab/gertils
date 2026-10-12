@@ -13,6 +13,7 @@ See [Issue 32](https://github.com/gerlichlab/gertils/issues/32).
 See [Issue 34](https://github.com/gerlichlab/gertils/issues/34).
 
 ### Changed
+* gertils allows numpy 2, dask releases from 2024 on, and Python 3.13. The upper limits were `numpy < 2`, `dask < 2024` and Python < 3.13. CI and the nox test sessions now include Python 3.13.
 * `RegionalPixelStatistics` has a new field, `pixel_count`, so code that creates it directly rather than through `from_image` must pass one.
 * gertils is type-checked with pyright instead of mypy, in strict mode for the package itself, as looptrace and VS Code's Pylance use pyright. Type information for `numpydoc_decorator` and for the part of `zarr` that gertils uses is in `typings/`.
 * `read_zarr` opens the array read-only. It returns the same data as before.
