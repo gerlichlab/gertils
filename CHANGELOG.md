@@ -4,6 +4,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v0.7.0] - 2026-10-12
+
+### Removed
+* Support for Python 3.10, which reaches its end of life in October 2026. gertils now requires Python 3.11 to 3.13. Of the projects that use gertils, looptrace already requires Python 3.11; nuclei-vis-napari and looptrace-loci-vis still support 3.10 and will drop it soon too.
+* `gertils.environments`. Its support for conda environments never worked, and nothing uses it; the issue lists the standard tools to use instead.
+See [Issue 42](https://github.com/gerlichlab/gertils/issues/42).
+* `gertils.gpu`, which nothing uses any more. `len(tf.config.list_physical_devices("GPU"))` gives the number of GPUs that TensorFlow can see.
+See [Issue 45](https://github.com/gerlichlab/gertils/issues/45).
+
+### Added
+* `compute_pixel_statistics_for_channel`, the single-channel counterpart of `compute_pixel_statistics`, also available at package level.
+See [Issue 32](https://github.com/gerlichlab/gertils/issues/32).
+* Each record from `compute_pixel_statistics` and `compute_pixel_statistics_for_channel` has a `pixel_count`: the number of pixels the statistics are taken over, which is smaller for a region cut off by the edge of the image or of the z-stack. Setting `require_full_region` raises a `ValueError` for a region cut off by the edge of the image instead. Both functions also take `plus_minus_planes` and `require_full_padding`, with the same meaning as for `RegionalPixelStatistics.from_image`.
+See [Issue 34](https://github.com/gerlichlab/gertils/issues/34).
+
+### Changed
+* gertils allows numpy 2, dask releases from 2024 on, and Python 3.13. The upper limits were `numpy < 2`, `dask < 2024` and Python < 3.13. CI now includes Python 3.13.
+* `RegionalPixelStatistics` has a new field, `pixel_count`, so code that creates it directly rather than through `from_image` must pass one.
+* gertils is type-checked with pyright instead of mypy, in strict mode for the package itself, as looptrace and VS Code's Pylance use pyright. Type information for `numpydoc_decorator` and for the part of `zarr` that gertils uses is in `typings/`.
+* `read_zarr` opens the array read-only. It returns the same data as before.
+* `compute_pixel_statistics` and `compute_pixel_statistics_for_channel` read only the planes of the z-window of the region around a point, instead of the region's whole z-stack. `compute_pixel_statistics` computes all channels of a dask array at once, so that stored chunks holding several channels are read once. The results are the same.
+See [Issue 49](https://github.com/gerlichlab/gertils/issues/49).
+* `compute_pixel_statistics` checks the z-window around the point before it looks at the channels, as it already did for the region in x and y. With an empty list of channels, a point beyond the last z-plane therefore raises a `ValueError` now, instead of giving an empty list.
+* The development checks run as pre-commit hooks instead of through nox: codespell, ruff and pyright on every commit, and the tests before every push. CI runs the same hooks.
+See [Issue 44](https://github.com/gerlichlab/gertils/issues/44).
+* The Nix shell uses nixpkgs 26.05 instead of 23.11, with Poetry 2 and Python 3.11 to 3.13, and downloads nixpkgs as a tarball instead of cloning it. `poetry.lock` is in the format of Poetry 2, which CI uses too.
+See [Issue 38](https://github.com/gerlichlab/gertils/issues/38).
+
+### Fixed
+* The z-window around a point was centred on the nearest plane with halves rounded to the nearest even number, as the region in x and y was before v0.6.2: z = 0.5 and 2.5 used planes 0 and 2, but z = 1.5 and 3.5 planes 2 and 4. Halves are now rounded up, as for x and y. This affects `RegionalPixelStatistics.from_image`, `compute_pixel_statistics` and `compute_pixel_statistics_for_channel`, and only for a z exactly half-way between two planes.
+See [Issue 46](https://github.com/gerlichlab/gertils/issues/46).
+* The type of the records from `compute_pixel_statistics` left out unsigned integers, though `center_min` and `center_max` have the type of the image's pixels, usually `np.uint16`.
+* The documentation of `RegionalPixelStatistics` listed ten parameters that no longer exist, and described the statistics as coming from a single z-slice. The summary of `ImagePoint3D` described it as a 2D point.
+
 ## [v0.6.2] - 2026-10-12
 
 ### Fixed
@@ -22,7 +56,7 @@ See [Issue 34](https://github.com/gerlichlab/gertils/issues/34).
 * `compute_pixel_statistics` centred a region with an odd diameter one pixel away from the point for about half of all coordinates, in x and in y, because `round` rounds halves to the nearest even number. Regions are now centred on the nearest pixel, rounding halves up. For even diameters, only coordinates exactly half-way between two pixels change.
 See [Issue 46](https://github.com/gerlichlab/gertils/issues/46).
 * `compute_pixel_statistics` raises a `ValueError` saying so when the image isn't 4D (channel, z, y, x). Before, a 5D image gave a misleading message about 3D images, and a 3D image an `IndexError`.
-* The package-level names are now declared in `__all__`. gertils ships `py.typed`, so without it, type checkers treated them as private to `gertils/__init__.py`: pyright, and mypy with `--no-implicit-reexport`, reported every `from gertils import ExtantFile` as importing a name the package does not export.
+* The package-level names are now declared in `__all__`. gertils ships `py.typed`, so without it, type checkers treated them as private to `gertils/__init__.py`: pyright, and mypy with `--no-implicit-reexport`, reported every `from gertils import ExtantFile` as importing a name the package does not export. `from gertils import *` now imports only these names; before, it also imported the modules `geometry`, `pathtools`, `pixel_value_statistics` and `types`, which hid Python's own `types` module.
 
 ## [v0.6.1] - 2025-10-28
 

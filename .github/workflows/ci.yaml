@@ -7,5 +7,3 @@ jobs:
     uses: ./.github/workflows/tests.yaml
   lint:
     uses: ./.github/workflows/lint.yaml
-  format:
-    uses: ./.github/workflows/format.yaml

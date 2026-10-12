@@ -13,6 +13,7 @@ from .pathtools import (
 from .pixel_value_statistics import (
     RegionalPixelStatistics,
     compute_pixel_statistics,
+    compute_pixel_statistics_for_channel,
 )
 
 # gertils ships py.typed, so type checkers treat names imported here as private unless listed.
@@ -23,9 +24,10 @@ __all__ = [
     "PathWrapperException",
     "RegionalPixelStatistics",
     "compute_pixel_statistics",
+    "compute_pixel_statistics_for_channel",
     "find_multiple_paths_by_fov",
     "find_single_path_by_fov",
     "get_fov_sort_key",
 ]
 
-__version__ = "0.6.2"
+__version__ = "0.7.0"

@@ -1,0 +1,38 @@
+# The checks that CI runs. Install them once, in the Nix shell, with `pre-commit install`;
+# `pre-commit run --all-files` runs them by hand.
+# The hooks run the tools installed in the project's environment, so they use the versions
+# in poetry.lock, the same as CI.
+default_install_hook_types: [pre-commit, pre-push]
+default_stages: [pre-commit]
+
+repos:
+  - repo: local
+    hooks:
+      - id: codespell
+        name: codespell
+        entry: codespell
+        language: system
+        types: [text]
+      - id: ruff-check
+        name: ruff check
+        entry: ruff check
+        language: system
+        types_or: [python, pyi]
+      - id: ruff-format
+        name: ruff format
+        entry: ruff format
+        language: system
+        types_or: [python, pyi]
+      - id: pyright
+        name: pyright
+        entry: pyright
+        language: system
+        types_or: [python, pyi]
+        pass_filenames: false
+      - id: pytest
+        name: pytest
+        entry: pytest
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-push]

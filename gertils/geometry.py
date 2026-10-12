@@ -1,10 +1,10 @@
 """Geometric types and tools"""
 
 from dataclasses import dataclass
-from typing import Union
+from typing import Union, cast
 
 import numpy as np
-from numpydoc_decorator import doc  # type: ignore[import]
+from numpydoc_decorator import doc
 
 ZCoordinate = Union[int, float, np.float64]  # int to accommodate notion of "z-slice"
 
@@ -29,7 +29,7 @@ class ImagePoint2D:  # noqa: D101
 
 
 @doc(
-    summary="Bundle x and y position to create point in 2D space.",
+    summary="Bundle x, y and z position to create point in 3D space.",
     parameters=dict(
         x="Position in x",
         y="Position in y",
@@ -45,7 +45,9 @@ class ImagePoint3D(ImagePoint2D):  # noqa: D101
 
     def __post_init__(self) -> None:
         super().__post_init__()
-        if not isinstance(self.z, int | float | np.float64):
+        # Checked at runtime, since callers may pass any type despite the annotation.
+        # np.float64 is a subclass of float.
+        if not isinstance(cast("object", self.z), int | float):
             raise TypeError(f"Bad z ({type(self.z).__name__}: {self.z}")
         if self.z < 0:
             raise ValueError(f"z-coordinate is negative! {self}")

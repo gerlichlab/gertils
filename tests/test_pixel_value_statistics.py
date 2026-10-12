@@ -1,11 +1,19 @@
 """Tests for statistics over pixel values"""
 
-import dask.array as da
+from typing import Any
+
 import numpy as np
 import pytest
+import zarr
+from dask.array.core import Array as DaskArray
+from dask.array.core import from_array, from_zarr
 
 from gertils.geometry import ImagePoint3D
-from gertils.pixel_value_statistics import RegionalPixelStatistics, compute_pixel_statistics
+from gertils.pixel_value_statistics import (
+    RegionalPixelStatistics,
+    compute_pixel_statistics,
+    compute_pixel_statistics_for_channel,
+)
 from gertils.types import ImagingChannel
 
 
@@ -31,13 +39,24 @@ def test_z_window_is_truncated_at_the_edges_of_the_stack(
 ):
     img = stack_of_indexed_planes(num_planes)
     stats = RegionalPixelStatistics.from_image(
-        da.from_array(img) if as_dask else img, central_z=central_z
+        from_array(img) if as_dask else img, central_z=central_z
     )
     assert (stats.center_min, stats.center_max, stats.center_mean) == (
         min(expected_planes),
         max(expected_planes),
         np.mean(expected_planes),
     )
+
+
+@pytest.mark.parametrize(
+    ("central_z", "expected_plane"),
+    [(0.4, 0), (0.5, 1), (1.5, 2), (2.5, 3), (3.5, 4), (3.6, 4), (9.5, 9)],
+)
+def test_z_window_is_centred_on_the_nearest_plane(central_z, expected_plane):
+    stats = RegionalPixelStatistics.from_image(
+        stack_of_indexed_planes(10), central_z=central_z, plus_minus_planes=0
+    )
+    assert (stats.center_min, stats.center_max) == (expected_plane, expected_plane)
 
 
 def test_z_window_below_plane_0_is_rejected_when_full_padding_is_required():
@@ -68,19 +87,25 @@ def test_compute_pixel_statistics_gives_the_same_records_for_dask_and_numpy_inpu
         "channel_column": "channel",
     }
     from_numpy = compute_pixel_statistics(img, **kwargs)
-    from_dask = compute_pixel_statistics(da.from_array(img, chunks=(1, 2, 20, 20)), **kwargs)
-    assert not any(isinstance(value, da.Array) for record in from_dask for value in record.values())
+    # The region spans several chunks in every dimension: channel, z, y and x.
+    # dask's from_array has no type hints, so pyright infers its chunks parameter as str.
+    chunks: Any = (1, 2, 20, 20)
+    from_dask = compute_pixel_statistics(from_array(img, chunks=chunks), **kwargs)
+    assert not any(
+        isinstance(value, DaskArray) for record in from_dask for value in record.values()
+    )
     assert from_dask == from_numpy
 
 
-def stats_for_point(img, x, y, *, diameter=10):
-    """Compute the statistics for one channel, around a point in the middle z-plane."""
+def stats_for_point(img, x, y, *, z=1.0, diameter=10, **options):
+    """Compute the statistics for one channel, around a point (by default in the middle z-plane)."""
     return compute_pixel_statistics(
         img,
-        ImagePoint3D(x=x, y=y, z=1.0),
+        ImagePoint3D(x=x, y=y, z=z),
         channels=[ImagingChannel(0)],
         diameter=diameter,
         channel_column="channel",
+        **options,
     )
 
 
@@ -105,6 +130,18 @@ def test_reported_bounds_are_those_of_the_pixels_measured(x, y, expected_bounds)
     ]
     expected_stats = RegionalPixelStatistics.from_image(region, central_z=1.0).to_dict
     assert {key: record[key] for key in expected_stats} == expected_stats
+
+
+def test_statistics_are_numpy_numbers_of_the_types_numpy_gives():
+    img = np.random.default_rng(6).integers(0, 1000, size=(1, 3, 20, 20), dtype=np.uint16)
+    (record,) = stats_for_point(img, 10.0, 10.0)
+    assert {key: type(record[key]) for key in record if key.startswith("center_")} == {
+        "center_mean": np.float64,
+        "center_sigma": np.float64,
+        "center_min": np.uint16,
+        "center_med": np.float64,
+        "center_max": np.uint16,
+    }
 
 
 @pytest.mark.parametrize(("x", "y"), [(30.0, 10.0), (10.0, 30.0)])
@@ -144,7 +181,9 @@ def test_only_the_planes_of_the_z_window_are_read_from_a_dask_array():
         "diameter": 4,
         "channel_column": "channel",
     }
-    from_dask = compute_pixel_statistics(da.from_array(recorder, chunks=(1, 1, 10, 10)), **kwargs)
+    # dask's from_array has no type hints, so pyright infers its chunks parameter as str.
+    chunks: Any = (1, 1, 10, 10)
+    from_dask = compute_pixel_statistics(from_array(recorder, chunks=chunks), **kwargs)
     assert recorder.planes_read == {9, 10, 11}
     assert from_dask == compute_pixel_statistics(data, **kwargs)
 
@@ -187,3 +226,132 @@ def test_image_must_be_4d(shape):
             diameter=4,
             channel_column="channel",
         )
+
+
+@pytest.mark.parametrize("channel", [0, 1, 2])
+def test_statistics_for_one_channel_use_only_that_channels_pixels(channel):
+    img = np.stack([np.full((3, 10, 10), value, dtype=np.uint16) for value in [0, 1, 2]])
+    record = compute_pixel_statistics_for_channel(
+        img,
+        ImagePoint3D(x=5.0, y=5.0, z=1.0),
+        channel=ImagingChannel(channel),
+        diameter=4,
+        channel_column="channel",
+    )
+    assert (record["channel"], record["center_min"], record["center_max"]) == (
+        channel,
+        channel,
+        channel,
+    )
+
+
+def test_statistics_for_several_channels_are_the_records_for_each_channel():
+    img = np.random.default_rng(2).integers(0, 1000, size=(3, 5, 30, 30), dtype=np.uint16)
+    pt = ImagePoint3D(x=12.4, y=17.6, z=2.0)
+    channels = [ImagingChannel(2), ImagingChannel(0)]
+    records = compute_pixel_statistics(
+        img, pt, channels=channels, diameter=6, channel_column="channel"
+    )
+    assert records == [
+        compute_pixel_statistics_for_channel(
+            img, pt, channel=channel, diameter=6, channel_column="channel"
+        )
+        for channel in channels
+    ]
+
+
+@pytest.mark.parametrize(
+    ("x", "y", "z", "options", "expected_count"),
+    [
+        (10.0, 10.0, 1.0, {}, 10 * 10 * 3),
+        (1.0, 1.0, 1.0, {}, 6 * 6 * 3),
+        (10.0, 10.0, 0.0, {}, 10 * 10 * 2),
+        (10.0, 10.0, 1.0, {"plus_minus_planes": 0}, 10 * 10),
+    ],
+)
+def test_pixel_count_is_the_number_of_pixels_measured(x, y, z, options, expected_count):
+    (record,) = stats_for_point(np.ones((1, 3, 20, 20), dtype=np.uint16), x, y, z=z, **options)
+    assert record["pixel_count"] == expected_count
+
+
+def test_region_cut_off_by_the_image_edge_is_rejected_when_full_region_is_required():
+    img = np.ones((1, 3, 20, 20), dtype=np.uint16)
+    stats_for_point(img, 10.0, 10.0, require_full_region=True)  # Entirely inside: no error.
+    with pytest.raises(ValueError, match="extends beyond the image of 20 x 20 pixels"):
+        stats_for_point(img, 1.0, 1.0, require_full_region=True)
+
+
+def test_z_settings_are_passed_through_to_the_statistics():
+    img = np.ones((1, 3, 20, 20), dtype=np.uint16)
+    with pytest.raises(ValueError, match=r"\[-1, 2\) slice for image of 3 z-slices"):
+        stats_for_point(img, 10.0, 10.0, z=0.0, require_full_padding=True)
+
+
+def test_point_beyond_the_last_plane_is_rejected_also_without_channels():
+    with pytest.raises(
+        ValueError, match=r"Cannot extract pixel values from z-slice \(5, from 5\.0\)"
+    ):
+        compute_pixel_statistics(
+            np.ones((1, 3, 20, 20), dtype=np.uint16),
+            ImagePoint3D(x=10.0, y=10.0, z=5.0),
+            channels=[],
+            diameter=4,
+            channel_column="channel",
+        )
+
+
+class CountingStore(dict):
+    """In-memory zarr store, which records the chunks that are read from it."""
+
+    def __init__(self):
+        super().__init__()
+        self.chunks_read = []
+
+    def __getitem__(self, key):
+        if not key.startswith("."):
+            self.chunks_read.append(key)
+        return super().__getitem__(key)
+
+
+def read_through_zarr(data, *, chunks):
+    """Store the data in zarr, and open it for reading, along with the store that counts the reads."""
+    store = CountingStore()
+    zarr.array(data, chunks=chunks, store=store)
+    store.chunks_read.clear()
+    # zarr arrays aren't a declared input type, but are accepted like any array that can be indexed.
+    img: Any = zarr.open_array(store, mode="r")
+    return img, store
+
+
+def test_only_the_planes_of_the_z_window_are_read_from_a_zarr_array():
+    data = np.random.default_rng(4).integers(0, 1000, size=(2, 20, 10, 10), dtype=np.uint16)
+    img, store = read_through_zarr(data, chunks=(1, 1, 10, 10))
+    kwargs = {
+        "pt": ImagePoint3D(x=5.0, y=5.0, z=10.0),
+        "channels": [ImagingChannel(1)],
+        "diameter": 4,
+        "channel_column": "channel",
+    }
+    records = compute_pixel_statistics(img, **kwargs)
+    # Chunk keys are "channel.plane.row.column".
+    assert sorted(key.split(".")[:2] for key in store.chunks_read) == [
+        ["1", "10"],
+        ["1", "11"],
+        ["1", "9"],
+    ]
+    assert records == compute_pixel_statistics(data, **kwargs)
+
+
+def test_stored_chunks_shared_by_channels_are_read_once_with_dask():
+    data = np.random.default_rng(5).integers(0, 1000, size=(2, 10, 20, 20), dtype=np.uint16)
+    img, store = read_through_zarr(data, chunks=(2, 1, 20, 20))
+    kwargs = {
+        "pt": ImagePoint3D(x=10.0, y=10.0, z=5.0),
+        "channels": [ImagingChannel(0), ImagingChannel(1)],
+        "diameter": 4,
+        "channel_column": "channel",
+    }
+    records = compute_pixel_statistics(from_zarr(img), **kwargs)
+    # Each stored chunk holds both channels of one plane; the window has planes 4 to 6.
+    assert sorted(store.chunks_read) == ["0.4.0.0", "0.5.0.0", "0.6.0.0"]
+    assert records == compute_pixel_statistics(data, **kwargs)

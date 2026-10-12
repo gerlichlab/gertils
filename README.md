@@ -4,29 +4,34 @@ General GERlich group uTILities
 These tools are organised by use case at the module level; that is, tools that are used in a similar context will tend to be defined in the same module, with the module name reflecting that shared usage context. If you see that something's not well placed, please open an issue and/or a pull request.
 
 ## Index: modules and packages
-- [collection_extras](collection_extras.py) -- tools for working with generic containers / collections
-- [environments](./gertils/environments.py) -- tools for working with `conda` and `pip` environments
+- [collection_extras](./gertils/collection_extras.py) -- tools for working with generic containers / collections
 - [geometry](./gertils/geometry.py) -- tools for working with entities in space
-- [gpu](./gertils/gpu.py) -- tools for running computations on GPUs, especially with TensorFlow
 - [pathtools](./gertils/pathtools.py) -- tools for working with filesystem paths generally
 - [pixel_value_statistics](./gertils/pixel_value_statistics.py) -- tools for computing statistics of pixel values
-- [types](./gertils/pathtools.py) -- data types for working with genome biology, especially imaging
+- [types](./gertils/types.py) -- data types for working with genome biology, especially imaging
 - [zarr_tools](./gertils/zarr_tools.py) -- functions and types for working with ZARR-stored data
 
 ## Development
-This project is configured to use Nix for a shell/environment with dependencies, and Nox to make common development commands/workflows easier. Start always with `nix-shell`. If it takes a long time to build, try...
+This project is configured to use Nix for a shell/environment with dependencies. Start always with `nix-shell`. If it takes a long time to build, try...
 1. Stop the shell build: `Ctrl-c`
 1. Remove the Poetry lockfile: `rm poetry.lock`
 1. Clear Poetry's PyPI cache (assuming you have an active Nix shell): `poetry cache clear PyPI --all`
 1. Say "yes" if/when prompted for confirmation of desire to clear the cache
 1. Exit Nix shell: `Ctrl-d`
-1. Restart Nix shell: `shell.nix`
+1. Restart Nix shell: `nix-shell`
 
-### Testing
-From the Nix shell, run `nox --list` to see a list of available commands, notably to run tests against different versions of Python, to reformat code to be style-compliant, and to run the linter.
-
-NB: To pass arguments through `nox` to `pytest`, separate the argument strings with `--`, e.g.:
+### Checks and tests
+The checks that CI runs are pre-commit hooks, defined in `.pre-commit-config.yaml`. Install them once, from the Nix shell:
 ```shell
-nox -s tests-3.11 -- -vv
+pre-commit install
 ```
-to run the tests with additional verbosity (e.g., `pytest -vv`)
+Then codespell, ruff and pyright run on every commit, and the tests before every push. To run all the checks by hand: `pre-commit run --all-files`.
+
+The hooks run the tools installed in the Nix shell, with the versions in `poetry.lock`, so commit and push from the Nix shell too. Outside it, for example from an IDE's Git panel, the hooks fail with "Executable `codespell` not found".
+
+Each tool can also be run on its own, from the Nix shell:
+- `pytest` for the tests, e.g. `pytest -vv` for more detail
+- `pyright` for type checking
+- `ruff check .` for linting
+- `ruff format .` for formatting
+- `codespell` for spelling
