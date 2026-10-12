@@ -3,12 +3,10 @@
 import logging
 
 try:
-    import tensorflow as tf  # type: ignore[import]
+    from tensorflow import config as tf_config
 except ModuleNotFoundError:
     logging.exception("Cannot import tensorflow, so cannot use module: %s", __file__)
     raise
-else:
-    from tensorflow.python.eager.context import PhysicalDevice as TFPhysDev  # type: ignore[import]
 
 __all__ = [
     "count_tensorflow_gpus",
@@ -19,13 +17,12 @@ __all__ = [
 
 def count_tensorflow_gpus() -> int:
     """Count the number of GPUs that tensorflow can see."""
-    # TensorFlow isn't installed where gertils is type-checked, so its types are unknown there.
-    return len(list_tensorflow_gpus())  # pyright: ignore[reportUnknownArgumentType]
+    return len(list_tensorflow_gpus())
 
 
-def list_tensorflow_gpus() -> list[TFPhysDev]:  # type: ignore[no-any-unimported]
+def list_tensorflow_gpus() -> list[tf_config.PhysicalDevice]:
     """List the GPUs that tensorflow can see."""
-    return tf.config.list_physical_devices("GPU")  # type: ignore[no-any-return]
+    return tf_config.list_physical_devices("GPU")
 
 
 def print_tensorflow_gpu_count() -> None:

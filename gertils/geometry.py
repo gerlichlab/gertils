@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from typing import Union
 
 import numpy as np
-from numpydoc_decorator import doc  # type: ignore[import]
+from numpydoc_decorator import doc
 
 ZCoordinate = Union[int, float, np.float64]  # int to accommodate notion of "z-slice"
 

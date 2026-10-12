@@ -7,7 +7,7 @@ from typing import Union
 import numpy as np
 import numpy.typing as npt
 from dask.array.core import Array as DaskArray
-from numpydoc_decorator import doc  # type: ignore[import]
+from numpydoc_decorator import doc
 
 CsvRow = list[str]
 LayerParams = dict

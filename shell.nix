@@ -20,7 +20,11 @@ pkgs.mkShell {
     py310
     python311
     python312
-  ] ++ (if dev then [ pkgs.poetryPlugins.poetry-plugin-export ] else []);
+  ] ++ (if dev then [
+    pkgs.poetryPlugins.poetry-plugin-export
+    # The pyright package from PyPI runs on Node.js; providing it here saves a download.
+    pkgs.nodejs
+  ] else []);
   shellHook = ''
     # To get this working on the lab machine, we need to modify Poetry's keyring interaction:
     # https://stackoverflow.com/questions/74438817/poetry-failed-to-unlock-the-collection

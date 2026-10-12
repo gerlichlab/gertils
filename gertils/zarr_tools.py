@@ -3,8 +3,9 @@
 import logging
 from pathlib import Path
 
-import zarr  # type: ignore[import]
-from numpydoc_decorator import doc  # type: ignore[import]
+import numpy as np
+import zarr
+from numpydoc_decorator import doc
 
 from .types import PixelArray
 
@@ -22,7 +23,8 @@ def read_zarr(root: Path) -> PixelArray:  # noqa: D103
         data_root = root / "0"
     else:
         raise ZarrParseException(path=root, msg="Failed to find .zarray to indicate data folder")
-    return zarr.open(data_root)[:]  # type: ignore[no-any-return]
+    # The check above found an array, so open it as one; reading is all this function does.
+    return np.asarray(zarr.open_array(str(data_root), mode="r"))
 
 
 class ZarrParseException(Exception):

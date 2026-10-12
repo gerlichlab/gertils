@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional, TypeVar, cast
 
-from numpydoc_decorator import doc  # type: ignore[import]
+from numpydoc_decorator import doc
 
 from .types import FieldOfViewFrom1, PathLike
 

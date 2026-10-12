@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+* gertils is type-checked with pyright instead of mypy, in strict mode for the package itself, as looptrace and VS Code's Pylance use pyright. Type information for `numpydoc_decorator` and for the part of `zarr` that gertils uses is in `typings/`.
+* `read_zarr` opens the array read-only. It returns the same data as before.
+
 ### Fixed
 * The documentation of `RegionalPixelStatistics` listed ten parameters that no longer exist, and described the statistics as coming from a single z-slice. The summary of `ImagePoint3D` described it as a 2D point.
 

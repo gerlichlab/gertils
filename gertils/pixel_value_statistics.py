@@ -7,7 +7,7 @@ from collections.abc import Iterable
 from typing import TypeAlias, cast
 
 import numpy as np
-from numpydoc_decorator import doc  # type: ignore[import]
+from numpydoc_decorator import doc
 
 from .geometry import ImagePoint3D, ZCoordinate
 from .types import ImagingChannel, PixelArray
