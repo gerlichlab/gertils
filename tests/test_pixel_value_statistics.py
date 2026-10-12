@@ -76,7 +76,10 @@ def test_compute_pixel_statistics_gives_the_same_records_for_dask_and_numpy_inpu
         "channel_column": "channel",
     }
     from_numpy = compute_pixel_statistics(img, **kwargs)
-    from_dask = compute_pixel_statistics(from_array(img), **kwargs)
+    # The region spans several chunks in every dimension: channel, z, y and x.
+    # dask's from_array has no type hints, so pyright infers its chunks parameter as str.
+    chunks: Any = (1, 2, 20, 20)
+    from_dask = compute_pixel_statistics(from_array(img, chunks=chunks), **kwargs)
     assert not any(
         isinstance(value, DaskArray) for record in from_dask for value in record.values()
     )
