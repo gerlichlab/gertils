@@ -21,22 +21,16 @@ Numeric: TypeAlias = (
 
 @doc(
     summary="Store a handful of pixel value stats for a particular ROI.",
+    extended_summary=(
+        "The statistics are taken over the z-plane closest to the ROI's center, "
+        "plus any planes of padding above and below it."
+    ),
     parameters=dict(
-        mean_value="The mean pixel intensity in a ROI",
-        sigma_value="The standard deviation of pixel intensity in a ROI",
-        min_value="The minimum pixel value in a ROI",
-        med_value="The median pixel value in a ROI",
-        max_value="The maximum pixel value in a ROI",
-        proj_mean="Mean of values in the max-z-projection",
-        proj_sigma="Standard deviation of values in the max-z-projection",
-        proj_min="Minimum of values in the max-z-projection",
-        proj_med="Median of values in the max-z-projection",
-        proj_max="Maximum of values in the max-z-projection",
-        center_mean="Mean of values in the central z-slice",
-        center_sigma="Standard deviation of values in the central z-slice",
-        center_min="Minimum of values in the central z-slice",
-        center_med="Median of values in the central z-slice",
-        center_max="Maximum of values in the central z-slice",
+        center_mean="Mean of the pixel values",
+        center_sigma="Standard deviation of the pixel values",
+        center_min="Minimum of the pixel values",
+        center_med="Median of the pixel values",
+        center_max="Maximum of the pixel values",
     ),
 )
 @dataclasses.dataclass(kw_only=True, frozen=True)
@@ -122,7 +116,7 @@ class RegionalPixelStatistics:  # noqa: D101
         ),
     ),
 )
-def compute_pixel_statistics(  # noqa: D103"
+def compute_pixel_statistics(  # noqa: D103
     img: PixelArray,
     pt: ImagePoint3D,
     *,

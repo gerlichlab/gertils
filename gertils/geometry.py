@@ -29,7 +29,7 @@ class ImagePoint2D:  # noqa: D101
 
 
 @doc(
-    summary="Bundle x and y position to create point in 2D space.",
+    summary="Bundle x, y and z position to create point in 3D space.",
     parameters=dict(
         x="Position in x",
         y="Position in y",
