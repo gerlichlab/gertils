@@ -15,7 +15,7 @@ from .types import PixelArray
     parameters=dict(root="Path at which datastore is rooted"),
     returns="Array of pixel (or similar) data",
 )
-def read_zarr(root: Path) -> PixelArray:  # noqa: D103
+def read_zarr(root: Path) -> PixelArray:
     logging.debug("Reading ZARR: %s", root)
     if (root / ".zarray").is_file():
         data_root = root

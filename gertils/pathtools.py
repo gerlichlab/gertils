@@ -84,7 +84,7 @@ class NonExtantPath(PathWrapper):
         get_fov_sort_key="The function used to try to parse FOV from filename",
     ),
 )
-def find_multiple_paths_by_fov(  # noqa: D103
+def find_multiple_paths_by_fov(
     folder: PathLike, *, extensions: Iterable[str]
 ) -> dict[FieldOfViewFrom1, list[Path]]:
     if isinstance(folder, str):
@@ -118,7 +118,7 @@ def find_multiple_paths_by_fov(  # noqa: D103
         get_fov_sort_key="The function used to try to parse FOV from filename",
     ),
 )
-def find_single_path_by_fov(  # noqa: D103
+def find_single_path_by_fov(
     folder: PathLike, *, extension: str
 ) -> dict[FieldOfViewFrom1, Path]:
     if isinstance(folder, str):
@@ -145,7 +145,7 @@ def find_single_path_by_fov(  # noqa: D103
     ),
     returns="Field of view parsed from filename, if parse succeeded; otherwise, None",
 )
-def get_fov_sort_key(path: PathLike, *, extension: str) -> Optional[FieldOfViewFrom1]:  # noqa: D103
+def get_fov_sort_key(path: PathLike, *, extension: str) -> Optional[FieldOfViewFrom1]:
     # Checked at runtime, since callers may pass any type despite the annotation.
     if not isinstance(cast("object", path), str | Path):
         raise TypeError(

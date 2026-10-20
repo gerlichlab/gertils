@@ -134,6 +134,12 @@ ignore = [
     "E501",  # line-too-long
 ]
 
+[tool.ruff.lint.pydocstyle]
+# numpydoc_decorator's @doc writes the docstring of the functions it decorates when the
+# module is imported, so ruff, which only reads the source, doesn't see one. The setting
+# applies only to functions and methods, so classes keep their `# noqa: D101`.
+ignore-decorators = ["numpydoc_decorator.doc"]
+
 [tool.ruff.lint.per-file-ignores]
 "typings/*" = [
     # Stubs copy the signatures of third-party code, which we can't change.

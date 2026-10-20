@@ -236,7 +236,7 @@ def _locate_region(  # noqa: PLR0913
         compute_pixel_statistics="The same, for several channels at once",
     ),
 )
-def compute_pixel_statistics_for_channel(  # noqa: D103, PLR0913
+def compute_pixel_statistics_for_channel(  # noqa: PLR0913
     img: PixelArray,
     pt: ImagePoint3D,
     *,
@@ -291,7 +291,7 @@ def compute_pixel_statistics_for_channel(  # noqa: D103, PLR0913
         compute_pixel_statistics_for_channel="The same, for a single channel",
     ),
 )
-def compute_pixel_statistics(  # noqa: D103, PLR0913
+def compute_pixel_statistics(  # noqa: PLR0913
     img: PixelArray,
     pt: ImagePoint3D,
     *,
