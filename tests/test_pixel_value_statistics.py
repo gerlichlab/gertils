@@ -79,7 +79,9 @@ def test_compute_pixel_statistics_for_point_in_bottom_plane():
 
 
 def test_compute_pixel_statistics_gives_the_same_records_for_dask_and_numpy_input():
-    img = np.random.default_rng(0).integers(0, 1000, size=(2, 6, 40, 40), dtype=np.uint16)
+    img = np.random.default_rng(0).integers(
+        0, 1000, size=(2, 6, 40, 40), dtype=np.uint16
+    )
     kwargs = {
         "pt": ImagePoint3D(x=17.3, y=22.8, z=3.0),
         "channels": [ImagingChannel(0), ImagingChannel(1)],
@@ -92,7 +94,9 @@ def test_compute_pixel_statistics_gives_the_same_records_for_dask_and_numpy_inpu
     chunks: Any = (1, 2, 20, 20)
     from_dask = compute_pixel_statistics(from_array(img, chunks=chunks), **kwargs)
     assert not any(
-        isinstance(value, DaskArray) for record in from_dask for value in record.values()
+        isinstance(value, DaskArray)
+        for record in from_dask
+        for value in record.values()
     )
     assert from_dask == from_numpy
 
@@ -119,7 +123,9 @@ def stats_for_point(img, x, y, *, z=1.0, diameter=10, **options):
     ],
 )
 def test_reported_bounds_are_those_of_the_pixels_measured(x, y, expected_bounds):
-    img = np.random.default_rng(1).integers(0, 1000, size=(1, 3, 20, 20), dtype=np.uint16)
+    img = np.random.default_rng(1).integers(
+        0, 1000, size=(1, 3, 20, 20), dtype=np.uint16
+    )
     (record,) = stats_for_point(img, x, y)
     assert {key: record[key] for key in expected_bounds} == expected_bounds
     region = img[
@@ -133,7 +139,9 @@ def test_reported_bounds_are_those_of_the_pixels_measured(x, y, expected_bounds)
 
 
 def test_statistics_are_numpy_numbers_of_the_types_numpy_gives():
-    img = np.random.default_rng(6).integers(0, 1000, size=(1, 3, 20, 20), dtype=np.uint16)
+    img = np.random.default_rng(6).integers(
+        0, 1000, size=(1, 3, 20, 20), dtype=np.uint16
+    )
     (record,) = stats_for_point(img, 10.0, 10.0)
     assert {key: type(record[key]) for key in record if key.startswith("center_")} == {
         "center_mean": np.float64,
@@ -153,7 +161,9 @@ def test_region_entirely_outside_the_image_is_rejected(x, y):
 @pytest.mark.parametrize("diameter", [0, -2])
 def test_diameter_must_be_positive(diameter):
     with pytest.raises(ValueError, match="Diameter of the region must be positive"):
-        stats_for_point(np.ones((1, 3, 20, 20), dtype=np.uint16), 10.0, 10.0, diameter=diameter)
+        stats_for_point(
+            np.ones((1, 3, 20, 20), dtype=np.uint16), 10.0, 10.0, diameter=diameter
+        )
 
 
 class ZPlaneRecorder:
@@ -173,7 +183,9 @@ class ZPlaneRecorder:
 
 
 def test_only_the_planes_of_the_z_window_are_read_from_a_dask_array():
-    data = np.random.default_rng(3).integers(0, 1000, size=(2, 20, 10, 10), dtype=np.uint16)
+    data = np.random.default_rng(3).integers(
+        0, 1000, size=(2, 20, 10, 10), dtype=np.uint16
+    )
     recorder = ZPlaneRecorder(data, z_axis=1)
     kwargs = {
         "pt": ImagePoint3D(x=5.0, y=5.0, z=10.0),
@@ -230,7 +242,9 @@ def test_image_must_be_4d(shape):
 
 @pytest.mark.parametrize("channel", [0, 1, 2])
 def test_statistics_for_one_channel_use_only_that_channels_pixels(channel):
-    img = np.stack([np.full((3, 10, 10), value, dtype=np.uint16) for value in [0, 1, 2]])
+    img = np.stack(
+        [np.full((3, 10, 10), value, dtype=np.uint16) for value in [0, 1, 2]]
+    )
     record = compute_pixel_statistics_for_channel(
         img,
         ImagePoint3D(x=5.0, y=5.0, z=1.0),
@@ -246,7 +260,9 @@ def test_statistics_for_one_channel_use_only_that_channels_pixels(channel):
 
 
 def test_statistics_for_several_channels_are_the_records_for_each_channel():
-    img = np.random.default_rng(2).integers(0, 1000, size=(3, 5, 30, 30), dtype=np.uint16)
+    img = np.random.default_rng(2).integers(
+        0, 1000, size=(3, 5, 30, 30), dtype=np.uint16
+    )
     pt = ImagePoint3D(x=12.4, y=17.6, z=2.0)
     channels = [ImagingChannel(2), ImagingChannel(0)]
     records = compute_pixel_statistics(
@@ -270,13 +286,17 @@ def test_statistics_for_several_channels_are_the_records_for_each_channel():
     ],
 )
 def test_pixel_count_is_the_number_of_pixels_measured(x, y, z, options, expected_count):
-    (record,) = stats_for_point(np.ones((1, 3, 20, 20), dtype=np.uint16), x, y, z=z, **options)
+    (record,) = stats_for_point(
+        np.ones((1, 3, 20, 20), dtype=np.uint16), x, y, z=z, **options
+    )
     assert record["pixel_count"] == expected_count
 
 
 def test_region_cut_off_by_the_image_edge_is_rejected_when_full_region_is_required():
     img = np.ones((1, 3, 20, 20), dtype=np.uint16)
-    stats_for_point(img, 10.0, 10.0, require_full_region=True)  # Entirely inside: no error.
+    stats_for_point(
+        img, 10.0, 10.0, require_full_region=True
+    )  # Entirely inside: no error.
     with pytest.raises(ValueError, match="extends beyond the image of 20 x 20 pixels"):
         stats_for_point(img, 1.0, 1.0, require_full_region=True)
 
@@ -324,7 +344,9 @@ def read_through_zarr(data, *, chunks):
 
 
 def test_only_the_planes_of_the_z_window_are_read_from_a_zarr_array():
-    data = np.random.default_rng(4).integers(0, 1000, size=(2, 20, 10, 10), dtype=np.uint16)
+    data = np.random.default_rng(4).integers(
+        0, 1000, size=(2, 20, 10, 10), dtype=np.uint16
+    )
     img, store = read_through_zarr(data, chunks=(1, 1, 10, 10))
     kwargs = {
         "pt": ImagePoint3D(x=5.0, y=5.0, z=10.0),
@@ -343,7 +365,9 @@ def test_only_the_planes_of_the_z_window_are_read_from_a_zarr_array():
 
 
 def test_stored_chunks_shared_by_channels_are_read_once_with_dask():
-    data = np.random.default_rng(5).integers(0, 1000, size=(2, 10, 20, 20), dtype=np.uint16)
+    data = np.random.default_rng(5).integers(
+        0, 1000, size=(2, 10, 20, 20), dtype=np.uint16
+    )
     img, store = read_through_zarr(data, chunks=(2, 1, 20, 20))
     kwargs = {
         "pt": ImagePoint3D(x=10.0, y=10.0, z=5.0),

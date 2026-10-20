@@ -37,7 +37,8 @@ class FieldOfViewFrom1:  # noqa: D101
     def __post_init__(self) -> None:
         if not _is_int(self.get):
             raise TypeError(
-                f"Non-integer as 1-based FOV! {self.get} (type" f" {type(self.get).__name__})"
+                f"Non-integer as 1-based FOV! {self.get} (type"
+                f" {type(self.get).__name__})"
             )
         if self.get < 1:
             raise ValueError(f"1-based FOV view must be positive int; got {self.get}")
@@ -50,7 +51,9 @@ class ImagingChannel:  # noqa: D101
 
     def __post_init__(self) -> None:
         if not _is_int(self.get):
-            raise TypeError(f"Imaging channel must be integer, not {type(self.get).__name__}")
+            raise TypeError(
+                f"Imaging channel must be integer, not {type(self.get).__name__}"
+            )
         if self.get < 0:
             raise ValueError(f"Imaging channel must be nonnegative; got {self.get}")
 
@@ -70,7 +73,8 @@ class NucleusNumber:  # noqa: D101
     def __post_init__(self) -> None:
         if not _is_int(self.get):
             raise TypeError(
-                f"Non-integer as nucleus number! {self.get} (type" f" {type(self.get).__name__})"
+                f"Non-integer as nucleus number! {self.get} (type"
+                f" {type(self.get).__name__})"
             )
         if self.get < 1:
             raise ValueError(f"Nucleus number must be positive int; got {self.get}")
@@ -111,6 +115,8 @@ class TraceIdFrom0:  # noqa: D101
 
     def __post_init__(self) -> None:
         if not _is_int(self.get):
-            raise TypeError(f"Non-integer as trace ID! {self.get} (type {type(self.get).__name__})")
+            raise TypeError(
+                f"Non-integer as trace ID! {self.get} (type {type(self.get).__name__})"
+            )
         if self.get < 0:
             raise ValueError(f"Trace ID must be nonnegative int; got {self.get}")

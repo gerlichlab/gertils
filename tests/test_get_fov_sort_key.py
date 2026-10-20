@@ -5,7 +5,11 @@ import sys
 
 import pytest
 
-from gertils.pathtools import find_multiple_paths_by_fov, find_single_path_by_fov, get_fov_sort_key
+from gertils.pathtools import (
+    find_multiple_paths_by_fov,
+    find_single_path_by_fov,
+    get_fov_sort_key,
+)
 from gertils.types import FieldOfViewFrom1
 
 
@@ -45,10 +49,14 @@ def test_only_one_leading_p_is_removed():
 
 def test_double_zarr_extension_is_parsed_with_a_warning():
     with pytest.warns(FutureWarning, match="Stripping second '.zarr' extension"):
-        assert get_fov_sort_key("P0003.zarr.zarr", extension=".zarr") == FieldOfViewFrom1(3)
+        assert get_fov_sort_key(
+            "P0003.zarr.zarr", extension=".zarr"
+        ) == FieldOfViewFrom1(3)
 
 
-def test_find_multiple_paths_by_fov_keeps_fovs_apart_for_extension_with_digits(tmp_path):
+def test_find_multiple_paths_by_fov_keeps_fovs_apart_for_extension_with_digits(
+    tmp_path,
+):
     for name in ["P0001.nd2", "P0012.nd2"]:
         (tmp_path / name).touch()
     assert find_multiple_paths_by_fov(tmp_path, extensions=[".nd2"]) == {
@@ -80,7 +88,8 @@ def test_file_with_number_zero_is_skipped_in_a_folder_scan(tmp_path):
 
 
 @pytest.mark.parametrize(
-    "filename", ["P 12.zarr", "P+12.zarr", "P1_2.zarr", "P\uff11\uff12.zarr", "P12 .zarr"]
+    "filename",
+    ["P 12.zarr", "P+12.zarr", "P1_2.zarr", "P\uff11\uff12.zarr", "P12 .zarr"],
 )
 def test_fov_number_must_be_plain_ascii_digits(filename):
     assert get_fov_sort_key(filename, extension=".zarr") is None

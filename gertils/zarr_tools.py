@@ -22,7 +22,9 @@ def read_zarr(root: Path) -> PixelArray:  # noqa: D103
     elif (root / "0" / ".zarray").is_file():
         data_root = root / "0"
     else:
-        raise ZarrParseException(path=root, msg="Failed to find .zarray to indicate data folder")
+        raise ZarrParseException(
+            path=root, msg="Failed to find .zarray to indicate data folder"
+        )
     # The check above found an array, so open it as one; reading is all this function does.
     return np.asarray(zarr.open_array(str(data_root), mode="r"))
 

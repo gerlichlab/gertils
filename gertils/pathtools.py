@@ -71,7 +71,8 @@ class NonExtantPath(PathWrapper):
 
 @doc(
     summary=(
-        "Directly in given folder, find all filepaths with a field" " of view embedded in filename."
+        "Directly in given folder, find all filepaths with a field"
+        " of view embedded in filename."
     ),
     parameters=dict(
         folder="Path to folder in which to find files",
@@ -108,14 +109,18 @@ def find_multiple_paths_by_fov(  # noqa: D103
         folder="Path to folder in which to find files",
         extension="The extension of files to find",
     ),
-    raises=dict(RuntimeError="If the same FOV is found to correspond to more than one path"),
+    raises=dict(
+        RuntimeError="If the same FOV is found to correspond to more than one path"
+    ),
     returns="Mapping from field of view to filepath",
     see_also=dict(
         find_multiple_paths_by_fov="Similar function, for multiple paths by FOV, no particular extension",
         get_fov_sort_key="The function used to try to parse FOV from filename",
     ),
 )
-def find_single_path_by_fov(folder: PathLike, *, extension: str) -> dict[FieldOfViewFrom1, Path]:  # noqa: D103
+def find_single_path_by_fov(  # noqa: D103
+    folder: PathLike, *, extension: str
+) -> dict[FieldOfViewFrom1, Path]:
     if isinstance(folder, str):
         folder = Path(folder)
     image_paths: dict[FieldOfViewFrom1, Path] = {}

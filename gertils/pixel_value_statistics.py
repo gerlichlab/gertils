@@ -78,7 +78,9 @@ class RegionalPixelStatistics:  # noqa: D101
         # Only the shape is read here, so that a lazy array such as dask's isn't loaded yet.
         shape = np.shape(img)
         if len(shape) != 3:  # noqa: PLR2004
-            raise ValueError(f"To build {cls.__name__}, image must be 3D, not {len(shape)}D")
+            raise ValueError(
+                f"To build {cls.__name__}, image must be 3D, not {len(shape)}D"
+            )
         planes = _z_window(
             central_z,
             shape[0],
@@ -91,7 +93,11 @@ class RegionalPixelStatistics:  # noqa: D101
 
 
 def _z_window(
-    central_z: ZCoordinate, num_planes: int, *, plus_minus_planes: int, require_full_padding: bool
+    central_z: ZCoordinate,
+    num_planes: int,
+    *,
+    plus_minus_planes: int,
+    require_full_padding: bool,
 ) -> slice:
     """Get the z-planes to measure: the one nearest the point, plus padding, cut off at the edges."""
     # Round halves up, as for x and y; round() would round them to the nearest even number.
@@ -117,9 +123,7 @@ def _z_window(
     lower_slice_bound = round_z - plus_minus_planes
     upper_slice_bound = round_z + plus_minus_planes + 1
     if lower_slice_bound < 0 or upper_slice_bound > num_planes:
-        oob_slice_msg = (
-            f"[{lower_slice_bound}, {upper_slice_bound}) slice for image of {num_planes} z-slices"
-        )
+        oob_slice_msg = f"[{lower_slice_bound}, {upper_slice_bound}) slice for image of {num_planes} z-slices"
         if require_full_padding:
             raise ValueError(oob_slice_msg)
         logging.debug(oob_slice_msg)
@@ -179,7 +183,12 @@ def _locate_region(  # noqa: PLR0913
             f"Region x [{left}, {right}), y [{top}, {bottom}) around point ({pt.x}, {pt.y}) "
             f"lies outside the image of {num_cols} x {num_rows} pixels"
         )
-    if require_full_region and (y_min, y_max, x_min, x_max) != (top, bottom, left, right):
+    if require_full_region and (y_min, y_max, x_min, x_max) != (
+        top,
+        bottom,
+        left,
+        right,
+    ):
         raise ValueError(
             f"Region x [{left}, {right}), y [{top}, {bottom}) around point ({pt.x}, {pt.y}) "
             f"extends beyond the image of {num_cols} x {num_rows} pixels"
@@ -191,7 +200,12 @@ def _locate_region(  # noqa: PLR0913
         require_full_padding=require_full_padding,
     )
     return _Region(
-        bounds={"y_min_px": y_min, "y_max_px": y_max, "x_min_px": x_min, "x_max_px": x_max},
+        bounds={
+            "y_min_px": y_min,
+            "y_max_px": y_max,
+            "x_min_px": x_min,
+            "x_max_px": x_max,
+        },
         planes=planes,
         rows=slice(y_min, y_max),
         columns=slice(x_min, x_max),
@@ -243,7 +257,9 @@ def compute_pixel_statistics_for_channel(  # noqa: D103, PLR0913
     )
     # Only the region is read, and of it only the planes of the z-window.
     # Indexing a dask array has no type information; the region is the same kind of array.
-    region_img = cast("PixelArray", img[channel.get, region.planes, region.rows, region.columns])
+    region_img = cast(
+        "PixelArray", img[channel.get, region.planes, region.rows, region.columns]
+    )
     return {
         channel_column: channel.get,
         **region.bounds,
@@ -301,12 +317,15 @@ def compute_pixel_statistics(  # noqa: D103, PLR0913
         # information; the result is the same kind of array.
         all_channels = cast(
             "PixelArray",
-            img[[ch.get for ch in channels], region.planes, region.rows, region.columns],
+            img[
+                [ch.get for ch in channels], region.planes, region.rows, region.columns
+            ],
         )
         region_imgs = list(np.asarray(all_channels))
     else:
         region_imgs = [
-            np.asarray(img[ch.get, region.planes, region.rows, region.columns]) for ch in channels
+            np.asarray(img[ch.get, region.planes, region.rows, region.columns])
+            for ch in channels
         ]
     return [
         {channel_column: ch.get, **region.bounds, **_statistics_of(region_img).to_dict}

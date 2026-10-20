@@ -31,11 +31,15 @@ class InvalidationParameterisation:
 
 # An invalidation scheme for each of the path wrapper types
 INVALIDATION_PARAMETERISATIONS = [
-    InvalidationParameterisation(lambda p: p, pathtools.ExtantFile, "Not an extant file"),
+    InvalidationParameterisation(
+        lambda p: p, pathtools.ExtantFile, "Not an extant file"
+    ),
     InvalidationParameterisation(
         lambda p: p / "bogus_subfolder", pathtools.ExtantFolder, "Not an extant folder"
     ),
-    InvalidationParameterisation(lambda p: p, pathtools.NonExtantPath, "Path already exists"),
+    InvalidationParameterisation(
+        lambda p: p, pathtools.NonExtantPath, "Path already exists"
+    ),
 ]
 
 
@@ -49,7 +53,9 @@ def test_path_wrapper_cannot_be_instantiated(wrapper):
         wrapper(Path.cwd())
     obs_err_msg = str(error_context.value)
     # The error message should mention impossibility of instantiating an abstract class.
-    assert obs_err_msg.startswith(f"Can't instantiate abstract class {wrapper.__name__}")
+    assert obs_err_msg.startswith(
+        f"Can't instantiate abstract class {wrapper.__name__}"
+    )
     # The error message should mention the abstract method.
     assert "_invalidate" in obs_err_msg
 
@@ -91,7 +97,9 @@ def test_path_wrapper_subtypes_provide_path_attribute_access(
 
 
 @pytest.mark.parametrize(("wrap_type", "prepare_path"), PATH_PREPARATIONS.items())
-def test_path_wrapper_subtypes_roundtrip_through_string(tmp_path, prepare_path, wrap_type):
+def test_path_wrapper_subtypes_roundtrip_through_string(
+    tmp_path, prepare_path, wrap_type
+):
     path = tmp_path / "my-awesome-path"
     prepare_path(path)
     wrapper = wrap_type(path)
