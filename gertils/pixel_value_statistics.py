@@ -4,7 +4,7 @@ import dataclasses
 import logging
 import math
 from collections.abc import Iterable
-from typing import Any, TypeAlias, cast
+from typing import Any, cast
 
 import numpy as np
 import numpy.typing as npt
@@ -22,7 +22,7 @@ __all__ = [
     "compute_pixel_statistics_for_channel",
 ]
 
-Numeric: TypeAlias = (
+type Numeric = (
     float
     | int
     | np.float16
