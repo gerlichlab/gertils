@@ -2,31 +2,57 @@
 
 import logging
 from pathlib import Path
+from typing import Any
 
 import numpy as np
+import numpy.typing as npt
 import zarr
 from numpydoc_decorator import doc
 
 from .types import PixelArray
 
+logger: logging.Logger = logging.getLogger(__name__)
+
 
 @doc(
     summary="Read data from ZARR rooted at given path.",
-    parameters=dict(root="Path at which datastore is rooted"),
+    parameters=dict(
+        root="Path at which datastore is rooted: an array, or a group with the array at '0', in zarr format 2 or 3"
+    ),
     returns="Array of pixel (or similar) data",
+    raises=dict(
+        ZarrParseException="If neither the root nor '0' holds an array, or zarr can't read the metadata"
+    ),
 )
 def read_zarr(root: Path) -> PixelArray:
-    logging.debug("Reading ZARR: %s", root)
-    if (root / ".zarray").is_file():
-        data_root = root
-    elif (root / "0" / ".zarray").is_file():
-        data_root = root / "0"
-    else:
+    logger.debug("Reading ZARR: %s", root)
+    for folder in (root, root / "0"):
+        pixels = _read_array(folder)
+        if pixels is not None:
+            return pixels
+    raise ZarrParseException(
+        path=root,
+        msg="Failed to find an array's .zarray or zarr.json to indicate data folder",
+    )
+
+
+def _read_array(folder: Path) -> npt.NDArray[Any] | None:
+    """Read the array in the folder, or give None if the folder holds a group or nothing."""
+    try:
+        # zarr tells what the folder holds from its metadata, in either format. The stores
+        # zarr accepts include fsspec's, and fsspec ships no type information, so pyright
+        # can't know the whole signature.
+        node = zarr.open(str(folder), mode="r")  # pyright: ignore[reportUnknownMemberType]
+    except FileNotFoundError:
+        # Also zarr's NodeNotFoundError, for a folder without zarr metadata.
+        return None
+    except (ValueError, KeyError, TypeError, AttributeError) as error:
+        # zarr doesn't validate metadata before it uses it, so damaged metadata, such as a
+        # zarr.json cut off by a killed job, can raise any of these.
         raise ZarrParseException(
-            path=root, msg="Failed to find .zarray to indicate data folder"
-        )
-    # The check above found an array, so open it as one; reading is all this function does.
-    return np.asarray(zarr.open_array(str(data_root), mode="r"))
+            path=folder, msg=f"Failed to read zarr metadata: {error!r}"
+        ) from error
+    return np.asarray(node) if isinstance(node, zarr.Array) else None
 
 
 class ZarrParseException(Exception):

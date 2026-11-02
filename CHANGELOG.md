@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v0.8.0] - 2026-11-02
+
+### Changed
+* gertils requires zarr 3 instead of zarr 2, from zarr 3.1 on. zarr 3 reads the stores that zarr 2 wrote, in zarr format 2. As zarr 3.1 requires numpy 1.26, gertils does too, instead of numpy 1.24.2.
+* `read_zarr` reads zarr format 3 as well as format 2: an array whose metadata is in a `zarr.json`, at the root or under `0` of a group. A folder without an array now fails with "Failed to find an array's .zarray or zarr.json", instead of "Failed to find .zarray". Metadata that zarr can't read, such as a `zarr.json` cut off by a killed job, raises a `ZarrParseException` too, instead of zarr's own error.
+See [looptrace issue 579](https://github.com/gerlichlab/looptrace/issues/579), which moves looptrace's image stores to zarr format 3.
+* gertils logs through each module's own logger, such as `gertils.zarr_tools`, instead of the root logger, so that an application can set gertils' log level apart from its own.
+* With Python 3.12, `Numeric` in `gertils.pixel_value_statistics` is a `type` alias, and `count_repeats`, `listify` and `uniquify` in `gertils.collection_extras` declare their own type parameters. The type variables `AnyT` and `HashT` of `gertils.collection_extras`, which weren't in its `__all__`, are gone.
+* ruff 0.7.4 -> 0.17.3 and pyright 1.1.411 -> 1.1.414, the newest releases, as in looptrace and its napari plugins. The configuration names the rules that ruff renamed (`TC002`, `TC003`), no longer names those it removed (`ANN101`, `ANN102`), and ignores two that every rule now brings in: a copyright notice in each file (`CPY001`), as the LICENSE covers them all, and `X | None` for `Optional[X]` (`UP045`), which ruff split out of `UP007`, already ignored. pyright 1.1.414 finds nothing new.
+
+### Removed
+* Support for Python 3.11. gertils requires Python 3.12 or 3.13; the newest releases of numpy, zarr and numcodecs require Python 3.12 too. looptrace moves to Python 3.12 in [looptrace pull request 565](https://github.com/gerlichlab/looptrace/pull/565). looptrace-loci-vis, looptrace-regionals-vis and nuclei-vis-napari still support 3.11, and need to drop it before they can move to this version.
+* The type information for zarr in `typings/`, as zarr 3 ships its own.
+
 ## [v0.7.0] - 2026-10-12
 
 ### Removed

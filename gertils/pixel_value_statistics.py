@@ -4,7 +4,7 @@ import dataclasses
 import logging
 import math
 from collections.abc import Iterable
-from typing import Any, TypeAlias, cast
+from typing import Any, cast
 
 import numpy as np
 import numpy.typing as npt
@@ -14,13 +14,15 @@ from numpydoc_decorator import doc
 from .geometry import ImagePoint3D, ZCoordinate
 from .types import ImagingChannel, PixelArray
 
+logger: logging.Logger = logging.getLogger(__name__)
+
 __all__ = [
     "RegionalPixelStatistics",
     "compute_pixel_statistics",
     "compute_pixel_statistics_for_channel",
 ]
 
-Numeric: TypeAlias = (
+type Numeric = (
     float
     | int
     | np.float16
@@ -107,7 +109,7 @@ def _z_window(
             f"Cannot extract pixel values from negative z-slice. ({round_z}, from {central_z})"
         )
     if round_z == num_planes and central_z < num_planes:
-        logging.warning(
+        logger.warning(
             f"Rounding central_z down from {central_z} to comply with z-depth of {num_planes}"  # noqa: G004
         )
         round_z = int(central_z)
@@ -126,7 +128,7 @@ def _z_window(
         oob_slice_msg = f"[{lower_slice_bound}, {upper_slice_bound}) slice for image of {num_planes} z-slices"
         if require_full_padding:
             raise ValueError(oob_slice_msg)
-        logging.debug(oob_slice_msg)
+        logger.debug(oob_slice_msg)
     # Clip only here, so that the check above still sees a window that runs below plane 0.
     return slice(max(0, lower_slice_bound), upper_slice_bound)
 

@@ -9,7 +9,7 @@
   dev ? true,
 }:
 let 
-  py311 = pkgs.python311;
+  py312 = pkgs.python312;
   poetryExtras = if dev then ["dev"] else [];
   poetryInstallExtras = (
     if poetryExtras == [] then ""
@@ -20,8 +20,7 @@ pkgs.mkShell {
   name = "gertils-env";
   buildInputs = with pkgs; [
     poetry
-    py311
-    python312
+    py312
     python313
   ] ++ (if dev then [
     # The pyright package from PyPI runs on Node.js; providing it here saves a download.
@@ -32,7 +31,7 @@ pkgs.mkShell {
     # https://stackoverflow.com/questions/74438817/poetry-failed-to-unlock-the-collection
     # https://github.com/python-poetry/poetry/issues/1917
     export PYTHON_KEYRING_BACKEND=keyring.backends.null.Keyring
-    poetry env use "${py311}/bin/python"
+    poetry env use "${py312}/bin/python"
     poetry sync -vv${poetryInstallExtras}
     source "$(poetry env info --path)/bin/activate"
   '';
