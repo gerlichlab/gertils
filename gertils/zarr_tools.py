@@ -11,7 +11,7 @@ from numpydoc_decorator import doc
 
 from .types import PixelArray
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 
 @doc(

@@ -14,7 +14,7 @@ from numpydoc_decorator import doc
 from .geometry import ImagePoint3D, ZCoordinate
 from .types import ImagingChannel, PixelArray
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 __all__ = [
     "RegionalPixelStatistics",
