@@ -6,13 +6,11 @@ from abc import ABC, abstractmethod
 from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional, TypeVar, cast
+from typing import Optional, Self, cast
 
 from numpydoc_decorator import doc
 
 from .types import FieldOfViewFrom1, PathLike
-
-PW = TypeVar("PW", bound="PathWrapper")
 
 
 @dataclass(frozen=True)
@@ -32,7 +30,7 @@ class PathWrapper(ABC):
         self._invalidate()
 
     @classmethod
-    def from_string(cls: type[PW], rawpath: str) -> PW:
+    def from_string(cls, rawpath: str) -> Self:
         """Attempt to parse an instance from a raw string."""
         return cls(Path(rawpath))
 
@@ -90,8 +88,7 @@ def find_multiple_paths_by_fov(
     if isinstance(folder, str):
         folder = Path(folder)
     paths: dict[FieldOfViewFrom1, list[Path]] = {}
-    for fn in os.listdir(folder):
-        fp = folder / fn
+    for fp in folder.iterdir():
         for ext in extensions:
             fov = get_fov_sort_key(fp, extension=ext)
             if fov is not None:
@@ -124,8 +121,7 @@ def find_single_path_by_fov(
     if isinstance(folder, str):
         folder = Path(folder)
     image_paths: dict[FieldOfViewFrom1, Path] = {}
-    for fn in os.listdir(folder):
-        fp = folder / fn
+    for fp in folder.iterdir():
         fov = get_fov_sort_key(fp, extension=extension)
         if fov is not None:
             if fov in image_paths:

@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * gertils requires zarr 3 instead of zarr 2, from zarr 3.1 on; on Python 3.11 that is zarr 3.1, the last release that supports it. zarr 3 reads the stores that zarr 2 wrote, in zarr format 2.
 * `read_zarr` reads zarr format 3 as well as format 2: an array whose metadata is in a `zarr.json`, at the root or under `0` of a group. A folder without an array now fails with "Failed to find an array's .zarray or zarr.json", instead of "Failed to find .zarray".
 See [looptrace issue 579](https://github.com/gerlichlab/looptrace/issues/579), which moves looptrace's image stores to zarr format 3.
+* gertils logs through each module's own logger, such as `gertils.zarr_tools`, instead of the root logger, so that an application can set gertils' log level apart from its own.
+* ruff 0.7.4 -> 0.17.3 and pyright 1.1.411 -> 1.1.414, the newest releases, as in looptrace and its napari plugins. The configuration names the rules that ruff renamed (`TC002`, `TC003`), no longer names those it removed (`ANN101`, `ANN102`), and ignores two that every rule now brings in: a copyright notice in each file (`CPY001`), as the LICENSE covers them all, and `X | None` for `Optional[X]` (`UP045`), which ruff split out of `UP007`, already ignored. pyright 1.1.414 finds nothing new.
 
 ### Removed
 * The type information for zarr in `typings/`, as zarr 3 ships its own.

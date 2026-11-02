@@ -10,6 +10,8 @@ from numpydoc_decorator import doc
 
 from .types import PixelArray
 
+logger = logging.getLogger(__name__)
+
 
 @doc(
     summary="Read data from ZARR rooted at given path.",
@@ -19,7 +21,7 @@ from .types import PixelArray
     returns="Array of pixel (or similar) data",
 )
 def read_zarr(root: Path) -> PixelArray:
-    logging.debug("Reading ZARR: %s", root)
+    logger.debug("Reading ZARR: %s", root)
     if _holds_array(root):
         data_root = root
     elif _holds_array(root / "0"):
