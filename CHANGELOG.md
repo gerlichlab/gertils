@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+* gertils requires zarr 3 instead of zarr 2, from zarr 3.1 on; on Python 3.11 that is zarr 3.1, the last release that supports it. zarr 3 reads the stores that zarr 2 wrote, in zarr format 2.
+* `read_zarr` reads zarr format 3 as well as format 2: an array whose metadata is in a `zarr.json`, at the root or under `0` of a group. A folder without an array now fails with "Failed to find an array's .zarray or zarr.json", instead of "Failed to find .zarray".
+See [looptrace issue 579](https://github.com/gerlichlab/looptrace/issues/579), which moves looptrace's image stores to zarr format 3.
+
+### Removed
+* The type information for zarr in `typings/`, as zarr 3 ships its own.
+
 ## [v0.7.0] - 2026-10-12
 
 ### Removed

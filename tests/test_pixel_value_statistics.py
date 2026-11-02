@@ -323,12 +323,14 @@ def test_point_beyond_the_last_plane_is_rejected_also_without_channels():
 class CountingStore(dict):
     """In-memory zarr store, which records the chunks that are read from it."""
 
+    METADATA_KEYS = frozenset({"zarr.json", ".zarray", ".zattrs", ".zgroup"})
+
     def __init__(self):
         super().__init__()
         self.chunks_read = []
 
     def __getitem__(self, key):
-        if not key.startswith("."):
+        if key not in self.METADATA_KEYS:
             self.chunks_read.append(key)
         return super().__getitem__(key)
 
@@ -355,8 +357,8 @@ def test_only_the_planes_of_the_z_window_are_read_from_a_zarr_array():
         "channel_column": "channel",
     }
     records = compute_pixel_statistics(img, **kwargs)
-    # Chunk keys are "channel.plane.row.column".
-    assert sorted(key.split(".")[:2] for key in store.chunks_read) == [
+    # Chunk keys are "c/channel/plane/row/column".
+    assert sorted(key.split("/")[1:3] for key in store.chunks_read) == [
         ["1", "10"],
         ["1", "11"],
         ["1", "9"],
@@ -377,5 +379,5 @@ def test_stored_chunks_shared_by_channels_are_read_once_with_dask():
     }
     records = compute_pixel_statistics(from_zarr(img), **kwargs)
     # Each stored chunk holds both channels of one plane; the window has planes 4 to 6.
-    assert sorted(store.chunks_read) == ["0.4.0.0", "0.5.0.0", "0.6.0.0"]
+    assert sorted(store.chunks_read) == ["c/0/4/0/0", "c/0/5/0/0", "c/0/6/0/0"]
     assert records == compute_pixel_statistics(data, **kwargs)
