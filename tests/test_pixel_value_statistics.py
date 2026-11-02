@@ -338,7 +338,9 @@ class CountingStore(dict):
 def read_through_zarr(data, *, chunks):
     """Store the data in zarr, and open it for reading, along with the store that counts the reads."""
     store = CountingStore()
-    zarr.array(data, chunks=chunks, store=store)
+    # Format 3 explicitly, as the tests that count chunk reads expect its chunk keys, and
+    # zarr's default format can be changed.
+    zarr.array(data, chunks=chunks, store=store, zarr_format=3)
     store.chunks_read.clear()
     # zarr arrays aren't a declared input type, but are accepted like any array that can be indexed.
     img: Any = zarr.open_array(store, mode="r")
