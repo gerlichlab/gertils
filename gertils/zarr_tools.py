@@ -1,10 +1,11 @@
 """Tools for working with ZARR"""
 
-import json
 import logging
 from pathlib import Path
+from typing import Any
 
 import numpy as np
+import numpy.typing as npt
 import zarr
 from numpydoc_decorator import doc
 
@@ -19,34 +20,39 @@ logger = logging.getLogger(__name__)
         root="Path at which datastore is rooted: an array, or a group with the array at '0', in zarr format 2 or 3"
     ),
     returns="Array of pixel (or similar) data",
+    raises=dict(
+        ZarrParseException="If neither the root nor '0' holds an array, or zarr can't read the metadata"
+    ),
 )
 def read_zarr(root: Path) -> PixelArray:
     logger.debug("Reading ZARR: %s", root)
-    if _holds_array(root):
-        data_root = root
-    elif _holds_array(root / "0"):
-        data_root = root / "0"
-    else:
+    for folder in (root, root / "0"):
+        pixels = _read_array(folder)
+        if pixels is not None:
+            return pixels
+    raise ZarrParseException(
+        path=root,
+        msg="Failed to find an array's .zarray or zarr.json to indicate data folder",
+    )
+
+
+def _read_array(folder: Path) -> npt.NDArray[Any] | None:
+    """Read the array in the folder, or give None if the folder holds a group or nothing."""
+    try:
+        # zarr tells what the folder holds from its metadata, in either format. The stores
+        # zarr accepts include fsspec's, and fsspec ships no type information, so pyright
+        # can't know the whole signature.
+        node = zarr.open(str(folder), mode="r")  # pyright: ignore[reportUnknownMemberType]
+    except FileNotFoundError:
+        # Also zarr's NodeNotFoundError, for a folder without zarr metadata.
+        return None
+    except (ValueError, KeyError, TypeError, AttributeError) as error:
+        # zarr doesn't validate metadata before it uses it, so damaged metadata, such as a
+        # zarr.json cut off by a killed job, can raise any of these.
         raise ZarrParseException(
-            path=root,
-            msg="Failed to find an array's .zarray or zarr.json to indicate data folder",
-        )
-    # The check above found an array, so open it as one; reading is all this function does.
-    # The stores zarr accepts include fsspec's, which isn't installed, so pyright can't
-    # know the whole signature.
-    return np.asarray(zarr.open_array(str(data_root), mode="r"))  # pyright: ignore[reportUnknownMemberType]
-
-
-def _holds_array(folder: Path) -> bool:
-    """Whether the folder has an array's metadata: .zarray in format 2, zarr.json in format 3."""
-    if (folder / ".zarray").is_file():
-        return True
-    metadata_path = folder / "zarr.json"
-    if not metadata_path.is_file():
-        return False
-    # In format 3, a group has a zarr.json too, so the node type tells the two apart.
-    metadata: dict[str, object] = json.loads(metadata_path.read_text())
-    return metadata.get("node_type") == "array"
+            path=folder, msg=f"Failed to read zarr metadata: {error!r}"
+        ) from error
+    return np.asarray(node) if isinstance(node, zarr.Array) else None
 
 
 class ZarrParseException(Exception):
