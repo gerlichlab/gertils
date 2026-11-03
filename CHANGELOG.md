@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [v0.9.0] - 2026-11-04
 
 ### Added
 * Support for Python 3.14: gertils requires Python 3.12 to 3.14, and CI tests and checks all three. Nothing else held it back once numpydoc_decorator was gone; all tests pass on 3.14, and pyright and ruff report nothing. The Nix shell offers Python 3.14 beside 3.13 for trying it out.
