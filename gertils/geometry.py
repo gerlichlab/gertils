@@ -4,20 +4,23 @@ from dataclasses import dataclass
 from typing import Union, cast
 
 import numpy as np
-from numpydoc_decorator import doc
 
 ZCoordinate = Union[int, float, np.float64]  # int to accommodate notion of "z-slice"
 
 
-@doc(
-    summary="Bundle x and y position to create point in 2D space.",
-    parameters=dict(
-        x="Position in x",
-        y="Position in y",
-    ),
-)
 @dataclass(kw_only=True, frozen=True)
-class ImagePoint2D:  # noqa: D101
+class ImagePoint2D:
+    """Bundle x and y position to create point in 2D space.
+
+    Parameters
+    ----------
+    x : float
+        Position in x.
+    y : float
+        Position in y.
+
+    """
+
     x: float
     y: float
 
@@ -28,19 +31,25 @@ class ImagePoint2D:  # noqa: D101
             raise ValueError(f"At least one coordinate is negative! {self}")
 
 
-@doc(
-    summary="Bundle x, y and z position to create point in 3D space.",
-    parameters=dict(
-        x="Position in x",
-        y="Position in y",
-        z="Position in z",
-    ),
-    see_also=dict(
-        ImagePoint2D="Simpler, non-z implementation of an image point",
-    ),
-)
 @dataclass(kw_only=True, frozen=True)
-class ImagePoint3D(ImagePoint2D):  # noqa: D101
+class ImagePoint3D(ImagePoint2D):
+    """Bundle x, y and z position to create point in 3D space.
+
+    Parameters
+    ----------
+    x : float
+        Position in x.
+    y : float
+        Position in y.
+    z : int or float or float64
+        Position in z.
+
+    See Also
+    --------
+    ImagePoint2D : Simpler, non-z implementation of an image point.
+
+    """
+
     z: ZCoordinate
 
     def __post_init__(self) -> None:

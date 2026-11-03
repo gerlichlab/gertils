@@ -9,7 +9,6 @@ from typing import Any, cast
 import numpy as np
 import numpy.typing as npt
 from dask.array.core import Array as DaskArray
-from numpydoc_decorator import doc
 
 from .geometry import ImagePoint3D, ZCoordinate
 from .types import ImagingChannel, PixelArray
@@ -39,23 +38,30 @@ type Numeric = (
 )
 
 
-@doc(
-    summary="Store a handful of pixel value stats for a particular ROI.",
-    extended_summary=(
-        "The statistics are taken over the z-plane closest to the ROI's center, "
-        "plus any planes of padding above and below it."
-    ),
-    parameters=dict(
-        center_mean="Mean of the pixel values",
-        center_sigma="Standard deviation of the pixel values",
-        center_min="Minimum of the pixel values",
-        center_med="Median of the pixel values",
-        center_max="Maximum of the pixel values",
-        pixel_count="Number of pixels the statistics are taken over",
-    ),
-)
 @dataclasses.dataclass(kw_only=True, frozen=True)
-class RegionalPixelStatistics:  # noqa: D101
+class RegionalPixelStatistics:
+    """Store a handful of pixel value stats for a particular ROI.
+
+    The statistics are taken over the z-plane closest to the ROI's center,
+    plus any planes of padding above and below it.
+
+    Parameters
+    ----------
+    center_mean : float
+        Mean of the pixel values.
+    center_sigma : float
+        Standard deviation of the pixel values.
+    center_min : float
+        Minimum of the pixel values.
+    center_med : float
+        Median of the pixel values.
+    center_max : float
+        Maximum of the pixel values.
+    pixel_count : int
+        Number of pixels the statistics are taken over.
+
+    """
+
     center_mean: float
     center_sigma: float
     center_min: float
@@ -214,30 +220,6 @@ def _locate_region(  # noqa: PLR0913
     )
 
 
-@doc(
-    summary="Compute statistics over the pixels of one channel, in a region centered on a point.",
-    parameters=dict(
-        img="Image in which to measure pixels",
-        pt="Center of region to measure",
-        channel="Channel of image in which to measure pixels",
-        diameter="Size (width and height) of region around point in which to measure pixels",
-        channel_column="Name for the field/column in which to store channel from which pixels were taken",
-        plus_minus_planes="Number of z-planes on either side of the central plane to include",
-        require_full_padding="Raise an error rather than use fewer z-planes at the edge of the stack",
-        require_full_region="Raise an error rather than measure a region cut off by the edge of the image",
-    ),
-    returns="Record mapping key/field to value",
-    raises=dict(
-        ValueError=(
-            "If the image isn't 4D; if the diameter isn't positive; if the region lies entirely "
-            "outside the image, or the point beyond the last z-plane; or, when required, if the "
-            "region or its z-padding extends beyond the image"
-        ),
-    ),
-    see_also=dict(
-        compute_pixel_statistics="The same, for several channels at once",
-    ),
-)
 def compute_pixel_statistics_for_channel(  # noqa: PLR0913
     img: PixelArray,
     pt: ImagePoint3D,
@@ -249,6 +231,49 @@ def compute_pixel_statistics_for_channel(  # noqa: PLR0913
     require_full_padding: bool = False,
     require_full_region: bool = False,
 ) -> dict[str, Numeric]:
+    """Compute statistics over the pixels of one channel, in a region centered on a point.
+
+    Parameters
+    ----------
+    img : NDArray[uint8 or uint16] or Array
+        Image in which to measure pixels.
+    pt : ImagePoint3D
+        Center of region to measure.
+    channel : ImagingChannel
+        Channel of image in which to measure pixels.
+    diameter : int
+        Size (width and height) of region around point in which to measure
+        pixels.
+    channel_column : str
+        Name for the field/column in which to store channel from which pixels
+        were taken.
+    plus_minus_planes : int, optional, default: 1
+        Number of z-planes on either side of the central plane to include.
+    require_full_padding : bool, optional, default: False
+        Raise an error rather than use fewer z-planes at the edge of the
+        stack.
+    require_full_region : bool, optional, default: False
+        Raise an error rather than measure a region cut off by the edge of the
+        image.
+
+    Returns
+    -------
+    dict[str, Numeric]
+        Record mapping key/field to value.
+
+    Raises
+    ------
+    ValueError
+        If the image isn't 4D; if the diameter isn't positive; if the region
+        lies entirely outside the image, or the point beyond the last
+        z-plane; or, when required, if the region or its z-padding extends
+        beyond the image.
+
+    See Also
+    --------
+    compute_pixel_statistics : The same, for several channels at once.
+
+    """
     region = _locate_region(
         img,
         pt,
@@ -269,30 +294,6 @@ def compute_pixel_statistics_for_channel(  # noqa: PLR0913
     }
 
 
-@doc(
-    summary="Compute statistics over pixels from multiple channels, in a region centered on a point.",
-    parameters=dict(
-        img="Image in which to measure pixels",
-        pt="Center of region to measure",
-        channels="Channels of image in which to measure pixels",
-        diameter="Size (width and height) of region around point in which to measure pixels",
-        channel_column="Name for the field/column in which to store channel from which pixels were taken",
-        plus_minus_planes="Number of z-planes on either side of the central plane to include",
-        require_full_padding="Raise an error rather than use fewer z-planes at the edge of the stack",
-        require_full_region="Raise an error rather than measure a region cut off by the edge of the image",
-    ),
-    returns="List of records, one per channel, each mapping key/field to value",
-    raises=dict(
-        ValueError=(
-            "If the image isn't 4D; if the diameter isn't positive; if the region lies entirely "
-            "outside the image, or the point beyond the last z-plane; or, when required, if the "
-            "region or its z-padding extends beyond the image"
-        ),
-    ),
-    see_also=dict(
-        compute_pixel_statistics_for_channel="The same, for a single channel",
-    ),
-)
 def compute_pixel_statistics(  # noqa: PLR0913
     img: PixelArray,
     pt: ImagePoint3D,
@@ -304,6 +305,49 @@ def compute_pixel_statistics(  # noqa: PLR0913
     require_full_padding: bool = False,
     require_full_region: bool = False,
 ) -> list[dict[str, Numeric]]:
+    """Compute statistics over pixels from multiple channels, in a region centered on a point.
+
+    Parameters
+    ----------
+    img : NDArray[uint8 or uint16] or Array
+        Image in which to measure pixels.
+    pt : ImagePoint3D
+        Center of region to measure.
+    channels : Iterable[ImagingChannel]
+        Channels of image in which to measure pixels.
+    diameter : int
+        Size (width and height) of region around point in which to measure
+        pixels.
+    channel_column : str
+        Name for the field/column in which to store channel from which pixels
+        were taken.
+    plus_minus_planes : int, optional, default: 1
+        Number of z-planes on either side of the central plane to include.
+    require_full_padding : bool, optional, default: False
+        Raise an error rather than use fewer z-planes at the edge of the
+        stack.
+    require_full_region : bool, optional, default: False
+        Raise an error rather than measure a region cut off by the edge of the
+        image.
+
+    Returns
+    -------
+    list of dict[str, Numeric]
+        List of records, one per channel, each mapping key/field to value.
+
+    Raises
+    ------
+    ValueError
+        If the image isn't 4D; if the diameter isn't positive; if the region
+        lies entirely outside the image, or the point beyond the last
+        z-plane; or, when required, if the region or its z-padding extends
+        beyond the image.
+
+    See Also
+    --------
+    compute_pixel_statistics_for_channel : The same, for a single channel.
+
+    """
     channels = list(channels)
     region = _locate_region(
         img,

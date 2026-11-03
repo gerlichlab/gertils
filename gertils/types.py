@@ -7,7 +7,6 @@ from typing import Union
 import numpy as np
 import numpy.typing as npt
 from dask.array.core import Array as DaskArray
-from numpydoc_decorator import doc
 
 CsvRow = list[str]
 LayerParams = dict
@@ -22,16 +21,24 @@ def _is_int(value: object) -> bool:
     return isinstance(value, int)
 
 
-@doc(
-    summary="Wrap an int as a 1-based field of view (FOV).",
-    parameters=dict(get="The value to wrap"),
-    raises=dict(
-        TypeError="If the given value to wrap isn't an integer",
-        ValueError="If the given value to wrap isn't positive",
-    ),
-)
 @dataclass(frozen=True, order=True)
-class FieldOfViewFrom1:  # noqa: D101
+class FieldOfViewFrom1:
+    """Wrap an int as a 1-based field of view (FOV).
+
+    Parameters
+    ----------
+    get : int
+        The value to wrap.
+
+    Raises
+    ------
+    TypeError
+        If the given value to wrap isn't an integer.
+    ValueError
+        If the given value to wrap isn't positive.
+
+    """
+
     get: int
 
     def __post_init__(self) -> None:
@@ -44,9 +51,17 @@ class FieldOfViewFrom1:  # noqa: D101
             raise ValueError(f"1-based FOV view must be positive int; got {self.get}")
 
 
-@doc(summary="An imaging channel", parameters=dict(get="Wrapped value"))
 @dataclass(frozen=True, order=True)
-class ImagingChannel:  # noqa: D101
+class ImagingChannel:
+    """An imaging channel.
+
+    Parameters
+    ----------
+    get : int
+        Wrapped value.
+
+    """
+
     get: int
 
     def __post_init__(self) -> None:
@@ -58,16 +73,24 @@ class ImagingChannel:  # noqa: D101
             raise ValueError(f"Imaging channel must be nonnegative; got {self.get}")
 
 
-@doc(
-    summary="Wrap an int as a 1-based nucleus number.",
-    parameters=dict(get="The value to wrap"),
-    raises=dict(
-        TypeError="If the given value to wrap isn't an integer",
-        ValueError="If the given value to wrap isn't positive",
-    ),
-)
 @dataclass(frozen=True, order=True)
-class NucleusNumber:  # noqa: D101
+class NucleusNumber:
+    """Wrap an int as a 1-based nucleus number.
+
+    Parameters
+    ----------
+    get : int
+        The value to wrap.
+
+    Raises
+    ------
+    TypeError
+        If the given value to wrap isn't an integer.
+    ValueError
+        If the given value to wrap isn't positive.
+
+    """
+
     get: int
 
     def __post_init__(self) -> None:
@@ -80,16 +103,24 @@ class NucleusNumber:  # noqa: D101
             raise ValueError(f"Nucleus number must be positive int; got {self.get}")
 
 
-@doc(
-    summary="Wrap an int as a 0-based timepoint.",
-    parameters=dict(get="The value to wrap"),
-    raises=dict(
-        TypeError="If the given value to wrap isn't an integer",
-        ValueError="If the given value to wrap is negative",
-    ),
-)
 @dataclass(frozen=True, order=True)
-class TimepointFrom0:  # noqa: D101
+class TimepointFrom0:
+    """Wrap an int as a 0-based timepoint.
+
+    Parameters
+    ----------
+    get : int
+        The value to wrap.
+
+    Raises
+    ------
+    TypeError
+        If the given value to wrap isn't an integer.
+    ValueError
+        If the given value to wrap is negative.
+
+    """
+
     get: int
 
     def __post_init__(self) -> None:
@@ -101,16 +132,24 @@ class TimepointFrom0:  # noqa: D101
             raise ValueError(f"Timepoint must be nonnegative int; got {self.get}")
 
 
-@doc(
-    summary="Wrap an int as a 0-based trace ID.",
-    parameters=dict(get="The value to wrap"),
-    raises=dict(
-        TypeError="If the given value to wrap isn't an integer",
-        ValueError="If the given value to wrap is negative",
-    ),
-)
 @dataclass(frozen=True, order=True)
-class TraceIdFrom0:  # noqa: D101
+class TraceIdFrom0:
+    """Wrap an int as a 0-based trace ID.
+
+    Parameters
+    ----------
+    get : int
+        The value to wrap.
+
+    Raises
+    ------
+    TypeError
+        If the given value to wrap isn't an integer.
+    ValueError
+        If the given value to wrap is negative.
+
+    """
+
     get: int
 
     def __post_init__(self) -> None:

@@ -32,7 +32,6 @@ python = ">=3.12,<3.14"
 dask = ">=2023.5.1"
 # zarr 3.1 requires numpy 1.26.
 numpy = ">=1.26,<3"
-numpydoc_decorator = "^2.2.1"
 zarr = ">=3.1,<4"
 
 [tool.poetry.group.dev]
@@ -134,12 +133,6 @@ ignore = [
     "ISC002",  # multi-line-implicit-string-concatenation
     "E501",  # line-too-long
 ]
-
-[tool.ruff.lint.pydocstyle]
-# numpydoc_decorator's @doc writes the docstring of the functions it decorates when the
-# module is imported, so ruff, which only reads the source, doesn't see one. The setting
-# applies only to functions and methods, so classes keep their `# noqa: D101`.
-ignore-decorators = ["numpydoc_decorator.doc"]
 
 [tool.ruff.lint.per-file-ignores]
 "typings/*" = [

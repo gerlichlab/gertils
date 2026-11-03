@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Removed
+* The dependency on numpydoc_decorator, whose newest release allows only Python below 3.14. See [looptrace issue 584](https://github.com/gerlichlab/looptrace/issues/584). Each docstring its `@doc` wrote when a module was imported is now written in the source, reading as before, so ruff's docstring rules check it and an editor shows it. Four summaries that `@doc` wrapped over two lines take one line, and the classes lose their `# noqa: D101`. The type information for numpydoc_decorator in `typings/` goes too, and so does the setting that had ruff's docstring rules skip the functions it decorated.
+
 ## [v0.8.0] - 2026-11-02
 
 ### Changed
