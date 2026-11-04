@@ -136,12 +136,6 @@ ignore = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"typings/*" = [
-    # Stubs copy the signatures of third-party code, which we can't change.
-    "FBT001",  # Boolean-typed positional argument in function definition
-    "FBT002",  # Boolean default positional argument in function definition
-    "PLR0913",  # Too many arguments in function definition
-]
 "tests/*" = [
     # Ignore some groups of checks in our test code.
     "ANN",  # Type annotations
