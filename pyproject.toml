@@ -30,9 +30,13 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry.dependencies]
 # These are the main runtime dependencies.
 python = ">=3.12,<3.15"
-dask = ">=2023.5.1"
-# zarr 3.1 requires numpy 1.26.
-numpy = ">=1.26,<3"
+# dask 2023.6.1 is the first release that imports with numpy 2: the ones before it
+# import numpy.compat, which numpy 2 removed, with dask.array.
+dask = ">=2023.6.1"
+# numpy 2.3.2 is the first release with wheels for every Python above: 2.1 has
+# the first for 3.13, and 2.3.2 for 3.14. A lower floor lets a resolver pick a
+# numpy that has to be built from source.
+numpy = ">=2.3.2,<3"
 zarr = ">=3.1,<4"
 
 [tool.poetry.group.dev]
