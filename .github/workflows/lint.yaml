@@ -9,6 +9,13 @@ jobs:
       matrix:
         python-version: ["3.12", "3.13", "3.14"]
         os: [ubuntu-22.04]
+        # The job that runs codespell and ruff, on the newest Python, the one looptrace
+        # moves to, which stays in the list longest. Should it leave the list above, this
+        # entry still makes a job of its own, rather than the checks running on no job.
+        include:
+          - python-version: "3.14"
+            os: ubuntu-22.04
+            static-checks: true
     runs-on: ${{ matrix.os }}
     env:
       # The environment goes in the checkout, at one path on every OS, for the cache
@@ -33,8 +40,9 @@ jobs:
       - name: Install project
         run: poetry sync --no-interaction --with=lint
       # The same checks as the pre-commit hooks: codespell, ruff check, ruff format and pyright.
-      # Only pyright depends on the Python it runs on, so the others run on the lowest only.
+      # Only pyright depends on the Python it runs on, so the others run on the job the
+      # matrix marks for them only.
       - name: Run checks on Python ${{ matrix.python-version }}
         env:
-          SKIP: ${{ matrix.python-version != '3.12' && 'codespell,ruff-check,ruff-format' || '' }}
+          SKIP: ${{ !matrix.static-checks && 'codespell,ruff-check,ruff-format' || '' }}
         run: poetry run pre-commit run --all-files --show-diff-on-failure
