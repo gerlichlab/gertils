@@ -8,12 +8,10 @@ import numpy as np
 import numpy.typing as npt
 import zarr
 
-from .types import PixelArray
-
 logger: logging.Logger = logging.getLogger(__name__)
 
 
-def read_zarr(root: Path) -> PixelArray:
+def read_zarr(root: Path) -> npt.NDArray[Any]:
     """Read data from ZARR rooted at given path.
 
     Parameters
@@ -24,8 +22,8 @@ def read_zarr(root: Path) -> PixelArray:
 
     Returns
     -------
-    NDArray[uint8 or uint16] or Array
-        Array of pixel (or similar) data.
+    numpy.ndarray
+        The array's data, read into memory, in the dtype the store holds.
 
     Raises
     ------

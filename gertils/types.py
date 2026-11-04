@@ -62,6 +62,14 @@ class ImagingChannel:
     get : int
         Wrapped value.
 
+    Raises
+    ------
+    TypeError
+        If the given value to wrap isn't an int; a bool or a numpy integer
+        isn't accepted.
+    ValueError
+        If the given value to wrap is negative.
+
     """
 
     get: int

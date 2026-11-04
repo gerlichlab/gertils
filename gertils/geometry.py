@@ -19,6 +19,13 @@ class ImagePoint2D:
     y : float
         Position in y.
 
+    Raises
+    ------
+    TypeError
+        If a coordinate isn't a float; an int isn't accepted.
+    ValueError
+        If a coordinate is negative.
+
     """
 
     x: float
@@ -41,8 +48,16 @@ class ImagePoint3D(ImagePoint2D):
         Position in x.
     y : float
         Position in y.
-    z : int or float or float64
-        Position in z.
+    z : ZCoordinate
+        Position in z: a float, or an int for a z-slice.
+
+    Raises
+    ------
+    TypeError
+        If x or y isn't a float, or z isn't an int or a float; a bool isn't
+        accepted.
+    ValueError
+        If a coordinate is negative.
 
     See Also
     --------

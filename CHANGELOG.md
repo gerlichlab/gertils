@@ -10,10 +10,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Support for Python 3.14: gertils requires Python 3.12 to 3.14, and CI tests and checks all three. Nothing else held it back once numpydoc_decorator was gone; all tests pass on 3.14, and pyright and ruff report nothing. The Nix shell offers Python 3.14 beside 3.13 for trying it out.
 
 ### Removed
-* The dependency on numpydoc_decorator, whose newest release allows only Python below 3.14. See [looptrace issue 584](https://github.com/gerlichlab/looptrace/issues/584). Each docstring its `@doc` wrote when a module was imported is now written in the source, reading as before, so ruff's docstring rules check it and an editor shows it. Four summaries that `@doc` wrapped over two lines take one line, and the classes lose their `# noqa: D101`. The type information for numpydoc_decorator in `typings/` goes too, and so does the setting that had ruff's docstring rules skip the functions it decorated.
+* The dependency on numpydoc_decorator, whose newest release allows only Python below 3.14. See [looptrace issue 584](https://github.com/gerlichlab/looptrace/issues/584). Each docstring its `@doc` wrote when a module was imported is now written in the source, so ruff's docstring rules check it and an editor shows it. Four summaries that `@doc` wrapped over two lines take one line, and the classes lose their `# noqa: D101`. The type information for numpydoc_decorator in `typings/` goes too, and so does the setting that had ruff's docstring rules skip the functions it decorated.
 
 ### Changed
 * `find_multiple_paths_by_fov` gives each field of view's paths sorted, instead of in the order the filesystem lists them, which differs between filesystems and operating systems.
+* `read_zarr` is annotated as returning a numpy array instead of a `PixelArray`, which includes dask's arrays: it always reads the array into memory, in the dtype the store holds, which may be neither `uint8` nor `uint16`.
+* `RegionalPixelStatistics` annotates `center_min` and `center_max` as `Numeric` instead of `float`, and its `to_dict` as giving `Numeric` values: they are in the image's dtype, usually `np.uint16`, as the records of `compute_pixel_statistics` already say.
+* The docstrings say what the code does where those `@doc` wrote didn't: what `read_zarr` returns, the errors `ImagingChannel`, `ImagePoint2D` and `ImagePoint3D` raise, and the `ValueError` for a negative `plus_minus_planes` and the `IndexError` for a channel beyond the image that `compute_pixel_statistics` and `compute_pixel_statistics_for_channel` raise. A parameter of one of gertils' types names it, such as `PixelArray` or `ZCoordinate`, instead of spelling it out.
 
 ### Fixed
 * `find_multiple_paths_by_fov` tried an iterator of extensions, such as a generator, only on the first file of the folder, as it ran out there, and missed the files after it with another extension. It now reads the extensions once.

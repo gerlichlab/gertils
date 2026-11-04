@@ -51,12 +51,14 @@ class RegionalPixelStatistics:
         Mean of the pixel values.
     center_sigma : float
         Standard deviation of the pixel values.
-    center_min : float
-        Minimum of the pixel values.
+    center_min : Numeric
+        Minimum of the pixel values, in the image's dtype, such as
+        numpy.uint16.
     center_med : float
         Median of the pixel values.
-    center_max : float
-        Maximum of the pixel values.
+    center_max : Numeric
+        Maximum of the pixel values, in the image's dtype, such as
+        numpy.uint16.
     pixel_count : int
         Number of pixels the statistics are taken over.
 
@@ -64,13 +66,13 @@ class RegionalPixelStatistics:
 
     center_mean: float
     center_sigma: float
-    center_min: float
+    center_min: Numeric
     center_med: float
-    center_max: float
+    center_max: Numeric
     pixel_count: int
 
     @property
-    def to_dict(self) -> dict[str, float]:  # noqa: D102
+    def to_dict(self) -> dict[str, Numeric]:  # noqa: D102
         return dataclasses.asdict(self)
 
     @classmethod
@@ -235,8 +237,9 @@ def compute_pixel_statistics_for_channel(  # noqa: PLR0913
 
     Parameters
     ----------
-    img : NDArray[uint8 or uint16] or Array
-        Image in which to measure pixels.
+    img : PixelArray
+        Image in which to measure pixels: a numpy or a dask array, with
+        axes (channel, z, y, x).
     pt : ImagePoint3D
         Center of region to measure.
     channel : ImagingChannel
@@ -264,10 +267,12 @@ def compute_pixel_statistics_for_channel(  # noqa: PLR0913
     Raises
     ------
     ValueError
-        If the image isn't 4D; if the diameter isn't positive; if the region
-        lies entirely outside the image, or the point beyond the last
-        z-plane; or, when required, if the region or its z-padding extends
-        beyond the image.
+        If the image isn't 4D; if the diameter isn't positive, or
+        plus_minus_planes is negative; if the region lies entirely outside
+        the image, or the point beyond the last z-plane; or, when required,
+        if the region or its z-padding extends beyond the image.
+    IndexError
+        If a channel is beyond the image's channel axis.
 
     See Also
     --------
@@ -309,8 +314,9 @@ def compute_pixel_statistics(  # noqa: PLR0913
 
     Parameters
     ----------
-    img : NDArray[uint8 or uint16] or Array
-        Image in which to measure pixels.
+    img : PixelArray
+        Image in which to measure pixels: a numpy or a dask array, with
+        axes (channel, z, y, x).
     pt : ImagePoint3D
         Center of region to measure.
     channels : Iterable[ImagingChannel]
@@ -338,10 +344,12 @@ def compute_pixel_statistics(  # noqa: PLR0913
     Raises
     ------
     ValueError
-        If the image isn't 4D; if the diameter isn't positive; if the region
-        lies entirely outside the image, or the point beyond the last
-        z-plane; or, when required, if the region or its z-padding extends
-        beyond the image.
+        If the image isn't 4D; if the diameter isn't positive, or
+        plus_minus_planes is negative; if the region lies entirely outside
+        the image, or the point beyond the last z-plane; or, when required,
+        if the region or its z-padding extends beyond the image.
+    IndexError
+        If a channel is beyond the image's channel axis.
 
     See Also
     --------
