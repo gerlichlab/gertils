@@ -7,6 +7,7 @@ from pathlib import Path
 import pytest
 
 from gertils import pathtools
+from gertils.types import FieldOfViewFrom1
 
 __author__ = "Vince Reuter"
 __email__ = "vincent.reuter@imba.oeaw.ac.at"
@@ -108,3 +109,30 @@ def test_path_wrapper_subtypes_roundtrip_through_string(
 
 def get_exp_anc_err_msg(wrapper: type) -> str:
     return f"Can't instantiate abstract class {wrapper.__name__} with abstract method _invalidate"
+
+
+@pytest.fixture
+def fov_folder(tmp_path):
+    for name in ["P0002.zarr", "P0001.zarr", "P0001.npy", "P0003.npy", "notes.txt"]:
+        (tmp_path / name).mkdir()
+    return tmp_path
+
+
+@pytest.mark.parametrize(
+    "extensions",
+    [[".zarr", ".npy"], (".zarr", ".npy"), iter([".zarr", ".npy"])],
+    ids=["list", "tuple", "iterator"],
+)
+def test_find_multiple_paths_by_fov_tries_every_extension_for_every_file(
+    fov_folder, extensions
+):
+    assert pathtools.find_multiple_paths_by_fov(fov_folder, extensions=extensions) == {
+        FieldOfViewFrom1(1): [fov_folder / "P0001.npy", fov_folder / "P0001.zarr"],
+        FieldOfViewFrom1(2): [fov_folder / "P0002.zarr"],
+        FieldOfViewFrom1(3): [fov_folder / "P0003.npy"],
+    }
+
+
+def test_find_multiple_paths_by_fov_rejects_a_single_string(fov_folder):
+    with pytest.raises(TypeError, match=r"not a single string: '\.zarr'"):
+        pathtools.find_multiple_paths_by_fov(fov_folder, extensions=".zarr")

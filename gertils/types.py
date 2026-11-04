@@ -18,7 +18,8 @@ PixelArray = Union[npt.NDArray[PixelValue], DaskArray]
 
 def _is_int(value: object) -> bool:
     """Check at runtime, since callers may pass any type despite the annotations."""
-    return isinstance(value, int)
+    # A bool is an int to Python, but True would otherwise wrap as 1.
+    return isinstance(value, int) and not isinstance(value, bool)
 
 
 @dataclass(frozen=True, order=True)
@@ -33,7 +34,8 @@ class FieldOfViewFrom1:
     Raises
     ------
     TypeError
-        If the given value to wrap isn't an integer.
+        If the given value to wrap isn't an int; a bool or a numpy integer
+        isn't accepted.
     ValueError
         If the given value to wrap isn't positive.
 
@@ -85,7 +87,8 @@ class NucleusNumber:
     Raises
     ------
     TypeError
-        If the given value to wrap isn't an integer.
+        If the given value to wrap isn't an int; a bool or a numpy integer
+        isn't accepted.
     ValueError
         If the given value to wrap isn't positive.
 
@@ -115,7 +118,8 @@ class TimepointFrom0:
     Raises
     ------
     TypeError
-        If the given value to wrap isn't an integer.
+        If the given value to wrap isn't an int; a bool or a numpy integer
+        isn't accepted.
     ValueError
         If the given value to wrap is negative.
 
@@ -144,7 +148,8 @@ class TraceIdFrom0:
     Raises
     ------
     TypeError
-        If the given value to wrap isn't an integer.
+        If the given value to wrap isn't an int; a bool or a numpy integer
+        isn't accepted.
     ValueError
         If the given value to wrap is negative.
 

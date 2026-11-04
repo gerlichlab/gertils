@@ -55,8 +55,11 @@ class ImagePoint3D(ImagePoint2D):
     def __post_init__(self) -> None:
         super().__post_init__()
         # Checked at runtime, since callers may pass any type despite the annotation.
-        # np.float64 is a subclass of float.
-        if not isinstance(cast("object", self.z), int | float):
-            raise TypeError(f"Bad z ({type(self.z).__name__}: {self.z}")
+        # np.float64 is a subclass of float. A bool is an int to Python, but True
+        # would otherwise place the point at z = 1.
+        if isinstance(self.z, bool) or not isinstance(
+            cast("object", self.z), int | float
+        ):
+            raise TypeError(f"Bad z ({type(self.z).__name__}): {self.z}")
         if self.z < 0:
             raise ValueError(f"z-coordinate is negative! {self}")

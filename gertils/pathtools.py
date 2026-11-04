@@ -80,7 +80,12 @@ def find_multiple_paths_by_fov(
     Returns
     -------
     dict[FieldOfViewFrom1, list of Path]
-        Mapping from field of view to filepath.
+        Mapping from field of view to the paths that name it, sorted.
+
+    Raises
+    ------
+    TypeError
+        If extensions is a single string rather than a collection of them.
 
     See Also
     --------
@@ -88,10 +93,18 @@ def find_multiple_paths_by_fov(
     get_fov_sort_key : The function used to try to parse FOV from filename.
 
     """
+    # A string is an iterable of strings too, so it would be tried a character at a time.
+    if isinstance(extensions, str):
+        raise TypeError(
+            f"Extensions must be a collection of strings, not a single string: {extensions!r}"
+        )
+    # The extensions are tried for every file, so an iterator would run out after the first.
+    extensions = tuple(extensions)
     if isinstance(folder, str):
         folder = Path(folder)
     paths: dict[FieldOfViewFrom1, list[Path]] = {}
-    for fp in folder.iterdir():
+    # Sorted, as the order of iterdir() differs between filesystems.
+    for fp in sorted(folder.iterdir()):
         for ext in extensions:
             fov = get_fov_sort_key(fp, extension=ext)
             if fov is not None:

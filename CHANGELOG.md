@@ -12,6 +12,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 * The dependency on numpydoc_decorator, whose newest release allows only Python below 3.14. See [looptrace issue 584](https://github.com/gerlichlab/looptrace/issues/584). Each docstring its `@doc` wrote when a module was imported is now written in the source, reading as before, so ruff's docstring rules check it and an editor shows it. Four summaries that `@doc` wrapped over two lines take one line, and the classes lose their `# noqa: D101`. The type information for numpydoc_decorator in `typings/` goes too, and so does the setting that had ruff's docstring rules skip the functions it decorated.
 
+### Changed
+* `find_multiple_paths_by_fov` gives each field of view's paths sorted, instead of in the order the filesystem lists them, which differs between filesystems and operating systems.
+
+### Fixed
+* `find_multiple_paths_by_fov` tried an iterator of extensions, such as a generator, only on the first file of the folder, as it ran out there, and missed the files after it with another extension. It now reads the extensions once.
+* `find_multiple_paths_by_fov` tried a single string of extensions, such as `extensions=".zarr"`, a character at a time, and found nothing. It now raises a `TypeError`.
+* `FieldOfViewFrom1`, `ImagingChannel`, `NucleusNumber`, `TimepointFrom0` and `TraceIdFrom0` accepted `True` and `False`, as Python counts a bool as an int: `ImagingChannel(False)` became channel 0. They now raise a `TypeError`, as for any value that isn't an int; a numpy integer still isn't accepted. `ImagePoint3D` accepted a bool as `z` likewise, so `z=True` placed the point at z = 1; it now raises a `TypeError` too.
+
 ## [v0.8.0] - 2026-11-02
 
 ### Changed
