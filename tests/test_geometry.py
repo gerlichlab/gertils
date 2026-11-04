@@ -28,7 +28,7 @@ def test_x_and_y_must_be_floating_point(coordinate):
         ImagePoint3D(x=1.0, y=coordinate, z=0.0)
 
 
-@pytest.mark.parametrize("z", ["1.0", None])
+@pytest.mark.parametrize("z", ["1.0", None, True, False])
 def test_z_must_be_a_number(z):
     with pytest.raises(TypeError, match="Bad z"):
         ImagePoint3D(x=1.0, y=1.0, z=z)

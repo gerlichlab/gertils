@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "gertils"
-version = "0.8.0"
+version = "0.9.0"
 description = "General computing utilities for data processing and analysis in the Gerlich group at IMBA"
 authors = [
     "Vince Reuter <vince.reuter@gmail.com>",
@@ -13,6 +13,7 @@ classifiers = [
     "Programming Language :: Python",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Operating System :: POSIX :: Linux",
     "Operating System :: MacOS",
     "Operating System :: Microsoft :: Windows",
@@ -28,11 +29,14 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.dependencies]
 # These are the main runtime dependencies.
-python = ">=3.12,<3.14"
-dask = ">=2023.5.1"
-# zarr 3.1 requires numpy 1.26.
-numpy = ">=1.26,<3"
-numpydoc_decorator = "^2.2.1"
+python = ">=3.12,<3.15"
+# dask 2023.6.1 is the first release that imports with numpy 2: the ones before it
+# import numpy.compat, which numpy 2 removed, with dask.array.
+dask = ">=2023.6.1"
+# numpy 2.3.2 is the first release with wheels for every Python above: 2.1 has
+# the first for 3.13, and 2.3.2 for 3.14. A lower floor lets a resolver pick a
+# numpy that has to be built from source.
+numpy = ">=2.3.2,<3"
 zarr = ">=3.1,<4"
 
 [tool.poetry.group.dev]
@@ -135,19 +139,7 @@ ignore = [
     "E501",  # line-too-long
 ]
 
-[tool.ruff.lint.pydocstyle]
-# numpydoc_decorator's @doc writes the docstring of the functions it decorates when the
-# module is imported, so ruff, which only reads the source, doesn't see one. The setting
-# applies only to functions and methods, so classes keep their `# noqa: D101`.
-ignore-decorators = ["numpydoc_decorator.doc"]
-
 [tool.ruff.lint.per-file-ignores]
-"typings/*" = [
-    # Stubs copy the signatures of third-party code, which we can't change.
-    "FBT001",  # Boolean-typed positional argument in function definition
-    "FBT002",  # Boolean default positional argument in function definition
-    "PLR0913",  # Too many arguments in function definition
-]
 "tests/*" = [
     # Ignore some groups of checks in our test code.
     "ANN",  # Type annotations

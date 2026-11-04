@@ -4,20 +4,30 @@ from dataclasses import dataclass
 from typing import Union, cast
 
 import numpy as np
-from numpydoc_decorator import doc
 
 ZCoordinate = Union[int, float, np.float64]  # int to accommodate notion of "z-slice"
 
 
-@doc(
-    summary="Bundle x and y position to create point in 2D space.",
-    parameters=dict(
-        x="Position in x",
-        y="Position in y",
-    ),
-)
 @dataclass(kw_only=True, frozen=True)
-class ImagePoint2D:  # noqa: D101
+class ImagePoint2D:
+    """Bundle x and y position to create point in 2D space.
+
+    Parameters
+    ----------
+    x : float
+        Position in x.
+    y : float
+        Position in y.
+
+    Raises
+    ------
+    TypeError
+        If a coordinate isn't a float; an int isn't accepted.
+    ValueError
+        If a coordinate is negative.
+
+    """
+
     x: float
     y: float
 
@@ -28,26 +38,43 @@ class ImagePoint2D:  # noqa: D101
             raise ValueError(f"At least one coordinate is negative! {self}")
 
 
-@doc(
-    summary="Bundle x, y and z position to create point in 3D space.",
-    parameters=dict(
-        x="Position in x",
-        y="Position in y",
-        z="Position in z",
-    ),
-    see_also=dict(
-        ImagePoint2D="Simpler, non-z implementation of an image point",
-    ),
-)
 @dataclass(kw_only=True, frozen=True)
-class ImagePoint3D(ImagePoint2D):  # noqa: D101
+class ImagePoint3D(ImagePoint2D):
+    """Bundle x, y and z position to create point in 3D space.
+
+    Parameters
+    ----------
+    x : float
+        Position in x.
+    y : float
+        Position in y.
+    z : ZCoordinate
+        Position in z: a float, or an int for a z-slice.
+
+    Raises
+    ------
+    TypeError
+        If x or y isn't a float, or z isn't an int or a float; a bool isn't
+        accepted.
+    ValueError
+        If a coordinate is negative.
+
+    See Also
+    --------
+    ImagePoint2D : Simpler, non-z implementation of an image point.
+
+    """
+
     z: ZCoordinate
 
     def __post_init__(self) -> None:
         super().__post_init__()
         # Checked at runtime, since callers may pass any type despite the annotation.
-        # np.float64 is a subclass of float.
-        if not isinstance(cast("object", self.z), int | float):
-            raise TypeError(f"Bad z ({type(self.z).__name__}: {self.z}")
+        # np.float64 is a subclass of float. A bool is an int to Python, but True
+        # would otherwise place the point at z = 1.
+        if isinstance(self.z, bool) or not isinstance(
+            cast("object", self.z), int | float
+        ):
+            raise TypeError(f"Bad z ({type(self.z).__name__}): {self.z}")
         if self.z < 0:
             raise ValueError(f"z-coordinate is negative! {self}")

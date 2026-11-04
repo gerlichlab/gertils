@@ -8,8 +8,6 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional, Self, cast
 
-from numpydoc_decorator import doc
-
 from .types import FieldOfViewFrom1, PathLike
 
 
@@ -67,28 +65,46 @@ class NonExtantPath(PathWrapper):
             raise PathWrapperException(f"Path already exists: {self.path}")
 
 
-@doc(
-    summary=(
-        "Directly in given folder, find all filepaths with a field"
-        " of view embedded in filename."
-    ),
-    parameters=dict(
-        folder="Path to folder in which to find files",
-        extensions="The file extensions to try to match",
-    ),
-    returns="Mapping from field of view to filepath",
-    see_also=dict(
-        find_single_path_by_fov="Similar function, for unique path by FOV, and particular extension",
-        get_fov_sort_key="The function used to try to parse FOV from filename",
-    ),
-)
 def find_multiple_paths_by_fov(
     folder: PathLike, *, extensions: Iterable[str]
 ) -> dict[FieldOfViewFrom1, list[Path]]:
+    """Directly in given folder, find all filepaths with a field of view embedded in filename.
+
+    Parameters
+    ----------
+    folder : str or Path
+        Path to folder in which to find files.
+    extensions : Iterable[str]
+        The file extensions to try to match.
+
+    Returns
+    -------
+    dict[FieldOfViewFrom1, list of Path]
+        Mapping from field of view to the paths that name it, sorted.
+
+    Raises
+    ------
+    TypeError
+        If extensions is a single string rather than a collection of them.
+
+    See Also
+    --------
+    find_single_path_by_fov : Similar function, for unique path by FOV, and particular extension.
+    get_fov_sort_key : The function used to try to parse FOV from filename.
+
+    """
+    # A string is an iterable of strings too, so it would be tried a character at a time.
+    if isinstance(extensions, str):
+        raise TypeError(
+            f"Extensions must be a collection of strings, not a single string: {extensions!r}"
+        )
+    # The extensions are tried for every file, so an iterator would run out after the first.
+    extensions = tuple(extensions)
     if isinstance(folder, str):
         folder = Path(folder)
     paths: dict[FieldOfViewFrom1, list[Path]] = {}
-    for fp in folder.iterdir():
+    # Sorted, as the order of iterdir() differs between filesystems.
+    for fp in sorted(folder.iterdir()):
         for ext in extensions:
             fov = get_fov_sort_key(fp, extension=ext)
             if fov is not None:
@@ -97,27 +113,34 @@ def find_multiple_paths_by_fov(
     return paths
 
 
-@doc(
-    summary=(
-        "Directly in given folder, find filepath with given extension and a field"
-        " of view embedded in filename."
-    ),
-    parameters=dict(
-        folder="Path to folder in which to find files",
-        extension="The extension of files to find",
-    ),
-    raises=dict(
-        RuntimeError="If the same FOV is found to correspond to more than one path"
-    ),
-    returns="Mapping from field of view to filepath",
-    see_also=dict(
-        find_multiple_paths_by_fov="Similar function, for multiple paths by FOV, no particular extension",
-        get_fov_sort_key="The function used to try to parse FOV from filename",
-    ),
-)
 def find_single_path_by_fov(
     folder: PathLike, *, extension: str
 ) -> dict[FieldOfViewFrom1, Path]:
+    """Directly in given folder, find filepath with given extension and a field of view embedded in filename.
+
+    Parameters
+    ----------
+    folder : str or Path
+        Path to folder in which to find files.
+    extension : str
+        The extension of files to find.
+
+    Returns
+    -------
+    dict[FieldOfViewFrom1, Path]
+        Mapping from field of view to filepath.
+
+    Raises
+    ------
+    RuntimeError
+        If the same FOV is found to correspond to more than one path.
+
+    See Also
+    --------
+    find_multiple_paths_by_fov : Similar function, for multiple paths by FOV, no particular extension.
+    get_fov_sort_key : The function used to try to parse FOV from filename.
+
+    """
     if isinstance(folder, str):
         folder = Path(folder)
     image_paths: dict[FieldOfViewFrom1, Path] = {}
@@ -130,18 +153,28 @@ def find_single_path_by_fov(
     return image_paths
 
 
-@doc(
-    summary="Get the sort key (by FOV) for the given filename or filepath.",
-    parameters=dict(
-        path="The path for which to get the FOV (to be used as sort key)",
-        extension="The expected extension of the file name or path",
-    ),
-    raises=dict(
-        TypeError="If the given value is neither a path nor a string",
-    ),
-    returns="Field of view parsed from filename, if parse succeeded; otherwise, None",
-)
 def get_fov_sort_key(path: PathLike, *, extension: str) -> Optional[FieldOfViewFrom1]:
+    """Get the sort key (by FOV) for the given filename or filepath.
+
+    Parameters
+    ----------
+    path : str or Path
+        The path for which to get the FOV (to be used as sort key).
+    extension : str
+        The expected extension of the file name or path.
+
+    Returns
+    -------
+    FieldOfViewFrom1 or None
+        Field of view parsed from filename, if parse succeeded; otherwise,
+        None.
+
+    Raises
+    ------
+    TypeError
+        If the given value is neither a path nor a string.
+
+    """
     # Checked at runtime, since callers may pass any type despite the annotation.
     if not isinstance(cast("object", path), str | Path):
         raise TypeError(

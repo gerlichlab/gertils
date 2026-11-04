@@ -7,24 +7,31 @@ from typing import Any
 import numpy as np
 import numpy.typing as npt
 import zarr
-from numpydoc_decorator import doc
-
-from .types import PixelArray
 
 logger: logging.Logger = logging.getLogger(__name__)
 
 
-@doc(
-    summary="Read data from ZARR rooted at given path.",
-    parameters=dict(
-        root="Path at which datastore is rooted: an array, or a group with the array at '0', in zarr format 2 or 3"
-    ),
-    returns="Array of pixel (or similar) data",
-    raises=dict(
-        ZarrParseException="If neither the root nor '0' holds an array, or zarr can't read the metadata"
-    ),
-)
-def read_zarr(root: Path) -> PixelArray:
+def read_zarr(root: Path) -> npt.NDArray[Any]:
+    """Read data from ZARR rooted at given path.
+
+    Parameters
+    ----------
+    root : Path
+        Path at which datastore is rooted: an array, or a group with the array
+        at '0', in zarr format 2 or 3.
+
+    Returns
+    -------
+    numpy.ndarray
+        The array's data, read into memory, in the dtype the store holds.
+
+    Raises
+    ------
+    ZarrParseException
+        If neither the root nor '0' holds an array, or zarr can't read the
+        metadata.
+
+    """
     logger.debug("Reading ZARR: %s", root)
     for folder in (root, root / "0"):
         pixels = _read_array(folder)

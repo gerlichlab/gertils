@@ -614,21 +614,6 @@ files = [
 ]
 
 [[package]]
-name = "numpydoc-decorator"
-version = "2.3.0"
-description = ""
-optional = false
-python-versions = "<3.14,>=3.10"
-groups = ["main"]
-files = [
-    {file = "numpydoc_decorator-2.3.0-py3-none-any.whl", hash = "sha256:042bcffbcf89a120d4660f1204227dd9b597e66df5f0fd108d0bff060727d498"},
-    {file = "numpydoc_decorator-2.3.0.tar.gz", hash = "sha256:bc097eefe88975e410098c23e699de227d8df2972d8299a73538ad269b85a046"},
-]
-
-[package.dependencies]
-typing_extensions = "*"
-
-[[package]]
 name = "packaging"
 version = "24.0"
 description = "Core utilities for Python packages"
@@ -947,5 +932,5 @@ remote = ["fsspec (>=2023.10.0)", "obstore (>=0.5.1)"]
 
 [metadata]
 lock-version = "2.1"
-python-versions = ">=3.12,<3.14"
-content-hash = "7ac0b0afcfce692ccaa0b630933e5ad73d3da49a622299b6f1a0de160c06c8f8"
+python-versions = ">=3.12,<3.15"
+content-hash = "2fba52b99e3ea40afed54ccd5d51fc31b2a89a64cfb98a8e418e9e6428101df9"
